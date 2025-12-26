@@ -1,0 +1,12 @@
+
+{
+	"formList" : 
+	{
+		"affairs" : [ "104655|Skyrim.esm" ],
+		"partners" : [ "127309|Skyrim.esm", "104654|Skyrim.esm", "104655|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Lisette"
+	}
+}

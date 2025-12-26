@@ -1,0 +1,17 @@
+{
+	"formList" : 
+	{
+		"affairs" : [ "104618|Skyrim.esm", "104619|Skyrim.esm" ],
+		"partners" : 
+		[
+			"12453073|tpos_ultimate_esm.esp",
+			"12473960|tpos_ultimate_esm.esp",
+			"12411179|tpos_ultimate_esm.esp",
+			"12390063|tpos_ultimate_esm.esp"
+		]
+	},
+	"string" : 
+	{
+		"name" : "Iddsi the Wide"
+	}
+}

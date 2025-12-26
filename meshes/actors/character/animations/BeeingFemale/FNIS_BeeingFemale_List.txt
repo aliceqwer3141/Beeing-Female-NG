@@ -1,0 +1,14 @@
+Version 2.8
+AnimVar BeeingFemaleAnimationVersion INT32 1
+
+s -a,k LayDownBirth Animations\IdleLaydown_Enter.hkx
++ -B1.4 Birth_S1 Birth_S1.hkx
++ -a Birth_S2 Birth_S2.hkx
++ Birth_S3 Birth_S3.hkx
++ -a,k,B1.4 GetupBirth Animations\IdleLaydown_Exit.hkx
+
+o -k,Tn ChildReadBook Animations\IdleBook_Read.hkx AnimObjectBook
+b -a,k,Tn ChildSweat Animations\IdleWipeBrow.hkx
+
+s -a,k ChildCastSpell Animations\MRh_WardCharge.hkx
++ -B1.4,k ChildCastSpell2 Animations\MRh_WardLoop.hkx

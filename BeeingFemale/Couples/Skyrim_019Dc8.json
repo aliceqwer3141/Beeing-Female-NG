@@ -1,0 +1,15 @@
+
+{
+	"form" : 
+	{
+		"husband" : "105929|Skyrim.esm"
+	},
+	"formList" : 
+	{
+		"partners" : [ "105933|Skyrim.esm", "105943|Skyrim.esm", "105934|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Keerava"
+	}
+}

@@ -1,0 +1,12 @@
+
+{
+	"formList" : 
+	{
+		"affairs" : [ "104660|Skyrim.esm" ],
+		"partners" : [ "104651|Skyrim.esm", "104664|Skyrim.esm", "104625|Skyrim.esm", "104631|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Vivienne Onis"
+	}
+}

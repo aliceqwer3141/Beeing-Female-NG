@@ -1,0 +1,11 @@
+{
+	"formList" : 
+	{
+		"affairs" : [ "13230|Dawnguard.esm" ],
+		"partners" : [ "13233|Dawnguard.esm", "13226|Dawnguard.esm", "13227|Dawnguard.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Hestla"
+	}
+}

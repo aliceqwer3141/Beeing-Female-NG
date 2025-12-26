@@ -1,0 +1,20 @@
+{
+	"form" : 
+	{
+		"husband" : "14408863|tpos_ultimate_esm.esp"
+	},
+	"formList" : 
+	{
+		"partners" : 
+		[
+			"14408874|tpos_ultimate_esm.esp",
+			"14408869|tpos_ultimate_esm.esp",
+			"14408875|tpos_ultimate_esm.esp",
+			"14408864|tpos_ultimate_esm.esp"
+		]
+	},
+	"string" : 
+	{
+		"name" : "Eleelle Caman"
+	}
+}

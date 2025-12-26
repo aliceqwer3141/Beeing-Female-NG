@@ -1,0 +1,16 @@
+
+{
+	"form" : 
+	{
+		"husband" : "2028788|BlackthornManor.esp"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "2028794|BlackthornManor.esp" ],
+		"partners" : [ "2028792|BlackthornManor.esp", "2028790|BlackthornManor.esp", "2028796|BlackthornManor.esp" ]
+	},
+	"string" : 
+	{
+		"name" : "Blackthorn Guard"
+	}
+}

@@ -1,0 +1,14 @@
+{
+	"form" : 
+	{
+		"husband" : "15157322|tpos_ultimate_esm.esp"
+	},
+	"formList" : 
+	{
+		"partners" : [ "15157321|tpos_ultimate_esm.esp", "15157297|tpos_ultimate_esm.esp" ]
+	},
+	"string" : 
+	{
+		"name" : "Malbet Wolf-Stone"
+	}
+}

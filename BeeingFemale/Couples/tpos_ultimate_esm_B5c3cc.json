@@ -1,0 +1,15 @@
+{
+	"form" : 
+	{
+		"husband" : "11912141|tpos_ultimate_esm.esp"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "12036776|tpos_ultimate_esm.esp" ],
+		"partners" : [ "12036776|tpos_ultimate_esm.esp", "12036777|tpos_ultimate_esm.esp", "11912133|tpos_ultimate_esm.esp" ]
+	},
+	"string" : 
+	{
+		"name" : "Petta Hearth-Stone"
+	}
+}

@@ -1,0 +1,12 @@
+
+{
+	"formList" : 
+	{
+		"affairs" : [ "89109|Dawnguard.esm" ],
+		"partners" : [ "13428|Dawnguard.esm", "89109|Dawnguard.esm", "89110|Dawnguard.esm", "13430|Dawnguard.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Beleval"
+	}
+}

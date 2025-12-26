@@ -1,0 +1,16 @@
+
+{
+	"form" : 
+	{
+		"husband" : "0"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "78993|Skyrim.esm", "78988|Skyrim.esm" ],
+		"partners" : [ "78993|Skyrim.esm", "78988|Skyrim.esm", "78978|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Camilla Valerius"
+	}
+}

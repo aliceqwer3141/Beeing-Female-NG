@@ -1,0 +1,16 @@
+
+{
+	"form" : 
+	{
+		"husband" : "0"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "108252|Skyrim.esm" ],
+		"partners" : [ "108246|Skyrim.esm", "108179|Skyrim.esm", "108181|Skyrim.esm", "108195|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Ria"
+	}
+}

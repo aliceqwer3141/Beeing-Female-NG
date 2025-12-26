@@ -1,0 +1,11 @@
+{
+	"formList" : 
+	{
+		"affairs" : [ "13233|Dawnguard.esm" ],
+		"partners" : [ "13230|Dawnguard.esm", "13226|Dawnguard.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Salonia Caelia"
+	}
+}

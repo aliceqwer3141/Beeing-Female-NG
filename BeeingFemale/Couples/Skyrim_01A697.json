@@ -1,0 +1,15 @@
+{
+	"form" : 
+	{
+		"husband" : "0"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "108179|Skyrim.esm", "108246|Skyrim.esm", "108177|Skyrim.esm" ],
+		"partners" : [ "108181|Skyrim.esm", "108195|Skyrim.esm", "108246|Skyrim.esm", "108252|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Aela die Jägerin"
+	}
+}

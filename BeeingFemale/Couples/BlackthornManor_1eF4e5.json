@@ -1,0 +1,12 @@
+
+{
+	"formList" : 
+	{
+		"affairs" : [ "2028812|BlackthornManor.esp" ],
+		"partners" : [ "2028810|BlackthornManor.esp", "2780172|BlackthornManor.esp", "2028804|BlackthornManor.esp", "2028806|BlackthornManor.esp" ]
+	},
+	"string" : 
+	{
+		"name" : "Jules"
+	}
+}

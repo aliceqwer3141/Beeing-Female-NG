@@ -1,0 +1,11 @@
+{
+	"formList" : 
+	{
+		"affairs" : [ "11326805|tpos_ultimate_esm.esp" ],
+		"partners" : [ "11326790|tpos_ultimate_esm.esp", "11326852|tpos_ultimate_esm.esp", "11326824|tpos_ultimate_esm.esp" ]
+	},
+	"string" : 
+	{
+		"name" : "Wine-Face"
+	}
+}

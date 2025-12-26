@@ -1,0 +1,12 @@
+
+{
+	"formList" : 
+	{
+		"affairs" : [ "105943|Skyrim.esm", "105934|Skyrim.esm", "105982|Skyrim.esm" ],
+		"partners" : [ "105931|Skyrim.esm", "105984|Skyrim.esm", "105934|Skyrim.esm", "105933|Skyrim.esm", "132421|Skyrim.esm", "105929|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Haelga"
+	}
+}

@@ -1,0 +1,16 @@
+
+{
+	"form" : 
+	{
+		"husband" : "0"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "108151|Skyrim.esm", "108158|Skyrim.esm" ],
+		"partners" : [ "108158|Skyrim.esm", "108157|Skyrim.esm", "108152|Skyrim.esm", "108138|Skyrim.esm", "229976|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Irileth"
+	}
+}

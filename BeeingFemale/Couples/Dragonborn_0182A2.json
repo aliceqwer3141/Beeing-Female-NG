@@ -1,0 +1,14 @@
+{
+	"form" : 
+	{
+		"husband" : "98976|Dragonborn.esm"
+	},
+	"formList" : 
+	{
+		"partners" : [ "98959|Dragonborn.esm", "103832|Dragonborn.esm", "98963|Dragonborn.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Milore Ienth"
+	}
+}

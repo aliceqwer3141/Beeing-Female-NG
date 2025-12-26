@@ -1,0 +1,17 @@
+{
+	"formList" : 
+	{
+		"affairs" : [ "14408865|tpos_ultimate_esm.esp" ],
+		"partners" : 
+		[
+			"14408875|tpos_ultimate_esm.esp",
+			"14408869|tpos_ultimate_esm.esp",
+			"14408863|tpos_ultimate_esm.esp",
+			"14408874|tpos_ultimate_esm.esp"
+		]
+	},
+	"string" : 
+	{
+		"name" : "Mabella the Walker"
+	}
+}

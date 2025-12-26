@@ -1,0 +1,16 @@
+
+{
+	"form" : 
+	{
+		"husband" : "0"
+	},
+	"formList" : 
+	{
+		"affairs" : [ "105976|Skyrim.esm" ],
+		"partners" : [ "138918|Skyrim.esm", "105976|Skyrim.esm" ]
+	},
+	"string" : 
+	{
+		"name" : "Mjoll die Löwin"
+	}
+}
