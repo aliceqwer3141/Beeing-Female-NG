@@ -1,5 +1,3 @@
-#pragma once
-
 #include "inisetting.h"
 #include <sstream>
 
@@ -74,7 +72,7 @@ template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const
 	WritePrivateProfileString(clsnm, rcrdnm, val ? "true" : "false", ini);
 }
 
-template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const SInt32& val, const char* ini) {
+template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const std::int32_t& val, const char* ini) {
 	char wert[8];
 	//itoa(val, wert, 10); // Dezimal
 	_itoa_s(val, wert, 16); // Hex

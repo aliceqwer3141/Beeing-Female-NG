@@ -1,18 +1,6 @@
-#include "skse64/ScaleformLoader.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
-
-#include "skse64/GameAPI.h"
-#include "skse64/GameData.h"
-#include "skse64/GameTypes.h"
-#include "skse64/GameForms.h"
-#include "skse64/GameRTTI.h"
-#include "skse64/Translation.h"
-#include "skse64/ScaleformState.h"
-
+#include "CommonLibCompat.h"
 #include "FWUtility.h"
-#include "skse64/PapyrusNativeFunctions.h"
 //#include "../common/IFileStream.h"
 #include <fstream>
 #include <codecvt>
@@ -24,6 +12,7 @@
 #include <locale>
 #include <vector>
 #include <algorithm>
+#include <cctype>
 #include <string>
 #include <sstream>
 
@@ -34,67 +23,71 @@
 
 #include "inisetting.h"
 
-#include "common/IDirectoryIterator.h"
 
 
 namespace FWUtility {
 
 
 	TESQuest* GetQuestObject(StaticFunctionTag*, BSFixedString modName, SInt32 index) {
-		DataHandler* dataHandler = DataHandler::GetSingleton();
-		const ModInfo* modInfo = nullptr;
-		modInfo = dataHandler->LookupModByName(modName.data);
+		auto* dataHandler = DataHandler::GetSingleton();
+		const ModInfo* modInfo = dataHandler->LookupModByName(modName.data());
 		if (!modInfo) {
-			std::string espName = modName.data;
+			std::string espName = modName.data();
 			espName.append(".esp");
 			modInfo = dataHandler->LookupModByName(espName.c_str());
 		}
 		if (!modInfo) {
-			std::string esmName = modName.data;
+			std::string esmName = modName.data();
 			esmName.append(".esm");
 			modInfo = dataHandler->LookupModByName(esmName.c_str());
 		}
-		int j = index;
 		if (!modInfo) {
-			TESQuest* quest = NULL;
-			for (UInt32 i = 0; i < dataHandler->quests.count; i++) {
-				dataHandler->quests.GetNthItem(i, quest);
-				if ((quest->formID >> 24) != modInfo->modIndex)
-					continue;
-				if (j <= 0)
-					return quest;
-				j -= 1;
-			}
+			return nullptr;
 		}
-		return NULL;
+
+		auto& quests = dataHandler->GetFormArray<TESQuest>();
+		SInt32 remaining = index;
+		const auto modIndex = modInfo->GetCompileIndex();
+		for (auto* quest : quests) {
+			if (!quest)
+				continue;
+			if ((quest->formID >> 24) != modIndex)
+				continue;
+			if (remaining <= 0)
+				return quest;
+			--remaining;
+		}
+		return nullptr;
 	}
 
 	SInt32 GetQuestObjectCount(StaticFunctionTag*, BSFixedString modName) {
-		DataHandler* dataHandler = DataHandler::GetSingleton();
-		const ModInfo* modInfo = nullptr;
-		modInfo = dataHandler->LookupModByName(modName.data);
+		auto* dataHandler = DataHandler::GetSingleton();
+		const ModInfo* modInfo = dataHandler->LookupModByName(modName.data());
 		if (!modInfo) {
-			std::string espName = modName.data;
+			std::string espName = modName.data();
 			espName.append(".esp");
 			modInfo = dataHandler->LookupModByName(espName.c_str());
 		}
 		if (!modInfo) {
-			std::string esmName = modName.data;
+			std::string esmName = modName.data();
 			esmName.append(".esm");
 			modInfo = dataHandler->LookupModByName(esmName.c_str());
 		}
-
-		int c = 0;
 		if (!modInfo) {
-			TESQuest* quest = NULL;
-			for (UInt32 i = 0; i < dataHandler->quests.count; i++) {
-				dataHandler->quests.GetNthItem(i, quest);
-				if ((quest->formID >> 24) != modInfo->modIndex)
-					continue;
-				c++;
-			}
+			return 0;
 		}
-		return c;
+
+		SInt32 count = 0;
+		auto& quests = dataHandler->GetFormArray<TESQuest>();
+		const auto modIndex = modInfo->GetCompileIndex();
+		for (auto* quest : quests) {
+			if (!quest)
+				continue;
+			if ((quest->formID >> 24) != modIndex)
+				continue;
+			++count;
+		}
+		return count;
 	}
 
 
@@ -112,7 +105,7 @@ namespace FWUtility {
 
 		// Generating file name
 		std::string FileName = "Data/Scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -162,7 +155,7 @@ namespace FWUtility {
 
 		// Generating file name
 		std::string FileName = "Data/Scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -194,7 +187,7 @@ namespace FWUtility {
 
 		// Generating file name
 		std::string FileName = "Data/Scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -226,7 +219,7 @@ namespace FWUtility {
 
 		// Generating file name
 		std::string FileName = "Data/Scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -254,12 +247,14 @@ namespace FWUtility {
 	}
 
 	BSFixedString ScriptStringGet(StaticFunctionTag* base, BSFixedString src, SInt32 Num) {
-		int n = Num;
+		if (Num < 0) {
+			return BSFixedString("");
+		}
 		std::ifstream fs;
 
 		// Generating file name
 		std::string FileName = "Data/Scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -281,14 +276,12 @@ namespace FWUtility {
 			std::string fMachineName = ScriptFile_GetString(fs);
 			unsigned short StringTableCount = ScriptFile_GetShort(fs);
 
-			while (StringTableCount > 0) {
-				StringTableCount -= 1;
-				if (n <= 0) {
+			for (unsigned short i = 0; i < StringTableCount; ++i) {
+				std::string str1 = ScriptFile_GetString(fs);
+				if (i == static_cast<unsigned short>(Num)) {
 					fs.close();
-					std::string str1 = ScriptFile_GetString(fs);
 					return BSFixedString(str1.c_str());
 				}
-				n -= 1;
 			}
 			fs.close();
 			return BSFixedString("");
@@ -297,13 +290,13 @@ namespace FWUtility {
 	}
 
 	bool ScriptHasString(StaticFunctionTag* base, BSFixedString src, BSFixedString searchStr) {
-		std::string sStr = searchStr.data;
+		std::string sStr = searchStr.data();
 		const char* cStr = sStr.c_str();
 		std::ifstream fs;
 
 		// Generating file name
 		std::string FileName = "Data/scripts/";
-		FileName.append(src.data);
+		FileName.append(src.data());
 		FileName.append(".pex");
 
 		try {
@@ -359,21 +352,19 @@ namespace FWUtility {
 	}
 
 	unsigned char ScriptFile_GetByte(std::ifstream& fs) {
-		//unsigned char b1;
-		//fs>>b1;
-		char b1;
-		fs.read(&b1, 1);
+		unsigned char b1 = 0;
+		fs.read(reinterpret_cast<char*>(&b1), 1);
 		return b1;
 	}
 
 	unsigned short ScriptFile_GetShort(std::ifstream& fs) {
-		char b1;
-		char b2;
-		fs.read(&b1, 1);
-		fs.read(&b2, 1);
-		unsigned short i1 = (int)b1;
-		unsigned short i2 = (int)b2;
-		return (i1 << 8) + i2;
+		unsigned char b1 = 0;
+		unsigned char b2 = 0;
+		fs.read(reinterpret_cast<char*>(&b1), 1);
+		fs.read(reinterpret_cast<char*>(&b2), 1);
+		unsigned short i1 = static_cast<unsigned short>(b1);
+		unsigned short i2 = static_cast<unsigned short>(b2);
+		return static_cast<unsigned short>((i1 << 8) | i2);
 
 		//unsigned char b1;
 		//unsigned char b2;
@@ -383,28 +374,19 @@ namespace FWUtility {
 	}
 
 	unsigned int ScriptFile_GetInt(std::ifstream& fs) {
-		//unsigned char b1;
-		//unsigned char b2;
-		//unsigned char b3;
-		//unsigned char b4;
-		//fs>>b1;
-		//fs>>b2;
-		//fs>>b3;
-		//fs>>b4;
-		//return (b1*0x1000000) + (b2*0x10000) + (b3*0x100) + b4;
-		char b1;
-		char b2;
-		char b3;
-		char b4;
-		fs.read(&b1, 1);
-		fs.read(&b2, 1);
-		fs.read(&b3, 1);
-		fs.read(&b4, 1);
-		unsigned int i1 = (int)b1;
-		unsigned int i2 = (int)b2;
-		unsigned int i3 = (int)b3;
-		unsigned int i4 = (int)b4;
-		return (i1 << 24) + (i2 << 16) + (i3 << 8) + i4;
+		unsigned char b1 = 0;
+		unsigned char b2 = 0;
+		unsigned char b3 = 0;
+		unsigned char b4 = 0;
+		fs.read(reinterpret_cast<char*>(&b1), 1);
+		fs.read(reinterpret_cast<char*>(&b2), 1);
+		fs.read(reinterpret_cast<char*>(&b3), 1);
+		fs.read(reinterpret_cast<char*>(&b4), 1);
+		unsigned int i1 = static_cast<unsigned int>(b1);
+		unsigned int i2 = static_cast<unsigned int>(b2);
+		unsigned int i3 = static_cast<unsigned int>(b3);
+		unsigned int i4 = static_cast<unsigned int>(b4);
+		return (i1 << 24) | (i2 << 16) | (i3 << 8) | i4;
 	}
 
 	unsigned long ScriptFile_GetLong(std::ifstream& fs) {
@@ -445,11 +427,11 @@ namespace FWUtility {
 		return res;
 		/*std::string res2;
 		res2.append("(");
-		res2.append(boost::lexical_cast<std::string>(i1));
+		res2.append(std::to_string(i1));
 		res2.append("+");
-		res2.append(boost::lexical_cast<std::string>(i2));
+		res2.append(std::to_string(i2));
 		res2.append("=");
-		res2.append(boost::lexical_cast<std::string>(i_var));
+		res2.append(std::to_string(i_var));
 		res2.append(")");
 		res2.append(res);
 		return res2;*/
@@ -457,11 +439,11 @@ namespace FWUtility {
 
 
 	TESForm* GetFormFromString(StaticFunctionTag* base, BSFixedString fstr) {
-		std::string objString = fstr.data;
+		std::string objString = fstr.data();
 		if (objString == "0")
-			return NULL;
+			return nullptr;
 		std::vector<std::string> var;
-		boost::split(var, objString, boost::is_any_of("_"));
+		split(objString, '_', var);
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
@@ -479,39 +461,39 @@ namespace FWUtility {
 		// Check for .esp extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
 		if (modInfo) {
-			UInt8 indexEsp = modInfo->modIndex;
-			TESForm* frmEsp = LookupFormByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsp != NULL)
+			UInt8 indexEsp = modInfo->GetCompileIndex();
+			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsp != nullptr)
 				return frmEsp;
 		}
 
 		// Check for .esm extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
 		if (modInfo) {
-			UInt8 indexEsm = modInfo->modIndex;
-			TESForm* frmEsm = LookupFormByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsm != NULL)
+			UInt8 indexEsm = modInfo->GetCompileIndex();
+			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsm != nullptr)
 				return frmEsm;
 		}
 
 		// Check with including extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
 		if (modInfo) {
-			UInt8 index = modInfo->modIndex;
-			TESForm* frm = LookupFormByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frm != NULL)
+			UInt8 index = modInfo->GetCompileIndex();
+			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frm != nullptr)
 				return frm;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	BSFixedString GetModFromString(StaticFunctionTag* base, BSFixedString fstr, bool bExt) {
-		std::string objString = fstr.data;
+		std::string objString = fstr.data();
 		if (objString == "0")
-			return NULL;
+			return BSFixedString("");
 		std::vector<std::string> var;
-		boost::split(var, objString, boost::is_any_of("_"));
+		split(objString, '_', var);
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
@@ -529,9 +511,9 @@ namespace FWUtility {
 		// Check for .esp extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
 		if (modInfo) {
-			UInt8 indexEsp = modInfo->modIndex;
-			TESForm* frmEsp = LookupFormByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsp != NULL) {
+			UInt8 indexEsp = modInfo->GetCompileIndex();
+			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsp != nullptr) {
 				if (bExt) esp.append(".esp");
 				return BSFixedString(esp.c_str());
 			}
@@ -540,9 +522,9 @@ namespace FWUtility {
 		// Check for .esm extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
 		if (modInfo) {
-			UInt8 indexEsm = modInfo->modIndex;
-			TESForm* frmEsm = LookupFormByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsm != NULL) {
+			UInt8 indexEsm = modInfo->GetCompileIndex();
+			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsm != nullptr) {
 				if (bExt) esm.append(".esm");
 				return BSFixedString(esm.c_str());
 			}
@@ -551,9 +533,9 @@ namespace FWUtility {
 		// Check with including extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
 		if (modInfo) {
-			UInt8 index = modInfo->modIndex;
-			TESForm* frm = LookupFormByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frm != NULL) {
+			UInt8 index = modInfo->GetCompileIndex();
+			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frm != nullptr) {
 				if (!bExt) {
 					int lastindex = mod.find_last_of(".");
 					mod = mod.substr(0, lastindex);
@@ -566,11 +548,11 @@ namespace FWUtility {
 	}
 
 	UInt32 GetFormIDFromString(StaticFunctionTag* base, BSFixedString fstr) {
-		std::string objString = fstr.data;
+		std::string objString = fstr.data();
 		if (objString == "0")
-			return NULL;
+			return 0;
 		std::vector<std::string> var;
-		boost::split(var, objString, boost::is_any_of("_"));
+		split(objString, '_', var);
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
@@ -588,9 +570,9 @@ namespace FWUtility {
 		// Check for .esp extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
 		if (modInfo) {
-			UInt8 indexEsp = modInfo->modIndex;
-			TESForm* frmEsp = LookupFormByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsp != NULL) {
+			UInt8 indexEsp = modInfo->GetCompileIndex();
+			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsp != nullptr) {
 				return frmEsp->formID;
 			}
 		}
@@ -598,9 +580,9 @@ namespace FWUtility {
 		// Check for .esm extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
 		if (modInfo) {
-			UInt8 indexEsm = modInfo->modIndex;
-			TESForm* frmEsm = LookupFormByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsm != NULL) {
+			UInt8 indexEsm = modInfo->GetCompileIndex();
+			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frmEsm != nullptr) {
 				return frmEsm->formID;
 			}
 		}
@@ -608,9 +590,9 @@ namespace FWUtility {
 		// Check with including extention
 		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
 		if (modInfo) {
-			UInt8 index = modInfo->modIndex;
-			TESForm* frm = LookupFormByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frm != NULL) {
+			UInt8 index = modInfo->GetCompileIndex();
+			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
+			if (frm != nullptr) {
 				return frm->formID;
 			}
 		}
@@ -619,34 +601,24 @@ namespace FWUtility {
 
 	BSFixedString GetStringFromForm(StaticFunctionTag* base, TESForm* frm) {
 		if (frm == NULL) return BSFixedString("");
-		int frmID = frm->formID;
-		int baseFormID = frmID % 0x1000000;
-		int modID = frmID - baseFormID;
-		modID /= 0x1000000;
-
-		ModList ml = DataHandler::GetSingleton()->modList;
-		std::string str = ml.loadedMods[modID]->name;
+		const auto* file = frm->GetFile(0);
+		if (!file) return BSFixedString("");
+		std::string str = std::string(file->GetFilename());
 
 		int lastindex = str.find_last_of(".");
 		str = str.substr(0, lastindex);
 
 		str.append("_");
-		str.append(Hex_str(baseFormID, 0));
+		str.append(Hex_str(frm->formID & 0xFFFFFF, 0));
 
 		return BSFixedString(str.c_str());
 	}
 
 	BSFixedString GetModFromForm(StaticFunctionTag* base, TESForm* frm, bool bExt) {
 		if (frm == NULL) return BSFixedString("");
-		int frmID = frm->formID;
-		int baseFormID = frmID % 0x1000000;
-		int modID = frmID - baseFormID;
-		if (modID < 0) return BSFixedString("-1");
-		modID /= 0x1000000;
-		if (modID > 255) return BSFixedString("-2");
-		ModList ml = DataHandler::GetSingleton()->modList;
-		if (modID > ml.loadedMods.count) return BSFixedString("-3");
-		std::string str = ml.loadedMods[modID]->name;
+		const auto* file = frm->GetFile(0);
+		if (!file) return BSFixedString("-3");
+		std::string str = std::string(file->GetFilename());
 
 		if (!bExt) {
 			size_t lastindex = str.find_last_of(".");
@@ -682,7 +654,7 @@ namespace FWUtility {
 	bool FileExists(StaticFunctionTag* base, BSFixedString FilePath) {
 		std::fstream fi;
 		std::string f = "Data/BeeingFemale/";
-		f.append(FilePath.data);
+		f.append(FilePath.data());
 		fi.open(f);
 		if (fi.is_open() == true) {
 			fi.close();
@@ -695,9 +667,9 @@ namespace FWUtility {
 	BSFixedString getNextAutoFile(StaticFunctionTag* base, BSFixedString Directory, BSFixedString FileName, BSFixedString Extention) {
 		for (int i = 0; i < 128; i++) {
 			std::string f = "Data/BeeingFemale/";
-			f.append(Directory.data);
+			f.append(Directory.data());
 			f.append("/");
-			f.append(FileName.data);
+			f.append(FileName.data());
 			if (i < 10)
 				f.append("00");
 			else if (i < 100)
@@ -706,7 +678,7 @@ namespace FWUtility {
 			ss << i;
 			f.append(ss.str());
 			f.append(".");
-			f.append(Extention.data);
+			f.append(Extention.data());
 
 			std::fstream fi;
 			fi.open(f);
@@ -715,14 +687,14 @@ namespace FWUtility {
 			}
 			else {
 				std::string res = "";
-				res.append(FileName.data);
+				res.append(FileName.data());
 				if (i < 10)
 					res.append("00");
 				else if (i < 100)
 					res.append("0");
 				res.append(ss.str());
 				res.append(".");
-				res.append(Extention.data);
+				res.append(Extention.data());
 				return BSFixedString(res.c_str());
 			}
 		}
@@ -730,13 +702,13 @@ namespace FWUtility {
 	}
 
 	BSFixedString toLower(StaticFunctionTag* base, BSFixedString str) {
-		std::string s = str.data;
-		boost::to_lower(s);
+		std::string s = str.data();
+		std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 		return BSFixedString(s.c_str());
 	}
 	BSFixedString toUpper(StaticFunctionTag* base, BSFixedString str) {
-		std::string s = str.data;
-		boost::to_upper(s);
+		std::string s = str.data();
+		std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
 		return BSFixedString(s.c_str());
 	}
 
@@ -745,7 +717,7 @@ namespace FWUtility {
 
 		// Generating file name
 		std::string FileName="Data/Interface/Translations/BeeingFemale_";
-		FileName.append(lng.data);
+		FileName.append(lng.data());
 		FileName.append(".txt");
 
 		try {
@@ -793,11 +765,11 @@ namespace FWUtility {
 		TranslationTableItem * tti = trans->translations.Find(content.c_str());
 		return BSFixedString(tti->translation.c_str());*/
 
-		//std::string c = content.data;
+		//std::string c = content.data();
 		/*std::string c = language;
 		std::string find;
 		find.append("$");
-		find.append(VarName.data);
+		find.append(VarName.data());
 		find.append("\t");
 		if(c.length()==0)
 			return "";
@@ -818,24 +790,24 @@ namespace FWUtility {
 			int len=posEnd - posStart;
 			return BSFixedString(c.substr(posStart,len).c_str());
 		}
-		//Console_Print("Variable not found: ",VarName.data);
+		//Console_Print("Variable not found: ",VarName.data());
 		return "";
 	}*/
 
 	BSFixedString StringReplace(StaticFunctionTag* Base, BSFixedString content, BSFixedString Find, BSFixedString Replace) {
-		std::string str1 = content.data;
-		std::string res = ReplaceAll(str1, Find.data, Replace.data);
+		std::string str1 = content.data();
+		std::string res = ReplaceAll(str1, Find.data(), Replace.data());
 		return BSFixedString(res.c_str());
 	}
 
 	BSFixedString MultiStringReplace(StaticFunctionTag* Base, BSFixedString content, BSFixedString Replace0, BSFixedString Replace1, BSFixedString Replace2, BSFixedString Replace3, BSFixedString Replace4, BSFixedString Replace5) {
-		std::string str1 = content.data;
-		std::string res1 = ReplaceAll(str1, "{0}", Replace0.data);
-		std::string res2 = ReplaceAll(res1, "{1}", Replace1.data);
-		std::string res3 = ReplaceAll(res2, "{2}", Replace2.data);
-		std::string res4 = ReplaceAll(res3, "{3}", Replace3.data);
-		std::string res5 = ReplaceAll(res4, "{4}", Replace4.data);
-		std::string res6 = ReplaceAll(res5, "{5}", Replace5.data);
+		std::string str1 = content.data();
+		std::string res1 = ReplaceAll(str1, "{0}", Replace0.data());
+		std::string res2 = ReplaceAll(res1, "{1}", Replace1.data());
+		std::string res3 = ReplaceAll(res2, "{2}", Replace2.data());
+		std::string res4 = ReplaceAll(res3, "{3}", Replace3.data());
+		std::string res5 = ReplaceAll(res4, "{4}", Replace4.data());
+		std::string res6 = ReplaceAll(res5, "{5}", Replace5.data());
 		return BSFixedString(res6.c_str());
 	}
 
@@ -843,7 +815,7 @@ namespace FWUtility {
 	BSFixedString GetDirectoryHash(StaticFunctionTag* Base, BSFixedString Directory) {
 		WIN32_FIND_DATA FindData;
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
 		std::string dir2 = dir;
@@ -1083,10 +1055,10 @@ namespace FWUtility {
 	UInt32 GetFileCount(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion) {
 		WIN32_FIND_DATA FindData;
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append("*.").append(extantion.data);
+		dir.append("*.").append(extantion.data());
 		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
 		int count = 0;
 		if (&FindData) {
@@ -1101,10 +1073,10 @@ namespace FWUtility {
 	BSFixedString GetFileName(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion, UInt32 ID) {
 		WIN32_FIND_DATA FindData;
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append("*.").append(extantion.data);
+		dir.append("*.").append(extantion.data());
 		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
 		int count = 0;
 		if (&FindData) {
@@ -1123,10 +1095,10 @@ namespace FWUtility {
 	}
 
 	/*BSFixedString GetFileName(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion, UInt32 ID) {
-		std::string dir = Directory.data;
+		std::string dir = Directory.data();
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
 			dir.append("/");
-		dir.append("*.").append(extantion.data);
+		dir.append("*.").append(extantion.data());
 
 		WIN32_FIND_DATA FindData;
 		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
@@ -1159,35 +1131,35 @@ namespace FWUtility {
 
 	BSFixedString getIniPath(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
+		dir.append(file.data());
 		return BSFixedString(dir.c_str());
 	}
 
 
 	BSFixedString getIniString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, BSFixedString def) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
-		const char* tmpDef = def.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
+		const char* tmpDef = def.data();
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, tmpDef, tmpDir);
 		return BSFixedString(x.c_str());
 	}
 	bool getIniBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, bool def) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDef = def ? "True" : "False";
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, tmpDef, tmpDir);
@@ -1195,12 +1167,12 @@ namespace FWUtility {
 	}
 	SInt32 getIniInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, SInt32 def) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		std::string tmpString = GetPrivateProfile<std::string>(tmpType, tmpVariable, "", tmpDir);
@@ -1220,12 +1192,12 @@ namespace FWUtility {
 	}
 	float getIniFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, float def) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		float x = GetPrivateProfile<float>(tmpType, tmpVariable, def, tmpDir);
@@ -1234,25 +1206,25 @@ namespace FWUtility {
 
 	BSFixedString getIniCString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, BSFixedString def) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
-		const char* tmpDef = def.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
+		const char* tmpDef = def.data();
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, tmpDef, tmpDir);
 		return BSFixedString(x.c_str());
 	}
 	bool getIniCBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, bool def) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDef = def ? "True" : "False";
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, tmpDef, tmpDir);
@@ -1260,12 +1232,12 @@ namespace FWUtility {
 	}
 	SInt32 getIniCInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, SInt32 def) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		std::string tmpString = GetPrivateProfile<std::string>(tmpType, tmpVariable, "", tmpDir);
@@ -1285,12 +1257,12 @@ namespace FWUtility {
 	}
 	float getIniCFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, float def) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		float x = GetPrivateProfile<float>(tmpType, tmpVariable, def, tmpDir);
@@ -1299,25 +1271,25 @@ namespace FWUtility {
 
 	void setIniString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, BSFixedString value) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
-		const char* tmpVal = value.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
+		const char* tmpVal = value.data();
 		const char* tmpDir = dir.c_str();
 		WritePrivateProfile<std::string>(tmpType, tmpVariable, tmpVal, tmpDir);
 		return;
 	}
 	void setIniBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, bool value) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpVal = value ? "True" : "False";
 		const char* tmpDir = dir.c_str();
 		WritePrivateProfile<std::string>(tmpType, tmpVariable, tmpVal, tmpDir);
@@ -1325,24 +1297,24 @@ namespace FWUtility {
 	}
 	void setIniInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, SInt32 value) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 		WritePrivateProfile<SInt32>(tmpType, tmpVariable, value, tmpDir);
 		return;
 	}
 	void setIniFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, float value) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		WritePrivateProfile<float>(tmpType, tmpVariable, value, tmpDir);
@@ -1351,25 +1323,25 @@ namespace FWUtility {
 
 	void setIniCString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, BSFixedString value) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
-		const char* tmpVal = value.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
+		const char* tmpVal = value.data();
 		const char* tmpDir = dir.c_str();
 		WritePrivateProfile<std::string>(tmpType, tmpVariable, tmpVal, tmpDir);
 		return;
 	}
 	void setIniCBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, bool value) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpVal = value ? "True" : "False";
 		const char* tmpDir = dir.c_str();
 		WritePrivateProfile<std::string>(tmpType, tmpVariable, tmpVal, tmpDir);
@@ -1377,12 +1349,12 @@ namespace FWUtility {
 	}
 	void setIniCInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, SInt32 value) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		WritePrivateProfile<SInt32>(tmpType, tmpVariable, value, tmpDir);
@@ -1390,12 +1362,12 @@ namespace FWUtility {
 	}
 	void setIniCFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, float value) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = categorie.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = categorie.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		WritePrivateProfile<float>(tmpType, tmpVariable, value, tmpDir);
@@ -1407,12 +1379,12 @@ namespace FWUtility {
 
 	/*VMResultArray<BSFixedString*> getIniStringA(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, "", tmpDir);
 		std::vector<std::string> a = split('|',x);
@@ -1427,12 +1399,12 @@ namespace FWUtility {
 	}
 	VMResultArray<bool> getIniBoolA(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, "", tmpDir);
 		std::vector<std::string> a = split('|',x);
@@ -1447,12 +1419,12 @@ namespace FWUtility {
 	}
 	VMResultArray<SInt32> getIniIntA(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable) {
 		std::string dir = "Data\\BeeingFemale\\";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
 			dir.append("\\");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 		std::string x = GetPrivateProfile<std::string>(tmpType, tmpVariable, "", tmpDir);
 		std::vector<std::string> a = split('|',x);
@@ -1504,12 +1476,12 @@ namespace FWUtility {
 	}
 	VMResultArray<float> getIniFloatA(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable) {
 		std::string dir = "Data/BeeingFemale/";
-		dir.append(Directory.data);
+		dir.append(Directory.data());
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
 			dir.append("/");
-		dir.append(file.data);
-		const char* tmpType = Directory.data;
-		const char* tmpVariable = variable.data;
+		dir.append(file.data());
+		const char* tmpType = Directory.data();
+		const char* tmpVariable = variable.data();
 		const char* tmpDir = dir.c_str();
 
 		float x = GetPrivateProfile<float>(tmpType, tmpVariable, 0, tmpDir);
@@ -1719,69 +1691,51 @@ namespace FWUtility {
 	bool RegisterFuncs(VMClassRegistry* registry) {
 		//_MESSAGE("registering functions");
 
-		//registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("IOReadTranslation", "FWUtility", FWUtility::IOReadTranslation, registry));
-		//registry->SetFunctionFlags("FWUtility", "IOReadTranslation", VMClassRegistry::kFunctionFlag_NoWait);
+		//registry->RegisterFunction("IOReadTranslation", "FWUtility", FWUtility::IOReadTranslation);
 
-		//registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString>("getLangText", "FWUtility", FWUtility::getLangText, registry));
-		//registry->SetFunctionFlags("FWUtility", "getLangText", VMClassRegistry::kFunctionFlag_NoWait);
+		//registry->RegisterFunction("getLangText", "FWUtility", FWUtility::getLangText);
 
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("toLower", "FWUtility", FWUtility::toLower, registry));
-		registry->SetFunctionFlags("FWUtility", "toLower", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("toLower", "FWUtility", &FWUtility::toLower);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("toUpper", "FWUtility", FWUtility::toUpper, registry));
-		registry->SetFunctionFlags("FWUtility", "toUpper", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("toUpper", "FWUtility", &FWUtility::toUpper);
 
 
-		registry->RegisterFunction(new NativeFunction3<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("StringReplace", "FWUtility", FWUtility::StringReplace, registry));
-		registry->SetFunctionFlags("FWUtility", "StringReplace", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("StringReplace", "FWUtility", &FWUtility::StringReplace);
 
-		registry->RegisterFunction(new NativeFunction7<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("MultiStringReplace", "FWUtility", FWUtility::MultiStringReplace, registry));
-		registry->SetFunctionFlags("FWUtility", "MultiStringReplace", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("MultiStringReplace", "FWUtility", &FWUtility::MultiStringReplace);
 
 
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, TESQuest*, BSFixedString, SInt32>("GetQuestObject", "FWUtility", FWUtility::GetQuestObject, registry));
-		registry->SetFunctionFlags("FWUtility", "GetQuestObject", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetQuestObject", "FWUtility", &FWUtility::GetQuestObject);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, SInt32, BSFixedString>("GetQuestObjectCount", "FWUtility", FWUtility::GetQuestObjectCount, registry));
-		registry->SetFunctionFlags("FWUtility", "GetQuestObjectCount", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetQuestObjectCount", "FWUtility", &FWUtility::GetQuestObjectCount);
 
 
 
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, UInt32, BSFixedString, BSFixedString>("GetFileCount", "FWUtility", FWUtility::GetFileCount, registry));
-		registry->SetFunctionFlags("FWUtility", "GetFileCount", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetFileCount", "FWUtility", &FWUtility::GetFileCount);
 
-		registry->RegisterFunction(new NativeFunction3<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, UInt32>("GetFileName", "FWUtility", FWUtility::GetFileName, registry));
-		registry->SetFunctionFlags("FWUtility", "GetFileName", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetFileName", "FWUtility", &FWUtility::GetFileName);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, UInt32>("getTypeString", "FWUtility", FWUtility::getTypeString, registry));
-		registry->SetFunctionFlags("FWUtility", "getTypeString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getTypeString", "FWUtility", &FWUtility::getTypeString);
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString>("getIniPath", "FWUtility", FWUtility::getIniPath, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniPath", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniPath", "FWUtility", &FWUtility::getIniPath);
 
 
 
 		// Script Functions
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, bool, BSFixedString, BSFixedString>("ScriptHasString", "FWUtility", FWUtility::ScriptHasString, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptHasString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptHasString", "FWUtility", &FWUtility::ScriptHasString);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, SInt32, BSFixedString>("ScriptStringCount", "FWUtility", FWUtility::ScriptStringCount, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptStringCount", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptStringCount", "FWUtility", &FWUtility::ScriptStringCount);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("ScriptUser", "FWUtility", FWUtility::ScriptUser, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptUser", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptUser", "FWUtility", &FWUtility::ScriptUser);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("ScriptSource", "FWUtility", FWUtility::ScriptSource, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptSource", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptSource", "FWUtility", &FWUtility::ScriptSource);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("ScriptMashine", "FWUtility", FWUtility::ScriptMashine, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptMashine", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptMashine", "FWUtility", &FWUtility::ScriptMashine);
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, BSFixedString, SInt32>("ScriptStringGet", "FWUtility", FWUtility::ScriptStringGet, registry));
-		registry->SetFunctionFlags("FWUtility", "ScriptStringGet", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("ScriptStringGet", "FWUtility", &FWUtility::ScriptStringGet);
 
 
 		//SInt32 ScriptStringCount(StaticFunctionTag* base, BSFixedString src)
@@ -1792,94 +1746,71 @@ namespace FWUtility {
 
 
 		// Ini get
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("getIniString", "FWUtility", FWUtility::getIniString, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniString", "FWUtility", &FWUtility::getIniString);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, bool, BSFixedString, BSFixedString, BSFixedString, bool>("getIniBool", "FWUtility", FWUtility::getIniBool, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniBool", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniBool", "FWUtility", &FWUtility::getIniBool);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, SInt32, BSFixedString, BSFixedString, BSFixedString, SInt32>("getIniInt", "FWUtility", FWUtility::getIniInt, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniInt", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniInt", "FWUtility", &FWUtility::getIniInt);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, float, BSFixedString, BSFixedString, BSFixedString, float>("getIniFloat", "FWUtility", FWUtility::getIniFloat, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniFloat", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniFloat", "FWUtility", &FWUtility::getIniFloat);
 
 		// Ini get via Categorie
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("getIniCString", "FWUtility", FWUtility::getIniCString, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniCString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniCString", "FWUtility", &FWUtility::getIniCString);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, bool, BSFixedString, BSFixedString, BSFixedString, BSFixedString, bool>("getIniCBool", "FWUtility", FWUtility::getIniCBool, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniCBool", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniCBool", "FWUtility", &FWUtility::getIniCBool);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, SInt32, BSFixedString, BSFixedString, BSFixedString, BSFixedString, SInt32>("getIniCInt", "FWUtility", FWUtility::getIniCInt, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniCInt", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniCInt", "FWUtility", &FWUtility::getIniCInt);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, float, BSFixedString, BSFixedString, BSFixedString, BSFixedString, float>("getIniCFloat", "FWUtility", FWUtility::getIniCFloat, registry));
-		registry->SetFunctionFlags("FWUtility", "getIniCFloat", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getIniCFloat", "FWUtility", &FWUtility::getIniCFloat);
 
 
 
 
 		// Ini set
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("setIniString", "FWUtility", FWUtility::setIniString, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniString", "FWUtility", &FWUtility::setIniString);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, bool>("setIniBool", "FWUtility", FWUtility::setIniBool, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniBool", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniBool", "FWUtility", &FWUtility::setIniBool);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, SInt32>("setIniInt", "FWUtility", FWUtility::setIniInt, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniInt", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniInt", "FWUtility", &FWUtility::setIniInt);
 
-		registry->RegisterFunction(new NativeFunction4<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, float>("setIniFloat", "FWUtility", FWUtility::setIniFloat, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniFloat", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniFloat", "FWUtility", &FWUtility::setIniFloat);
 
 		// Ini set via Categorie
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("setIniCString", "FWUtility", FWUtility::setIniCString, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniCString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniCString", "FWUtility", &FWUtility::setIniCString);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, BSFixedString, bool>("setIniCBool", "FWUtility", FWUtility::setIniCBool, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniCBool", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniCBool", "FWUtility", &FWUtility::setIniCBool);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, BSFixedString, SInt32>("setIniCInt", "FWUtility", FWUtility::setIniCInt, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniCInt", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniCInt", "FWUtility", &FWUtility::setIniCInt);
 
-		registry->RegisterFunction(new NativeFunction5<StaticFunctionTag, void, BSFixedString, BSFixedString, BSFixedString, BSFixedString, float>("setIniCFloat", "FWUtility", FWUtility::setIniCFloat, registry));
-		registry->SetFunctionFlags("FWUtility", "setIniCFloat", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("setIniCFloat", "FWUtility", &FWUtility::setIniCFloat);
 
 
 
-		registry->RegisterFunction(new NativeFunction3<StaticFunctionTag, BSFixedString, BSFixedString, BSFixedString, BSFixedString>("getNextAutoFile", "FWUtility", FWUtility::getNextAutoFile, registry));
-		registry->SetFunctionFlags("FWUtility", "getNextAutoFile", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("getNextAutoFile", "FWUtility", &FWUtility::getNextAutoFile);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, bool, BSFixedString>("FileExists", "FWUtility", FWUtility::FileExists, registry));
-		registry->SetFunctionFlags("FWUtility", "FileExists", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("FileExists", "FWUtility", &FWUtility::FileExists);
 
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, SInt32, SInt32>("Hex", "FWUtility", FWUtility::Hex, registry));
-		registry->SetFunctionFlags("FWUtility", "Hex", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("Hex", "FWUtility", &FWUtility::Hex);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("GetDirectoryHash", "FWUtility", FWUtility::GetDirectoryHash, registry));
-		registry->SetFunctionFlags("FWUtility", "GetDirectoryHash", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetDirectoryHash", "FWUtility", &FWUtility::GetDirectoryHash);
 
 
 
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, TESForm*, BSFixedString>("GetFormFromString", "FWUtility", FWUtility::GetFormFromString, registry));
-		registry->SetFunctionFlags("FWUtility", "GetFormFromString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetFormFromString", "FWUtility", &FWUtility::GetFormFromString);
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, BSFixedString, bool>("GetModFromString", "FWUtility", FWUtility::GetModFromString, registry));
-		registry->SetFunctionFlags("FWUtility", "GetModFromString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetModFromString", "FWUtility", &FWUtility::GetModFromString);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, UInt32, BSFixedString>("GetFormIDFromString", "FWUtility", FWUtility::GetFormIDFromString, registry));
-		registry->SetFunctionFlags("FWUtility", "GetFormIDFromString", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetFormIDFromString", "FWUtility", &FWUtility::GetFormIDFromString);
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, TESForm*>("GetStringFromForm", "FWUtility", FWUtility::GetStringFromForm, registry));
-		registry->SetFunctionFlags("FWUtility", "GetStringFromForm", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetStringFromForm", "FWUtility", &FWUtility::GetStringFromForm);
 
-		registry->RegisterFunction(new NativeFunction2<StaticFunctionTag, BSFixedString, TESForm*, bool>("GetModFromForm", "FWUtility", FWUtility::GetModFromForm, registry));
-		registry->SetFunctionFlags("FWUtility", "GetModFromForm", VMClassRegistry::kFunctionFlag_NoWait);
+		registry->RegisterFunction("GetModFromForm", "FWUtility", &FWUtility::GetModFromForm);
 
 		return true;
 	}
 
 }
+
+

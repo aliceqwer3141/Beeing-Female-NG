@@ -1,5 +1,4 @@
-#include "skse64/GameData.h"
-#include "skse64/PapyrusNativeFunctions.h"
+#include "CommonLibCompat.h"
 
 
 namespace FWChildEnchant {

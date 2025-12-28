@@ -1,14 +1,14 @@
-#include "skse64/PluginAPI.h"
-#include "skse64/PapyrusArgs.h"
-#include "skse64/PapyrusClass.h"
-#include "skse64/PapyrusVM.h"
-#include "skse64/PapyrusNativeFunctions.h"
+#pragma once
+
+#include "CommonLibCompat.h"
 #include <string>
 
 namespace FWTextContents {
 	void IOReadTranslation(StaticFunctionTag* base, BSFixedString lng);
-	BSFixedString getLangText(StaticFunctionTag* base, BSFixedString content, BSFixedString VarName, BSFixedString DefaultValue);
+	BSFixedString getLangText(StaticFunctionTag* base, BSFixedString VarName);
 	UInt32 getLangSize(StaticFunctionTag* base);
+	UInt32 getErrorCode(StaticFunctionTag* base);
+	BSFixedString getFilePath(StaticFunctionTag* base);
 
 	bool RegisterFuncs(VMClassRegistry* registry);
 }

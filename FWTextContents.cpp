@@ -1,5 +1,4 @@
 #include "FWTextContents.h"
-#include "skse64/PapyrusNativeFunctions.h"
 #include <fstream>
 #include <codecvt>
 #include <iostream>
@@ -14,16 +13,16 @@ namespace FWTextContents {
 
 	static std::string language;
 	static std::string FileName;
-	static int errNo = 99;
-	static int fileSize = 0;
+static int errNo = 99;
+static std::streamoff fileSize = 0;
 
-	void IOReadTranslation(StaticFunctionTag* base, BSFixedString lng) {
+void IOReadTranslation(StaticFunctionTag* /*base*/, BSFixedString lng) {
 		errNo = 1;
 		std::wifstream fs;
 
 		// Generating file name
 		FileName = "Data/Interface/Translations/BeeingFemale_";
-		FileName.append(lng.data);
+		FileName.append(lng.data());
 		FileName.append(".txt");
 
 		errNo = 2;
@@ -51,8 +50,10 @@ namespace FWTextContents {
 			errNo = 8;
 			fs.seekg(0, std::ios::end);
 			errNo = 9;
-			fileSize = fs.tellg();
-			file_content.resize(fileSize);
+		fileSize = fs.tellg();
+		if (fileSize > 0) {
+			file_content.resize(static_cast<std::size_t>(fileSize));
+		}
 			errNo = 10;
 			fs.seekg(0, std::ios::beg); // Reset pos to 2
 			errNo = 11;
@@ -69,64 +70,56 @@ namespace FWTextContents {
 			errNo = 16;
 	}
 
-	BSFixedString getLangText(StaticFunctionTag* Base, BSFixedString VarName) {
+BSFixedString getLangText(StaticFunctionTag* /*Base*/, BSFixedString VarName) {
 		std::string find;
 		find.append("$");
-		find.append(VarName.data);
+		find.append(VarName.data());
 		find.append("\t");
 		if (language.length() == 0)
 			return "";
 
-		int pos = language.find(find);
-		if (pos != -1) {
-
-			int posStart = pos + find.length();
-			int posEnd1 = language.find("\r", posStart);
-			int posEnd2 = language.find("\n", posStart);
-			int posEnd = -1;
-			if (posEnd1 > -1 && posEnd1 < posEnd2)
-				posEnd = posEnd1;
-			else if (posEnd2 > -1 && posEnd2 < posEnd1)
-				posEnd = posEnd2;
-			if (posEnd == -1)
-				posEnd = language.length();
-			int len = posEnd - posStart;
-			return BSFixedString(language.substr(posStart, len).c_str());
-		}
-		return "";
+	auto pos = language.find(find);
+	if (pos != std::string::npos) {
+		auto posStart = pos + find.length();
+		auto posEnd1 = language.find("\r", posStart);
+		auto posEnd2 = language.find("\n", posStart);
+		auto posEnd = std::string::npos;
+		if (posEnd1 != std::string::npos && (posEnd1 < posEnd2 || posEnd2 == std::string::npos))
+			posEnd = posEnd1;
+		else if (posEnd2 != std::string::npos)
+			posEnd = posEnd2;
+		if (posEnd == std::string::npos)
+			posEnd = language.length();
+		auto len = posEnd - posStart;
+		return BSFixedString(language.substr(posStart, len).c_str());
 	}
+	return "";
+}
 
 
-	UInt32 getLangSize(StaticFunctionTag* base) {
-		return language.size();
-	}
+UInt32 getLangSize(StaticFunctionTag* /*base*/) {
+	return static_cast<UInt32>(language.size());
+}
 
-	UInt32 getErrorCode(StaticFunctionTag* base) {
-		return errNo;
-	}
+UInt32 getErrorCode(StaticFunctionTag* /*base*/) {
+	return errNo;
+}
 
-	BSFixedString getFilePath(StaticFunctionTag* base) {
-		return BSFixedString(FileName.c_str());
-	}
+BSFixedString getFilePath(StaticFunctionTag* /*base*/) {
+	return BSFixedString(FileName.c_str());
+}
 
 	bool RegisterFuncs(VMClassRegistry* registry) {
 		//_MESSAGE("registering functions");
 
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, void, BSFixedString>("IOReadTranslation", "FWTextContents", FWTextContents::IOReadTranslation, registry));
-		registry->SetFunctionFlags("FWTextContents", "IOReadTranslation", VMClassRegistry::kFunctionFlag_NoWait);
-
-		registry->RegisterFunction(new NativeFunction1<StaticFunctionTag, BSFixedString, BSFixedString>("getLangText", "FWTextContents", FWTextContents::getLangText, registry));
-		registry->SetFunctionFlags("FWTextContents", "getLangText", VMClassRegistry::kFunctionFlag_NoWait);
-
-		registry->RegisterFunction(new NativeFunction0<StaticFunctionTag, UInt32>("getLangSize", "FWTextContents", FWTextContents::getLangSize, registry));
-		registry->SetFunctionFlags("FWTextContents", "getLangSize", VMClassRegistry::kFunctionFlag_NoWait);
-
-		registry->RegisterFunction(new NativeFunction0<StaticFunctionTag, BSFixedString>("getFilePath", "FWTextContents", FWTextContents::getFilePath, registry));
-		registry->SetFunctionFlags("FWTextContents", "getFilePath", VMClassRegistry::kFunctionFlag_NoWait);
-
-		registry->RegisterFunction(new NativeFunction0<StaticFunctionTag, UInt32>("getErrorCode", "FWTextContents", FWTextContents::getErrorCode, registry));
-		registry->SetFunctionFlags("FWTextContents", "getErrorCode", VMClassRegistry::kFunctionFlag_NoWait);
+	registry->RegisterFunction("IOReadTranslation", "FWTextContents", &FWTextContents::IOReadTranslation);
+	registry->RegisterFunction("getLangText", "FWTextContents", &FWTextContents::getLangText);
+	registry->RegisterFunction("getLangSize", "FWTextContents", &FWTextContents::getLangSize);
+	registry->RegisterFunction("getFilePath", "FWTextContents", &FWTextContents::getFilePath);
+	registry->RegisterFunction("getErrorCode", "FWTextContents", &FWTextContents::getErrorCode);
 
 		return true;
 	}
 }
+
+

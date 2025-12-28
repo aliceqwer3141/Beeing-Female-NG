@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <cstdlib>
+#include <cstdint>
 #include <string>
 
 template <class T> T GetPrivateProfile(const char* clsnm, const char* rcrdnm, T def, const char* ini);
@@ -22,7 +23,7 @@ template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const
 template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const std::string& val, const char* ini);
 template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const bool& val, const char* ini);
 
-template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const SInt32& val, const char* ini);
+template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const std::int32_t& val, const char* ini);
 template<> void WritePrivateProfile(const char* clsnm, const char* rcrdnm, const float& val, const char* ini);
 
 

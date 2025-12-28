@@ -1,74 +1,88 @@
-﻿#include "common/IDebugLog.h"  // IDebugLog
-#include "skse64_common/skse_version.h"  // RUNTIME_VERSION
-#include "skse64/PluginAPI.h"  // SKSEInterface, PluginInfo
+#include "CommonLibCompat.h"
 
-#include "BeeingFemale/FWUtility.h"
-#include "BeeingFemale/FWChildActor.h"
-#include "BeeingFemale/FWSystem.h"
-#include "BeeingFemale/FWChildEnchant.h"
-#include "BeeingFemale/FWTextContents.h"
+#include <REL/Module.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/msvc_sink.h>
 
-#include <ShlObj.h>  // CSIDL_MYDOCUMENTS
+#include "FWUtility.h"
+#include "FWChildActor.h"
+#include "FWSystem.h"
+#include "FWChildEnchant.h"
+#include "FWTextContents.h"
 
-#include "version.h"  // VERSION_VERSTRING, VERSION_MAJOR
+using namespace SKSE;
+using namespace SKSE::log;
+using namespace SKSE::stl;
 
-PluginHandle	g_pluginHandle = kPluginHandle_Invalid;
+namespace {
+    void InitializeLogging() {
+        auto path = log_directory();
+        if (!path) {
+            report_and_fail("Unable to lookup SKSE logs directory.");
+        }
+        *path /= PluginDeclaration::GetSingleton()->GetName();
+        *path += L".log";
 
-// here is a global reference to the interface, keeping to the skse style
-SKSESerializationInterface* g_serialization = NULL;
-SKSEPapyrusInterface* g_papyrus = NULL;
+        std::shared_ptr<spdlog::logger> logger;
+        if (IsDebuggerPresent()) {
+            logger = std::make_shared<spdlog::logger>(
+                "Global", std::make_shared<spdlog::sinks::msvc_sink_mt>());
+        } else {
+            logger = std::make_shared<spdlog::logger>(
+                "Global", std::make_shared<spdlog::sinks::basic_file_sink_mt>(path->string(), true));
+        }
+        logger->set_level(spdlog::level::info);
+        logger->flush_on(spdlog::level::info);
 
-#define RUNTIME_VERSION = RUNTIME_VERSION_1_6_1170;
+        spdlog::set_default_logger(std::move(logger));
+        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [%t] [%s:%#] %v");
+    }
 
-extern "C" {
-	__declspec(dllexport) SKSEPluginVersionData SKSEPlugin_Version =
-	{
-		SKSEPluginVersionData::kVersion,
+    void InitializePapyrus() {
+        log::trace("Initializing Papyrus binding...");
+        auto* papyrus = GetPapyrusInterface();
+        if (!papyrus) {
+            report_and_fail("Failed to obtain Papyrus interface.");
+        }
 
-		7,
-		"BeeingFemale",
+        bool ok = true;
+        ok &= papyrus->Register(FWUtility::RegisterFuncs);
+        ok &= papyrus->Register(FWChildActor::RegisterFuncs);
+        ok &= papyrus->Register(FWChildEnchant::RegisterFuncs);
+        ok &= papyrus->Register(FWTextContents::RegisterFuncs);
+        ok &= papyrus->Register(FWSystem::RegisterFuncs);
 
-		"DoctorBooooom",
-		"support@example.com",
+        if (!ok) {
+            report_and_fail("Failure to register Papyrus bindings.");
+        }
 
-		0,	// not version independent (extended field)
-		0,	// not version independent
-		{ RUNTIME_VERSION_1_6_1170, 0 },	// compatible with 1.6.1170
+        log::info("Papyrus functions bound.");
+    }
 
-		0,	// works with any version of the script extender. you probably do not need to put anything here
-	};
+    void InitializeSerialization() {
+        log::trace("Initializing cosave serialization...");
+        auto* serde = GetSerializationInterface();
+        if (!serde) {
+            log::info("Serialization interface not available.");
+            return;
+        }
+        serde->SetUniqueID(_byteswap_ulong('BF10'));
+        log::info("Cosave serialization initialized.");
+    }
+}
 
-	bool SKSEPlugin_Query(const SKSEInterface* skse, PluginInfo* info)
-	{
-		info->infoVersion = PluginInfo::kInfoVersion;
-		info->name = "BeeingFemale";
-		info->version = 7;
+SKSEPluginLoad(const LoadInterface* skse) {
+    InitializeLogging();
 
-		return true;
-	}
+    const auto* plugin = PluginDeclaration::GetSingleton();
+    log::info("{} v{} is loading...", plugin->GetName(), plugin->GetVersion());
 
-	bool SKSEPlugin_Load(const SKSEInterface* skse) {
-		
-		g_pluginHandle = skse->GetPluginHandle();
+    log::info("Runtime version: {}", REL::Module::get().version().string());
 
-		g_serialization = (SKSESerializationInterface*)skse->QueryInterface(kInterface_Serialization);
-		g_papyrus = (SKSEPapyrusInterface*)skse->QueryInterface(kInterface_Papyrus);
-		if (!g_papyrus) {
-			return false;
-		}
+    Init(skse);
+    InitializeSerialization();
+    InitializePapyrus();
 
-		if (skse->isEditor)
-			return false;
-		else if (skse->runtimeVersion != RUNTIME_VERSION_1_6_1170) {
-			return false;
-		}
-
-		g_serialization->SetUniqueID(g_pluginHandle, 'BF10');
-		g_papyrus->Register(FWUtility::RegisterFuncs);
-		g_papyrus->Register(FWChildActor::RegisterFuncs);
-		g_papyrus->Register(FWChildEnchant::RegisterFuncs);
-		g_papyrus->Register(FWTextContents::RegisterFuncs);
-		//BeeingFemale::FWConsole_Init();
-		return true;
-	}
-};
+    log::info("{} loaded.", plugin->GetName());
+    return true;
+}

@@ -1,18 +1,8 @@
-#include "skse64/GameForms.h"
-#include "skse64/GameRTTI.h"
+#pragma once
 
-#include "skse64/GameTypes.h"
-#include "skse64/PapyrusArgs.h"
-#include "skse64/GameForms.h"
-#include "skse64/GameObjects.h"
-
-#include "skse64/PluginAPI.h"
-#include "skse64/PapyrusArgs.h"
-#include "skse64/PapyrusClass.h"
-#include "skse64/PapyrusVM.h"
-#include "skse64/PapyrusNativeFunctions.h"
-
-#include <string> 
+#include "CommonLibCompat.h"
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace FWUtility {
@@ -34,9 +24,11 @@ namespace FWUtility {
 	SInt32 GetQuestObjectCount(StaticFunctionTag*, BSFixedString modName);
 	TESQuest* GetQuestObject(StaticFunctionTag*, BSFixedString modName, SInt32 index);
 
-	TESForm* GetFormFromString(BSFixedString objString);
+	TESForm* GetFormFromString(StaticFunctionTag* base, BSFixedString objString);
+	BSFixedString GetModFromString(StaticFunctionTag* base, BSFixedString fstr, bool bExt);
+	UInt32 GetFormIDFromString(StaticFunctionTag* base, BSFixedString fstr);
 	BSFixedString GetStringFromForm(StaticFunctionTag* base, TESForm* frm);
-	BSFixedString GetModFromForm(StaticFunctionTag* base, TESForm* frm);
+	BSFixedString GetModFromForm(StaticFunctionTag* base, TESForm* frm, bool bExt);
 
 	bool ScriptHasString(StaticFunctionTag* base, BSFixedString src, BSFixedString searchStr);
 	SInt32 ScriptStringCount(StaticFunctionTag* base, BSFixedString src);
@@ -60,6 +52,10 @@ namespace FWUtility {
 	BSFixedString GetFileName(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion, UInt32 ID);
 
 	BSFixedString GetDirectoryHash(StaticFunctionTag* Base, BSFixedString Directory);
+	BSFixedString toLower(StaticFunctionTag* base, BSFixedString str);
+	BSFixedString toUpper(StaticFunctionTag* base, BSFixedString str);
+	BSFixedString StringReplace(StaticFunctionTag* Base, BSFixedString content, BSFixedString Find, BSFixedString Replace);
+	BSFixedString MultiStringReplace(StaticFunctionTag* Base, BSFixedString content, BSFixedString Replace0, BSFixedString Replace1, BSFixedString Replace2, BSFixedString Replace3, BSFixedString Replace4, BSFixedString Replace5);
 	BSFixedString Hex(StaticFunctionTag* Base, SInt32 value, SInt32 Digits);
 	std::string Hex_str(long value, int Digits);
 	std::string HexDigit(long value, long max, int shift);
@@ -70,13 +66,13 @@ namespace FWUtility {
 
 	BSFixedString getIniString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, BSFixedString def);
 	bool getIniBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, bool def);
-	SInt32 getIniInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, SInt32 variable, SInt32 def);
-	float getIniFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, float variable, float def);
+	SInt32 getIniInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, SInt32 def);
+	float getIniFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString variable, float def);
 
 	BSFixedString getIniCString(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, BSFixedString def);
 	bool getIniCBool(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, bool def);
-	SInt32 getIniCInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, SInt32 variable, SInt32 def);
-	float getIniCFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, float variable, float def);
+	SInt32 getIniCInt(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, SInt32 def);
+	float getIniCFloat(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString file, BSFixedString categorie, BSFixedString variable, float def);
 
 
 
@@ -99,7 +95,7 @@ namespace FWUtility {
 
 	BSFixedString getNextAutoFile(StaticFunctionTag* base, BSFixedString Directory, BSFixedString FileName, BSFixedString Extention);
 	bool FileExists(StaticFunctionTag* base, BSFixedString FilePath);
-	BSFixedString getTypeString(UInt32 id);
+	BSFixedString getTypeString(StaticFunctionTag* Base, UInt32 id);
 
 
 	void split(const std::string& s, char delim, std::vector<std::string>& elems);

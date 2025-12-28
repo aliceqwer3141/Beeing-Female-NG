@@ -1,18 +1,20 @@
-#include <fstream>
-#include <string>
-#include <codecvt>
-#include <sys/stat.h>
-#include <algorithm> 
-#include <functional> 
+#pragma once
+
+#include "CommonLibCompat.h"
+
+#include <algorithm>
 #include <cctype>
+#include <codecvt>
+#include <fstream>
+#include <functional>
 #include <locale>
-#include "skse64/GameData.h"
+#include <string>
+#include <sys/stat.h>
 
 namespace iniH {
 
 	BSFixedString getIniString(std::string file, std::string var);
 	UInt32 getIniUInt32(std::string file, std::string var);
-
 
 	UInt32 FromHex(std::string hex);
 	std::string getIniData(std::string file, std::string var);

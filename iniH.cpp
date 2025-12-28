@@ -1,15 +1,7 @@
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <codecvt>
-#include <sys/stat.h>
-#include <algorithm> 
-#include <functional> 
-#include <cctype>
-#include <locale>
-#include "skse64/GameData.h"
 #include "iniH.h"
+
+#include <iostream>
+#include <sstream>
 
 namespace iniH {
 
@@ -42,7 +34,7 @@ namespace iniH {
 			fs.open(file, std::ios::binary);
 		}
 		catch (std::exception*) {
-			return NULL;
+			return "";
 		}
 		if (fs.is_open()) {
 			// imbue the file stream
@@ -62,32 +54,31 @@ namespace iniH {
 
 			// Convert and return the contents
 			std::string res = converter.to_bytes(file_content.c_str());
-			int resl = res.length();
-			int pos = 0;
-			while (pos >= 0) {
+			const auto resl = res.size();
+			auto pos = res.find(var);
+			while (pos != std::string::npos) {
 				// Check if it's at a line beginning
-				if (pos == 0 || res.substr(pos - 1, 1) == "\r" || res.substr(pos - 1, 1) == "\n") {
-					// Check if it's not only the same beginning
-					pos += var.length();
-					if (pos < resl - 2) {
-						if (res.substr(pos, 1) == "\t" || res.substr(pos + var.length()) == " ") {
-							// Skip whitechars till ':'
-							while ((res.substr(pos, 1) == "\t" || res.substr(pos, 1) == " ") && pos < resl - 2)
-								pos++;
-						}
-						if (res.substr(pos, 1) == "=") {
-							pos++;
+				if (pos == 0 || res[pos - 1] == '\r' || res[pos - 1] == '\n') {
+					auto cur = pos + var.length();
+					if (cur < resl) {
+						// Skip whitespace before '='
+						while (cur < resl && (res[cur] == '\t' || res[cur] == ' '))
+							++cur;
+						if (cur < resl && res[cur] == '=') {
+							++cur;
 							// Found! now get the rest of the line
-							std::string tmp = "";
-							while (pos < resl || res.substr(pos, 1) == "\r" || res.substr(pos, 1) == "\n")
-								tmp.append(res.substr(pos, 1));
+							std::string tmp;
+							while (cur < resl && res[cur] != '\r' && res[cur] != '\n') {
+								tmp.push_back(res[cur]);
+								++cur;
+							}
 							return trim(tmp);
 						}
 					}
 				}
-				pos = res.find(var);
+				pos = res.find(var, pos + 1);
 			}
-			return res.c_str();
+			return res;
 		}
 		else {
 			return "";
