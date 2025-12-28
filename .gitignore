@@ -541,6 +541,7 @@ contrib/Distribution/**/*.pex
 dist/Core/skyrimse.ppj
 dist/Core/SkyrimSE.code-workspace
 /dist/Core/.vscode
+
 .vscode
 SkyrimSE.code-workspace
 dist/Core/Interface/translations/SexLabAroused_rename.bat
