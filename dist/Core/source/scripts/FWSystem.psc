@@ -503,7 +503,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		LoadState=7
 		Message(Content.Req_SKSEScript, MSG_Always, MSG_Box)
 		return
-	elseif SKSE.GetPluginVersion("papyrusutil plugin")==-1
+	elseif PapyrusUtil.GetVersion() < 30
 		; Papyrus Util is not installed
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
