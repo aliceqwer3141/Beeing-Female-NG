@@ -16,13 +16,10 @@ FWTextContents property Content auto
 Actor Property PlayerRef Auto
 
 bool zad = false
-Keyword zad_DeviousGag
-Keyword zad_PermitOral
 
 Keyword zad_DeviousPlugAnal
 Keyword zad_DeviousPlugVaginal
 Keyword zad_DeviousBelt
-Keyword zad_PermitAnal
 
 function OnGameLoad()
 	if System ;Tkc (Loverslab): optimization
@@ -71,13 +68,9 @@ event OnUpdate()
 
 	If Game.GetModByName("Devious Devices - Assets.esm") != 255
 		zad = true
-		zad_DeviousGag		= Game.GetFormFromFile(0x00007EB8, "Devious Devices - Assets.esm") as Keyword
-		zad_PermitOral		= Game.GetFormFromFile(0x0000FAC9, "Devious Devices - Assets.esm") as Keyword
-		
 		zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
 		zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
 		zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
-		zad_PermitAnal			= Game.GetFormFromFile(0x0000FACA, "Devious Devices - Assets.esm") as Keyword
 	EndIf
 	;;;;;
 	
@@ -85,7 +78,7 @@ event OnUpdate()
 	else;if !(TryRegisterCount>10)
 		;UnregisterForUpdate()
 		RegisterForSingleUpdate(5)
-		TryRegisterCount-=1
+		TryRegisterCount+=1
 	endif
 endEvent
 
@@ -116,6 +109,7 @@ function OnGiveBirthEnd(actor Mother)
 endfunction
 
 bool function OnPainSound(actor Mother)
+	return false
 endfunction
 
 bool function OnAllowFFCum(Actor WomanToAdd, Actor denor)
@@ -220,7 +214,7 @@ Event OnSexLabOrgasmSeparate(Form ActorRef, Int thread)
 	endif
 	Actor akActor = ActorRef as actor
 	if (akActor)
-		if (animation.PositionCount > 1 && ssl_controller.Positions.Find(akActor) > 0)
+		if (animation.PositionCount > 1 && ssl_controller.Positions.Find(akActor) >= 0)
 			OrgasmSeparate(ssl_controller, animation, akActor)
 		endIf
 	endIf
@@ -331,9 +325,9 @@ Function processPair(Actor female, Actor Male)
 			endif
 		endif
 
-		if System.DeviceActive;/==true/;
+		if zad;/==true/;
 			;Trace("7. Check for Device")
-			if Female.WornHasKeyword(System.zad_DeviousBelt); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
+			if Female.WornHasKeyword(zad_DeviousBelt) || female.WornHasKeyword(zad_DeviousPlugVaginal); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
 				;Trace("   A Device-Belt was detected")
 				;Trace("[/SexLabOrgasmEvent]")
 				return
@@ -395,7 +389,7 @@ Function processPair(Actor female, Actor Male)
 
 		if amount>0.0
 			;Trace("   Finaly add " + amount + " sperm from "+Male.GetLeveledActorBase().GetName() + " to " +Female.GetLeveledActorBase().GetName())
-			Controller.AddSperm(Female,Male, amount)				
+			Controller.AddSperm(Female, Male, amount)				
 		endif
 	EndIf
 	EndIf
@@ -415,6 +409,7 @@ bool function OnPlayPainSound(actor ActorRef, float Strength)
 		voice.Moan(ActorRef, Strength as int, true);it is not working
 		return true
 	endif
+	return false
 endFunction
 
 ;/sslBaseVoice property SSLVoice auto hidden ;Tkc (Loverslab): sexlab sslBaseVoice module
@@ -435,7 +430,7 @@ ObjectReference function OnGetBedRef(Actor ActorRef)
 	else;if bSexLab==false
 		return none
 	endif
-	Game.FindClosestReferenceOfAnyTypeInListFromRef(SexLab.Config.BedsList, ActorRef, 600.0)
+	return Game.FindClosestReferenceOfAnyTypeInListFromRef(SexLab.Config.BedsList, ActorRef, 600.0)
 endFunction
 
 function OnMimik(actor ActorRef, string ExpressionName = "", int Strength = 50, bool bClear = true)
