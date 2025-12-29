@@ -1,4 +1,5 @@
 ﻿Scriptname BFA_ssl extends FWAddOn_Misc
+import FWHentairimUtils
 
 SexLabFramework Property SexLab Auto
 sslThreadLibrary Lib
@@ -13,6 +14,15 @@ FWController property Controller auto
 FWAddOnManager property Manager auto
 FWTextContents property Content auto
 Actor Property PlayerRef Auto
+
+bool zad = false
+Keyword zad_DeviousGag
+Keyword zad_PermitOral
+
+Keyword zad_DeviousPlugAnal
+Keyword zad_DeviousPlugVaginal
+Keyword zad_DeviousBelt
+Keyword zad_PermitAnal
 
 function OnGameLoad()
 	if System ;Tkc (Loverslab): optimization
@@ -50,13 +60,25 @@ event OnUpdate()
 		SexLab = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as SexLabFramework
 		Lib = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as sslThreadLibrary
 		bSexLab = true
-		RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
+		;RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
+		RegisterForModEvent("HookOrgasmStart", "OnSexLabOrgasm")
 		RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
 		;Trace("BFA_ssl::OnGameLoad() = true");temporary uncommented for tests
 		;UnregisterForUpdate()
 		TryRegisterCount=0
 		return	
 	endif
+
+	If Game.GetModByName("Devious Devices - Assets.esm") != 255
+		zad = true
+		zad_DeviousGag		= Game.GetFormFromFile(0x00007EB8, "Devious Devices - Assets.esm") as Keyword
+		zad_PermitOral		= Game.GetFormFromFile(0x0000FAC9, "Devious Devices - Assets.esm") as Keyword
+		
+		zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
+		zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
+		zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
+		zad_PermitAnal			= Game.GetFormFromFile(0x0000FACA, "Devious Devices - Assets.esm") as Keyword
+	EndIf
 	;;;;;
 	
 	if (TryRegisterCount>10) ;Tkc (Loverslab): optimization
@@ -141,7 +163,8 @@ Event OnSexLabOrgasm(string hookName, string argString, float argNum, form sende
 		endif
 	endif
 	;Trace("1. Check for ThreadController")
-	sslThreadController ssl_controller = SexLab.GetController(argString as int)
+	int thread_id = argString as int
+	sslThreadController ssl_controller = SexLab.GetController(thread_id)
 	if ssl_controller ;Tkc (Loverslab): optimization
 	else;if ssl_controller==none
 		;Trace("   Error: No sslThreadController found")
@@ -157,7 +180,11 @@ Event OnSexLabOrgasm(string hookName, string argString, float argNum, form sende
 		return
 	endif
 	if (animation.PositionCount > 1)
-		Orgasm(ssl_controller, animation)
+		;Find first male actor and proceed as with Separate orgasm
+		Actor firstOrgasmingMale = GetMaleActorFromList(ssl_controller.Positions)
+		If (firstOrgasmingMale)
+			OrgasmSeparate(ssl_controller, animation, firstOrgasmingMale)
+		EndIf
 	endIf
 EndEvent
 
@@ -194,236 +221,186 @@ Event OnSexLabOrgasmSeparate(Form ActorRef, Int thread)
 	Actor akActor = ActorRef as actor
 	if (akActor)
 		if (animation.PositionCount > 1 && ssl_controller.Positions.Find(akActor) > 0)
-			Orgasm(ssl_controller, animation)
+			OrgasmSeparate(ssl_controller, animation, akActor)
 		endIf
 	endIf
 EndEvent
 
-Function Orgasm(sslThreadController ssl_controller, sslBaseAnimation animation)
-	;Trace("4. Check for Relevant animation")
-	Bool relevantAnimation = false
-	if(animation.HasTag("Vaginal"))
-		relevantAnimation = true
-		;Trace("   Animation was vaginal")
+Function OrgasmSeparate(sslThreadController ssl_controller, sslBaseAnimation animation, Actor currentOrgasmingActor)
+
+	if !currentOrgasmingActor
+		return
 	endif
-	if animation.HasTag("Anal")
-		;Trace("   Animation was anal")
-		if Utility.RandomInt(1,100)<=cfg.NoVaginalCumChance
-			;Trace("   Continue using anal sperm")
-			relevantAnimation=true
-		endif
-	endif
-	;If cfg.CreatureSperm && (! relevantAnimation)
-	If cfg.CreatureSperm ;Tkc (Loverslab): optimization
-	 if relevantAnimation ;Tkc (Loverslab): optimization
-	 else;if (! relevantAnimation)
-		;Trace("   Check for Tags")
-		if(animation.HasTag("Creature") && animation.HasTag("Bestiality") && (! animation.HasTag("Oral")) && (animation.HasTag("Missionary") || animation.HasTag("Doggystyle") || animation.HasTag("Holding") || animation.HasTag("MMMMF") || animation.HasTag("MMMF") || animation.HasTag("MMF")))
-			;Trace("   Tags are allowed")
-			relevantAnimation=true
-		else
-			;Trace("   Tags were forbidden")
-			relevantAnimation=false
-		endif
-	 EndIf
-	EndIf
+
+	Actor[] actors = ssl_controller.Positions
+	sslBaseAnimation anim = animation
+	int Stage = ssl_controller.Stage
 	
-	If relevantAnimation
-		;Trace("5. Animation is relevant")
-		float amount = 1.0
-		int c= animation.PositionCount
-		Actor Female = none
-		actor Male = none
-		actor tmpActor
-		int i = 0
-		
-		;Trace("   "+c+" actors are involved")
-		while i<c
-			;tmpActor = ssl_controller.GetActor(i)
-			tmpActor = ssl_controller.Positions[i]
-			;/original
-			if !Female && tmpActor!=none && tmpActor.GetLeveledActorBase().GetSex() == 1
-				Female = tmpActor
-			elseif !Male && tmpActor!=none && tmpActor.GetLeveledActorBase().GetSex() == 0
-				Male = tmpActor
-			endIf
-			/;
-			; ;Tkc (Loverslab): optimization
-			if tmpActor
-				int tmpSex = tmpActor.GetLeveledActorBase().GetSex()
-				if tmpSex == 1
-					if Female
-					else;if !Female
-						Female = tmpActor
-					endif
-				elseif tmpSex == 0 ;Tkc: if tmpSex == 0 could be commented for optimization but GetSex() have 3 values: 1,0 and -1(for none) and dont know if here is will be none
-					if male
-					else;if !male							
-						Male = tmpActor	
-					endif
-				endif			
-			endif			
-			
-			if Female;/!=none/; && Male;/!=none/;
-				i=c
-			else
-				i+=1
-			endIf
-		endWhile
-		
-		; Check for female sperm
-		;if (! Male && SexLab.Config.AllowFFCum;/==true/;)
-		if Male ;Tkc (Loverslab): optimization
-		else;if ! Male
-		 if SexLab.Config.AllowFFCum
-			;Trace("   Male was none - Check FF sperm")
-			i = 0
-			while i<c
-				;tmpActor = ssl_controller.GetActor(i)
-				tmpActor = ssl_controller.Positions[i]
-				;if Male==none && tmpActor;/!=none/; && tmpActor!=Female && tmpActor.GetLeveledActorBase().GetSex() == 1
-				if Male ;Tkc (Loverslab): optimization
-				else;if Male==none
-					if tmpActor
-						if tmpActor==Female
-						else;if tmpActor!=Female
-							if tmpActor.GetLeveledActorBase().GetSex() == 1
-								Male = tmpActor
-							endIf
-						endIf
-					endIf
-				endIf
-				if Male;/!=none/;
-					i=c
-				else
-					i+=1
-				endIf
-			endwhile
-		 endIf
-		endIf
-		
-		if Male ;Tkc (Loverslab): optimization
-		else;if (! Male)
-			;Trace("   Male is none - Exit")
-			;Trace("[/SexLabOrgasmEvent]")
-			return
-		endif
-		If Female ;Tkc (Loverslab): optimization
-		else;If (! Female)
-			;Trace("   Female was none - Try get victim")
-			Female = ssl_controller.GetVictim()
-		EndIf
-		
-		bool bCondom = System.CheckForCondome(Female, Male)
-		
-		;If Female && Male && bCondom==false
-		If Female ;Tkc (Loverslab): optimization
-		If Male
-		If bCondom
-		else;if bCondom==false
-			;Trace("6. Male and Female are relevant for now")
-			
-			if Male.getLeveledActorBase().GetSex()==0
-				if System.IsValidateMaleActor(Male)<0
-					;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
-					;Trace("[/SexLabOrgasmEvent]")
-					return
-				endif
-			else
-				if System.IsValidateFemaleActor(Male)<0
-					;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
-					;Trace("[/SexLabOrgasmEvent]")
-					return
-				endif
-			endif
-			if Female.getLeveledActorBase().GetSex()==0
-				if System.IsValidateMaleActor(Female)<0
-					;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
-					;Trace("[/SexLabOrgasmEvent]")
-					return
-				endif
-			else
-				if System.IsValidateFemaleActor(Female)<0
-					;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
-					;Trace("[/SexLabOrgasmEvent]")
-					return
-				endif
-			endif
-			
-			if System.DeviceActive;/==true/;
-				;Trace("7. Check for Device")
-				if Female.WornHasKeyword(System.zad_DeviousBelt); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
-					;Trace("   A Device-Belt was detected")
-					;Trace("[/SexLabOrgasmEvent]")
-					return
-				;else
-					;Trace("   No device was detected")
-				endif
-			endif
-			
-			;Trace("8. Add sperm")
-			
-			;Trace("   Raise AddOn Event 'OnCameInside'")
-			;Manager.OnCameInside(Female,Male)
-			
-			;If Female.HasSpell(BeeingFemaleSpell)==false && System.IsValidateFemaleActor(Female)>0
-			If Female.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
-			else;If Female.HasSpell(BeeingFemaleSpell)==false
-			 if System.IsValidateFemaleActor(Female)>0
-				;Trace("   Female doesn't had BF Spell - apply spell")
-				System.ActorAddSpellOpt(Female,BeeingFemaleSpell)
-			 endif
-			endif
-			
-			float virility = Controller.GetVirility(Male)
-			amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
-			if amount>1.0
-				amount=1.0
-			endif
-			;If cfg.MaleVirilityRecovery > 0.0
-			;	float virility = FWUtility.ClampFloat(Controller.GetDaysSinceLastSex(Male) / cfg.MaleVirilityRecovery, 0.02, 1.0)
-			;	amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
-			;	if amount>1.0
-			;		amount=1.0
-			;	endif
-			;	System.Trace("   Base Sperm-Amount is " + amount)
-			;EndIf
-			
-			amount = Manager.getSpermAmount(Female,Male,amount)
-			;Trace("   Calculated Sperm-Amount is " + amount)
-			
-			if Female.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
-			else;if Female.HasSpell(BeeingFemaleSpell)==false
-				;Trace("   Female still don't got the BF Spell - ignore and continue")
-				System.Message( FWUtility.StringReplace( Content.NoBeeingFemaleSpell , "{0}",Female.GetLeveledActorBase().GetName()), System.MSG_Immersive)
-			endif
-			actor p = PlayerRef
-			If Male == p
-				;self.Message("You came inside " + Female.GetLeveledActorBase().GetName() + ".", self.MSG_Immersive)
-				System.Message( FWUtility.StringReplace( Content.YouCameInsideNPC , "{0}",Female.GetLeveledActorBase().GetName()), System.MSG_Immersive)
-			ElseIf Female == p
-				;self.Message(Male.GetLeveledActorBase().GetName() + " came inside you.", self.MSG_Immersive)
-				System.Message( FWUtility.StringReplace( Content.NPCCameInsideYou , "{0}",Male.GetLeveledActorBase().GetName()), System.MSG_Immersive)
-			Else
-				;self.Message(Male.GetLeveledActorBase().GetName() + " came inside " + Female.GetLeveledActorBase().GetName() + ".", self.Msg_High)
-				string[] astring = new string[2]
-				astring[0] = Male.GetLeveledActorBase().GetName()
-				astring[1] = Female.GetLeveledActorBase().GetName()
-				System.Message( FWUtility.ArrayReplace(Content.NPCCameInsideNPC,astring), System.Msg_High)
-			EndIf
-			
-			if amount>0.0
-				;Trace("   Finaly add " + amount + " sperm from "+Male.GetLeveledActorBase().GetName() + " to " +Female.GetLeveledActorBase().GetName())
-				Controller.AddSperm(Female,Male, amount)				
-			endif
-		EndIf
-		EndIf
-		EndIf
-	;else
-		;Trace("5. Animation is NOT relevant")
+ 	int pos = GetActorPositionFromList(actors, currentOrgasmingActor)
+    ;String stageTagsAll = GetStageTagsAsString(animation, Stage)
+    String penetrationLabel = FWHentairimUtils.PenetrationLabel(anim, Stage, pos)
+    String oralLabel = FWHentairimUtils.OralLabel(anim, Stage, pos)
+    String stimulationLabel = FWHentairimUtils.StimulationLabel(anim, Stage, pos)
+    String penisActionLabel = FWHentairimUtils.PenisActionLabel(anim, Stage, pos)
+    String endingLabel = FWHentairimUtils.EndingLabel(anim, Stage, pos)
+    ;log(">>Penetration:" + penetrationLabel + ".Oral:" + oralLabel + ".Stimul:" + stimulationLabel + ".Penis:" + penisActionLabel + ".Ending:" + endingLabel  )
+   	
+	Bool inseminationTrigger = false
+	Bool legacyCondition = anim.hasTag("Vaginal") || anim.hasTag("Anal")
+
+    Bool isVaginalInside = true
+    Bool isAnalInside = true
+
+    if isAnimationHentairimTaggedStrings(penetrationLabel, oralLabel, stimulationLabel, endingLabel, penisActionLabel)
+		;logAndPrint(">>Actor:" + akActor.GetLeveledActorBase().GetName() + ":p[" + pos + "],s["+ stage + "]. Penetration:" + penetrationLabel + ".Oral:" + oralLabel + ".Stimul:" + stimulationLabel + ".Penis:" + penisActionLabel + ".Ending:" + endingLabel)
+    	isVaginalInside = IsGivingVaginalPenetration(penisActionLabel) 
+    	isAnalInside =  IsGivingAnalPenetration(penisActionLabel) 
+		inseminationTrigger = legacyCondition && (isVaginalInside || isAnalInside)
+    Else
+		;logAndPrint(">>Actor:" + akActor.GetLeveledActorBase().GetName() + ":p[" + pos + "],s["+ stage + "]. No hentairim stage tags detected. Fallback to regular tags")
+		inseminationTrigger = legacyCondition
+    endif
+
+	If !inseminationTrigger
+		return
+	endif
+
+	if sexlab.ActorLib.IsCreature(currentOrgasmingActor) && !cfg.CreatureSperm
+		return
+	endif
+
+	If (!sexlab.config.allowFFCum && sexlab.MaleCount(actors) < 1 && sexlab.CreatureCount(actors) < 1)
+		return
 	EndIf
-	;Trace("[/SexLabOrgasmEvent]")
-endFunction
+
+	;process receiving actors
+	If (anim.hasTag("Vaginal") && isVaginalInside) || (anim.hasTag("Anal") && isAnalInside && Utility.RandomInt(1,100)<=cfg.NoVaginalCumChance)
+	else
+		return
+	EndIf
+	String callback = ""
+	int i = actors.length
+	while i > 0
+			i -= 1
+			int cumSpot = anim.GetCum(i)
+			int actorGender = sexlab.GetGender(actors[i])
+		;	log(anim.name + " - cumSpot for position " + i + ": " + cumSpot)
+			If currentOrgasmingActor != actors[i]
+				; only inseminate if the actor is female (or male pretending to be female!) and the animation position has cum effect set
+				If ((actorGender == 1) && cumSpot != -1)
+					processPair(actors[i], currentOrgasmingActor)
+				EndIf
+			EndIf
+		EndWhile
+EndFunction
+
+Function processPair(Actor female, Actor Male)
+	bool bCondom = System.CheckForCondome(Female, Male)
+	float amount = 1.0
+	;If Female && Male && bCondom==false
+	If Female ;Tkc (Loverslab): optimization
+	If Male
+	If bCondom
+	else;if bCondom==false
+		;Trace("6. Male and Female are relevant for now")
+
+		if Male.getLeveledActorBase().GetSex()==0
+			if System.IsValidateMaleActor(Male)<0
+				;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
+				;Trace("[/SexLabOrgasmEvent]")
+				return
+			endif
+		else
+			if System.IsValidateFemaleActor(Male)<0
+				;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
+				;Trace("[/SexLabOrgasmEvent]")
+				return
+			endif
+		endif
+		if Female.getLeveledActorBase().GetSex()==0
+			if System.IsValidateMaleActor(Female)<0
+				;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
+				;Trace("[/SexLabOrgasmEvent]")
+				return
+			endif
+		else
+			if System.IsValidateFemaleActor(Female)<0
+				;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
+				;Trace("[/SexLabOrgasmEvent]")
+				return
+			endif
+		endif
+
+		if System.DeviceActive;/==true/;
+			;Trace("7. Check for Device")
+			if Female.WornHasKeyword(System.zad_DeviousBelt); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
+				;Trace("   A Device-Belt was detected")
+				;Trace("[/SexLabOrgasmEvent]")
+				return
+			;else
+				;Trace("   No device was detected")
+			endif
+		endif
+
+		;Trace("8. Add sperm")
+
+		;Trace("   Raise AddOn Event 'OnCameInside'")
+		;Manager.OnCameInside(Female,Male)
+
+		;If Female.HasSpell(BeeingFemaleSpell)==false && System.IsValidateFemaleActor(Female)>0
+		If Female.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
+		else;If Female.HasSpell(BeeingFemaleSpell)==false
+		 if System.IsValidateFemaleActor(Female)>0
+			;Trace("   Female doesn't had BF Spell - apply spell")
+			System.ActorAddSpellOpt(Female,BeeingFemaleSpell)
+		 endif
+		endif
+
+		float virility = Controller.GetVirility(Male)
+		amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
+		if amount>1.0
+			amount=1.0
+		endif
+		;If cfg.MaleVirilityRecovery > 0.0
+		;	float virility = FWUtility.ClampFloat(Controller.GetDaysSinceLastSex(Male) / cfg.MaleVirilityRecovery, 0.02, 1.0)
+		;	amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
+		;	if amount>1.0
+		;		amount=1.0
+		;	endif
+		;	System.Trace("   Base Sperm-Amount is " + amount)
+		;EndIf
+
+		amount = Manager.getSpermAmount(Female,Male,amount)
+		;Trace("   Calculated Sperm-Amount is " + amount)
+
+		if Female.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
+		else;if Female.HasSpell(BeeingFemaleSpell)==false
+			;Trace("   Female still don't got the BF Spell - ignore and continue")
+			System.Message( FWUtility.StringReplace( Content.NoBeeingFemaleSpell , "{0}",Female.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+		endif
+		actor p = PlayerRef
+		If Male == p
+			;self.Message("You came inside " + Female.GetLeveledActorBase().GetName() + ".", self.MSG_Immersive)
+			System.Message( FWUtility.StringReplace( Content.YouCameInsideNPC , "{0}",Female.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+		ElseIf Female == p
+			;self.Message(Male.GetLeveledActorBase().GetName() + " came inside you.", self.MSG_Immersive)
+			System.Message( FWUtility.StringReplace( Content.NPCCameInsideYou , "{0}",Male.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+		Else
+			;self.Message(Male.GetLeveledActorBase().GetName() + " came inside " + Female.GetLeveledActorBase().GetName() + ".", self.Msg_High)
+			string[] astring = new string[2]
+			astring[0] = Male.GetLeveledActorBase().GetName()
+			astring[1] = Female.GetLeveledActorBase().GetName()
+			System.Message( FWUtility.ArrayReplace(Content.NPCCameInsideNPC,astring), System.Msg_High)
+		EndIf
+
+		if amount>0.0
+			;Trace("   Finaly add " + amount + " sperm from "+Male.GetLeveledActorBase().GetName() + " to " +Female.GetLeveledActorBase().GetName())
+			Controller.AddSperm(Female,Male, amount)				
+		endif
+	EndIf
+	EndIf
+	EndIf
+endfunction
 
 bool function OnPlayPainSound(actor ActorRef, float Strength)
 	if bSexLab ;Tkc (Loverslab): optimization
@@ -482,4 +459,31 @@ Form[] function OnStripActor(Actor ActorRef)
 	endif
 endFunction
 
+Function log(String msg, int lvl = 0)
+		Debug.Trace("[Beeing Female NG]: " + msg)
+EndFunction
+
+int Function GetActorPositionFromList(Actor[] actorList, Actor act) Global
+    Int i = 0
+    While i < actorList.Length
+        Actor cur = actorList[i]
+        If cur == act
+            Return i
+        EndIf
+        i += 1
+    EndWhile
+    Return -1
+EndFunction
+
+Actor Function GetMaleActorFromList(Actor[] actorList) Global
+    Int i = 0
+    While i < actorList.Length
+        Actor cur = actorList[i]
+        if cur.GetLeveledActorBase().GetSex() == 0
+			return cur
+		endif
+        i += 1
+    EndWhile
+    Return None
+EndFunction
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Added Sexlab pain sound when Sexlab is active(for example for giving birth)

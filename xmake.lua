@@ -56,11 +56,9 @@ target(PROJECT_NAME)
     })
 
     -- Source files
-    add_files("*.cpp")
     add_files("src/**.cpp")
-    add_headerfiles("*.h")
     add_headerfiles("src/**.h")
-    add_includedirs(".", "include")
+    add_includedirs("src", "include")
 
     -- Exports
     add_ldflags("/DEF:exports.def", { force = true })
