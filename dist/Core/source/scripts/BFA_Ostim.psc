@@ -109,7 +109,7 @@ function Trace(string s)
 endFunction
 
 Function log(String msg, int lvl = 0)
-		Debug.Trace("[Beeing Female NG]: " + msg)
+	Debug.Trace("[Beeing Female NG]: " + msg)
 EndFunction
 
 
@@ -170,14 +170,6 @@ Function processPair(Actor female, Actor Male)
 		if amount>1.0
 			amount=1.0
 		endif
-		;If cfg.MaleVirilityRecovery > 0.0
-		;	float virility = FWUtility.ClampFloat(Controller.GetDaysSinceLastSex(Male) / cfg.MaleVirilityRecovery, 0.02, 1.0)
-		;	amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
-		;	if amount>1.0
-		;		amount=1.0
-		;	endif
-		;	System.Trace("   Base Sperm-Amount is " + amount)
-		;EndIf
 
 		amount = Manager.getSpermAmount(Female,Male,amount)
 		;Trace("   Calculated Sperm-Amount is " + amount)
@@ -207,4 +199,3 @@ Function processPair(Actor female, Actor Male)
 			Controller.AddSperm(Female, Male, amount)				
 		endif
 endfunction
-; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Added Sexlab pain sound when Sexlab is active(for example for giving birth)
