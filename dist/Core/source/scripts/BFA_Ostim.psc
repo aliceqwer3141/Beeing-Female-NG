@@ -26,9 +26,11 @@ endFunction
 
 event OnUpdate()
 	If Game.GetModByName("Ostim.esp")!= 255
-		registerOstimEventHandlers()
-		bOstim = true
-	elseif (TryRegisterCount < 10)
+		if registerOstimEventHandlers() > 0
+			bOstim = true
+		endif
+	endif
+	If !bOstim && (TryRegisterCount < 10)
 		;UnregisterForUpdate()
 		RegisterForSingleUpdate(5)
 		TryRegisterCount+=1
@@ -57,6 +59,9 @@ EndEvent
 
 Event OStimOrgasm(String EventName, String Args, Float Nothing, Form Sender)
 	OStim = OUtils.GetOStim()
+	if !OStim
+		return
+	endif
 	; If this is OStim NG, bail out (Since Below code is processed in OStimOrgasmThread)
 	if (OStim.GetAPIVersion() >= 29)
 		return
@@ -75,6 +80,9 @@ EndEvent
 
 Function HandleActorOrgasm(int threadId, Actor targetActor)
 	OStim = OUtils.GetOStim()
+	if !OStim
+		return
+	endif
 	Actor partner = ostim.GetSexPartner(targetActor)
 
 	if partner && !OStim.IsFemale(targetActor) && OStim.IsFemale(partner) && Ostim.IsVaginal()
@@ -87,7 +95,7 @@ function Refresh(string strArg, FWAddOnManager sender)
 	OnGameLoad()
 endFunction
 
-bool function IsSSLActive() ;Edit by BAne
+bool function IsOstimActive()
 	return bOstim
 endFunction
 
@@ -107,41 +115,41 @@ EndFunction
 
 
 Function processPair(Actor female, Actor Male)
+	If !Female || !Male
+		return
+	endif
 	bool bCondom = System.CheckForCondome(Female, Male)
-	float amount = 1.0
-	;If Female && Male && bCondom==false
-	If Female ;Tkc (Loverslab): optimization
-	If Male
 	If bCondom
-	else;if bCondom==false
-		;Trace("6. Male and Female are relevant for now")
+		return
+	endif
+	float amount = 1.0
+	;Trace("6. Male and Female are relevant for now")
 
-		if Male.getLeveledActorBase().GetSex() == 0
-			if System.IsValidateMaleActor(Male)<0
-				;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
-		else
-			if System.IsValidateFemaleActor(Male) < 0
-				;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
+	int maleSex = Male.getLeveledActorBase().GetSex()
+	if maleSex == 0
+		if System.IsValidateMaleActor(Male)<0
+			;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
 		endif
-		if Female.getLeveledActorBase().GetSex() == 0
-			if System.IsValidateMaleActor(Female) < 0
-				;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
-		else
-			if System.IsValidateFemaleActor(Female) < 0
-				;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
+	elseif System.IsValidateFemaleActor(Male)<0
+			;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
+	endif
+
+	int femaleSex = Female.getLeveledActorBase().GetSex()
+	if femaleSex == 0
+		if System.IsValidateMaleActor(Female)<0
+			;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
 		endif
+	elseif System.IsValidateFemaleActor(Female)<0
+			;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
+	endif
 
 		;Trace("8. Add sperm")
 
@@ -159,8 +167,8 @@ Function processPair(Actor female, Actor Male)
 
 		float virility = Controller.GetVirility(Male)
 		amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
-		if amount > 1.0
-			amount = 1.0
+		if amount>1.0
+			amount=1.0
 		endif
 		;If cfg.MaleVirilityRecovery > 0.0
 		;	float virility = FWUtility.ClampFloat(Controller.GetDaysSinceLastSex(Male) / cfg.MaleVirilityRecovery, 0.02, 1.0)
@@ -198,8 +206,5 @@ Function processPair(Actor female, Actor Male)
 			;Trace("   Finaly add " + amount + " sperm from "+Male.GetLeveledActorBase().GetName() + " to " +Female.GetLeveledActorBase().GetName())
 			Controller.AddSperm(Female, Male, amount)				
 		endif
-	EndIf
-	EndIf
-	EndIf
 endfunction
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Added Sexlab pain sound when Sexlab is active(for example for giving birth)

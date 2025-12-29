@@ -37,18 +37,21 @@ event OnUpdate()
 	if Game.GetModByName("SexLab.esm") != 255 
 		SexLab = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as SexLabFramework
 		Lib = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as sslThreadLibrary
-		bSexLab = true
-		;RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
-		RegisterForModEvent("HookOrgasmStart", "OnSexLabOrgasm")
-		RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
-		;Trace("BFA_ssl::OnGameLoad() = true");temporary uncommented for tests
-		If Game.GetModByName("Devious Devices - Assets.esm") != 255
-			bZad = true
-			zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
-			zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
-			zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
-		EndIf
-	elseif (TryRegisterCount < 10)
+		if SexLab && Lib
+			bSexLab = true
+			;RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
+			RegisterForModEvent("HookOrgasmStart", "OnSexLabOrgasm")
+			RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
+			;Trace("BFA_ssl::OnGameLoad() = true");temporary uncommented for tests
+			If Game.GetModByName("Devious Devices - Assets.esm") != 255
+				bZad = true
+				zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
+				zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
+				zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
+			EndIf
+		endif
+	endif
+	if !bSexLab && (TryRegisterCount < 10)
 		RegisterForSingleUpdate(5)
 		TryRegisterCount+=1
 	endif
@@ -269,30 +272,33 @@ Function processPair(Actor female, Actor Male)
 		return
 	endif
 	float amount = 1.0
-		;Trace("6. Male and Female are relevant for now")
+	;Trace("6. Male and Female are relevant for now")
 
-		if Male.getLeveledActorBase().GetSex()==0
-			if System.IsValidateMaleActor(Male)<0
-				;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
-		elseif System.IsValidateFemaleActor(Male)<0
-				;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
+	int maleSex = Male.getLeveledActorBase().GetSex()
+	if maleSex == 0
+		if System.IsValidateMaleActor(Male)<0
+			;Trace("   Male is not a validate Male Actor: "+System.IsValidateMaleActor(Male))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
 		endif
-		if Female.getLeveledActorBase().GetSex()==0
-			if System.IsValidateMaleActor(Female)<0
-				;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
-			endif
-		elseif System.IsValidateFemaleActor(Female)<0
-				;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
-				;Trace("[/SexLabOrgasmEvent]")
-				return
+	elseif System.IsValidateFemaleActor(Male)<0
+			;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
+	endif
+
+	int femaleSex = Female.getLeveledActorBase().GetSex()
+	if femaleSex == 0
+		if System.IsValidateMaleActor(Female)<0
+			;Trace("   Female is not a validate Male Actor: "+System.IsValidateMaleActor(Female))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
 		endif
+	elseif System.IsValidateFemaleActor(Female)<0
+			;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
+			;Trace("[/SexLabOrgasmEvent]")
+			return
+	endif
 
 		if bZad;/==true/;
 			;Trace("7. Check for Device")
