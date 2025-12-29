@@ -352,3 +352,15 @@ int Function GetActorPositionFromList(Actor[] actorList, Actor act) Global
     EndWhile
     Return -1
 EndFunction
+
+Actor Function GetMaleActorFromList(Actor[] actorList) Global
+    Int i = 0
+    While i < actorList.Length
+        Actor cur = actorList[i]
+        if cur.GetLeveledActorBase().GetSex() == 0
+			return cur
+		endif
+        i += 1
+    EndWhile
+    Return None
+EndFunction

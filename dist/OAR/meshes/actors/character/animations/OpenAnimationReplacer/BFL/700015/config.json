@@ -1,0 +1,30 @@
+{
+    "name": "Labor 15",
+    "description": "Labor - GS54",
+    "priority": 700015,
+    "overrideAnimationsFolder": "700015",
+    "replaceOnLoop": false,
+    "conditions": [
+        {
+            "condition": "IsChild",
+            "requiredVersion": "1.0.0.0",
+            "negated": true
+        },
+        {
+            "condition": "IsFemale",
+            "requiredVersion": "1.0.0.0"
+        },
+        {
+            "condition": "Random",
+            "requiredVersion": "1.0.0.0",
+            "Random value": {
+                "min": 0.0,
+                "max": 1.0
+            },
+            "Comparison": "<=",
+            "Numeric value": {
+                "value": 0.06666669
+            }
+        }
+    ]
+}

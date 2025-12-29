@@ -3,7 +3,8 @@ import FWHentairimUtils
 
 SexLabFramework Property SexLab Auto
 sslThreadLibrary Lib
-bool bSexLab
+OSexIntegrationMain OStim
+bool bSexLab = false
 FWSystem property System auto
 
 int TryRegisterCount=0
@@ -15,45 +16,25 @@ FWAddOnManager property Manager auto
 FWTextContents property Content auto
 Actor Property PlayerRef Auto
 
-bool zad = false
+bool bZad = false
 
 Keyword zad_DeviousPlugAnal
 Keyword zad_DeviousPlugVaginal
 Keyword zad_DeviousBelt
 
 function OnGameLoad()
-	if System ;Tkc (Loverslab): optimization
-	else;if System==none
-		System=GetSystem()
+	if !System
+		System = GetSystem()
 	endif
-	bSexLab= false
-	SexLab = none
-	Lib = none
+	bSexLab = false
+	bZad=false
 	UnregisterForAllModEvents()
-	TryRegisterCount=0
+	TryRegisterCount = 0
 	RegisterForSingleUpdate(5)
 endFunction
 
 event OnUpdate()
-	;/int idx = Game.GetModCount()
-	string modName = ""
-	while idx > 0
-		idx -= 1
-		modName = Game.GetModName(idx)
-		if modName == "SexLab.esm"
-			SexLab = Game.GetFormFromFile(0x00000D62, modName) as SexLabFramework
-			Lib = Game.GetFormFromFile(0x00000D62, modName) as sslThreadLibrary
-			bSexLab = true
-			RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
-			RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
-			;Debug.Trace("BFA_ssl::OnGameLoad() = true")
-			;UnregisterForUpdate()
-			TryRegisterCount=0
-			return
-		endif
-	endwhile/;
-	;;;;; ;Tkc (Loverslab): standart detection
-	if Game.IsPluginInstalled("SexLab.esm")
+	if Game.GetModByName("SexLab.esm") != 255 
 		SexLab = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as SexLabFramework
 		Lib = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as sslThreadLibrary
 		bSexLab = true
@@ -61,22 +42,13 @@ event OnUpdate()
 		RegisterForModEvent("HookOrgasmStart", "OnSexLabOrgasm")
 		RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
 		;Trace("BFA_ssl::OnGameLoad() = true");temporary uncommented for tests
-		;UnregisterForUpdate()
-		TryRegisterCount=0
-		return	
-	endif
-
-	If Game.GetModByName("Devious Devices - Assets.esm") != 255
-		zad = true
-		zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
-		zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
-		zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
-	EndIf
-	;;;;;
-	
-	if (TryRegisterCount>10) ;Tkc (Loverslab): optimization
-	else;if !(TryRegisterCount>10)
-		;UnregisterForUpdate()
+		If Game.GetModByName("Devious Devices - Assets.esm") != 255
+			bZad = true
+			zad_DeviousPlugAnal		= Game.GetFormFromFile(0x0001DD7D, "Devious Devices - Assets.esm") as Keyword
+			zad_DeviousPlugVaginal	= Game.GetFormFromFile(0x0001DD7C, "Devious Devices - Assets.esm") as Keyword
+			zad_DeviousBelt			= Game.GetFormFromFile(0x00003330, "Devious Devices - Assets.esm") as Keyword
+		EndIf
+	elseif (TryRegisterCount < 10)
 		RegisterForSingleUpdate(5)
 		TryRegisterCount+=1
 	endif
@@ -289,13 +261,14 @@ Function OrgasmSeparate(sslThreadController ssl_controller, sslBaseAnimation ani
 EndFunction
 
 Function processPair(Actor female, Actor Male)
+	If !Female || !Male
+		return
+	endif
 	bool bCondom = System.CheckForCondome(Female, Male)
-	float amount = 1.0
-	;If Female && Male && bCondom==false
-	If Female ;Tkc (Loverslab): optimization
-	If Male
 	If bCondom
-	else;if bCondom==false
+		return
+	endif
+	float amount = 1.0
 		;Trace("6. Male and Female are relevant for now")
 
 		if Male.getLeveledActorBase().GetSex()==0
@@ -304,12 +277,10 @@ Function processPair(Actor female, Actor Male)
 				;Trace("[/SexLabOrgasmEvent]")
 				return
 			endif
-		else
-			if System.IsValidateFemaleActor(Male)<0
+		elseif System.IsValidateFemaleActor(Male)<0
 				;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
 				;Trace("[/SexLabOrgasmEvent]")
 				return
-			endif
 		endif
 		if Female.getLeveledActorBase().GetSex()==0
 			if System.IsValidateMaleActor(Female)<0
@@ -317,15 +288,13 @@ Function processPair(Actor female, Actor Male)
 				;Trace("[/SexLabOrgasmEvent]")
 				return
 			endif
-		else
-			if System.IsValidateFemaleActor(Female)<0
+		elseif System.IsValidateFemaleActor(Female)<0
 				;Trace("   Female is not a validate Female Actor: "+System.IsValidateFemaleActor(Female))
 				;Trace("[/SexLabOrgasmEvent]")
 				return
-			endif
 		endif
 
-		if zad;/==true/;
+		if bZad;/==true/;
 			;Trace("7. Check for Device")
 			if Female.WornHasKeyword(zad_DeviousBelt) || female.WornHasKeyword(zad_DeviousPlugVaginal); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
 				;Trace("   A Device-Belt was detected")
@@ -391,9 +360,6 @@ Function processPair(Actor female, Actor Male)
 			;Trace("   Finaly add " + amount + " sperm from "+Male.GetLeveledActorBase().GetName() + " to " +Female.GetLeveledActorBase().GetName())
 			Controller.AddSperm(Female, Male, amount)				
 		endif
-	EndIf
-	EndIf
-	EndIf
 endfunction
 
 bool function OnPlayPainSound(actor ActorRef, float Strength)
@@ -458,27 +424,4 @@ Function log(String msg, int lvl = 0)
 		Debug.Trace("[Beeing Female NG]: " + msg)
 EndFunction
 
-int Function GetActorPositionFromList(Actor[] actorList, Actor act) Global
-    Int i = 0
-    While i < actorList.Length
-        Actor cur = actorList[i]
-        If cur == act
-            Return i
-        EndIf
-        i += 1
-    EndWhile
-    Return -1
-EndFunction
-
-Actor Function GetMaleActorFromList(Actor[] actorList) Global
-    Int i = 0
-    While i < actorList.Length
-        Actor cur = actorList[i]
-        if cur.GetLeveledActorBase().GetSex() == 0
-			return cur
-		endif
-        i += 1
-    EndWhile
-    Return None
-EndFunction
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Added Sexlab pain sound when Sexlab is active(for example for giving birth)

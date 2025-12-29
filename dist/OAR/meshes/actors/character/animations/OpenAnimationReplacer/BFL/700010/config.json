@@ -1,0 +1,30 @@
+{
+    "name": "Labor 10",
+    "description": "Labor - GS291",
+    "priority": 700010,
+    "overrideAnimationsFolder": "700010",
+    "replaceOnLoop": false,
+    "conditions": [
+        {
+            "condition": "IsChild",
+            "requiredVersion": "1.0.0.0",
+            "negated": true
+        },
+        {
+            "condition": "IsFemale",
+            "requiredVersion": "1.0.0.0"
+        },
+        {
+            "condition": "Random",
+            "requiredVersion": "1.0.0.0",
+            "Random value": {
+                "min": 0.0,
+                "max": 1.0
+            },
+            "Comparison": "<=",
+            "Numeric value": {
+                "value": 0.1
+            }
+        }
+    ]
+}
