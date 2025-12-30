@@ -51,6 +51,9 @@ dist/Core/skse/plugins
 - Added a player damage cap in `dist/Core/source/scripts/FWSystem.psc` so difficulties below 4 cannot reduce health below 1 HP.
 - Removed FNIS/OAR gating so animation playback is no longer forced off when FNIS is missing.
 - Labor pains duration can be tuned via `Global_Duration_09_LaborPains` in `dist/Core/BeeingFemale/AddOn/Global Settings.ini`.
+- Integrated fixes from BeeingFemaleSE Opt by aliceqwer3141 and Beeing Female SE 2.8.1 Patch V14d by Bane Master and Garkin.
+- Modified the SexLab add-on and added an OStim add-on.
+- Bathing in Skyrim addon targets Bathing in Skyrim Renewed instead of the original mod.
 
 ## Notes
 
