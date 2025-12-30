@@ -533,21 +533,9 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		return
 	endif
 	LoadState=11
-	; Check for animationsOK, those are not required
-	if FNIS.VersionCompare(5, 4, 2) < 0
-		if animationsOK;/==true/; ;Tkc (Loverslab): optimization
-			Debug.Notification(Content.FNISNotInstalled)
-		endif
-		cfg.PlayAnimations=false
-		animationsOK = false
-		LoadState=12
-	else
-		if animationsOK==false || bFirstRun;/==true/; ;Tkc (Loverslab): optimization
-			Debug.Notification(Content.FNISUsing)
-		endif
-		animationsOK=true
-		LoadState=14
-	endif
+	; Animations are optional; do not gate them on FNIS/OAR detection.
+	animationsOK = true
+	LoadState=14
 	if bFirstRun
 		;Progress.Set("First Run Items",30,Progress.ICN_Compatibility)
 		LoadState=15
@@ -1981,7 +1969,7 @@ float function getStateDuration(int Step, actor woman)
 					if Step == 6 ; 3. trimester 
 						return cfg.Trimster3Duration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
 					else;if Step == 7 ; labor pains
-						return 1 ; Fix
+						return Manager.getActorDurationScaleLaborPains(woman)
 					endIf
 				else
 					if Step == 8 ; replenish
@@ -2154,6 +2142,20 @@ Function doDamage(actor A, float Percentage, int DamageType, float OptionalArgum
 	elseif Percentage>50
 		; A maximum of 50%
 		Percentage = 50
+	endif
+	; Prevent player death on difficulties below 4 by capping damage to leave 1 HP.
+	if IsPlayer && cfg.Difficulty < 4
+		float curHealth = A.GetActorValue("Health")
+		float baseHealth = A.GetBaseActorValue("Health")
+		if baseHealth > 0
+			float maxPercent = ((curHealth - 1.0) / baseHealth) * 100.0
+			if maxPercent < 0
+				maxPercent = 0
+			endif
+			if Percentage > maxPercent
+				Percentage = maxPercent
+			endif
+		endif
 	endif
 	float efxDage=Percentage
 	;if !IsPlayer && Percentage>2

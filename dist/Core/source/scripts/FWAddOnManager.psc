@@ -347,6 +347,7 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_Duration_06_Trimester2")
 							LoadGlobalAddOnValue(n, "Global_Duration_07_Trimester3")
 							LoadGlobalAddOnValue(n, "Global_Duration_08_Recovery")
+							LoadGlobalAddOnValue(n, "Global_Duration_09_LaborPains")
 							LoadGlobalAddOnValue(n, "Global_Duration_10_SecondsBetweenLaborPains")
 							LoadGlobalAddOnValue(n, "Global_Duration_11_SecondsBetweenBabySpawn")
 							LoadGlobalAddOnValue(n, "Global_Irregulation_Chance_Scale")
@@ -585,6 +586,13 @@ function _Export_RaceHandler(FWAddOn_Race q, string fName, string cat) global
 		if q.Duration_08_Recovery==1.0 ;Tkc (Loverslab): optimization
 		else;if q.Duration_08_Recovery!=1.0
 			FWUtility.setIniCFloat("AddOn",fName,cat,"Duration_08_Recovery", q.Duration_08_Recovery)
+		endif
+	endif
+	;if q.Duration_09_LaborPains>0.0 && q.Duration_09_LaborPains!=1.0
+	if q.Duration_09_LaborPains>0.0
+		if q.Duration_09_LaborPains==1.0 ;Tkc (Loverslab): optimization
+		else;if q.Duration_09_LaborPains!=1.0
+			FWUtility.setIniCFloat("AddOn",fName,cat,"Duration_09_LaborPains", q.Duration_09_LaborPains)
 		endif
 	endif
 	;if q.Duration_10_SecondsBetweenLaborPains>0.0 && q.Duration_10_SecondsBetweenLaborPains!=1.0
@@ -1038,6 +1046,7 @@ function AddRaceAddOn(race r, string n, string cat)
 	AddRaceAddOnValue(r,n,cat,"Duration_06_Trimester2")
 	AddRaceAddOnValue(r,n,cat,"Duration_07_Trimester3")
 	AddRaceAddOnValue(r,n,cat,"Duration_08_Recovery")
+	AddRaceAddOnValue(r,n,cat,"Duration_09_LaborPains")
 	AddRaceAddOnValue(r,n,cat,"Duration_10_SecondsBetweenLaborPains")
 	AddRaceAddOnValue(r,n,cat,"Duration_11_SecondsBetweenBabySpawn")
 	AddRaceAddOnValue(r,n,cat,"Irregulation_Chance_Scale")
@@ -1129,6 +1138,7 @@ Function ClearGlobalSettings()
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_06_Trimester2", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_07_Trimester3", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_08_Recovery", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_10_SecondsBetweenLaborPains", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_11_SecondsBetweenBabySpawn", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Irregulation_Chance_Scale", 1)
@@ -1192,6 +1202,7 @@ Function ClearGlobalSettings()
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_06_Trimester2")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_07_Trimester3")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_08_Recovery")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_10_SecondsBetweenLaborPains")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_11_SecondsBetweenBabySpawn")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Irregulation_Chance_Scale")
@@ -1351,6 +1362,7 @@ function ResetRaceAddOns(race r)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_06_Trimester2",1)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_07_Trimester3",1)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_08_Recovery",1)
+		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_09_LaborPains",1)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1)
 		StorageUtil.SetFloatValue(r,"FW.AddOn.Irregulation_Chance_Scale",1)
@@ -1436,6 +1448,7 @@ function ClearRaceAddOns()
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_06_Trimester2")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_07_Trimester3")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_08_Recovery")
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_09_LaborPains")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_10_SecondsBetweenLaborPains")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Irregulation_Chance_Scale")
@@ -1957,7 +1970,12 @@ float function getRaceDurationScale(int Step, race RaceID)
 				endIf
 			endIf
 		else
-			if(Step == 8)
+			if(Step == 7)
+				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_09_LaborPains", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
+				endIf
+			elseif(Step == 8)
 				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_08_Recovery", 1.0)
 				if(result == 1.0)
 					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_08_Recovery", 1.0)
@@ -1992,6 +2010,34 @@ float function getRaceDurationScale(int Step, race RaceID)
 	else
 		return result
 	endIf
+endFunction
+
+float function getActorDurationScaleLaborPains(actor a)
+	float result = 1.0
+	if a ;Tkc (Loverslab): optimization
+		actorbase ab = a.GetActorBase()
+		if ab
+			race abr = ab.GetRace()
+			if abr
+				result = getRaceDurationScaleLaborPains(abr)
+			endIf
+		endIf
+	endIf
+	if result < (2.0 / 24.0)
+		return (2.0 / 24.0)
+	elseif result > 1.0
+		return 1.0
+	else
+		return result
+	endIf
+endFunction
+
+float function getRaceDurationScaleLaborPains(race RaceID)
+	float result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_09_LaborPains", 1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
+	endIf
+	return result
 endFunction
 
 

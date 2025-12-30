@@ -280,6 +280,7 @@ bool bAP=false
 bool bFlowerGirls=false
 bool bEstrus=false
 bool bOSA=false
+bool bOstim=false
 bool bBathingInSkyrim=false
 bool bASX=false
 bool bHAnimations=false
@@ -377,6 +378,7 @@ function CheckForSexMods()
 	bFlowerGirls=false
 	bEstrus=false
 	bOSA=false
+	bOstim=false
 	bBathingInSkyrim=false
 	bASX=false
 	bHAnimations=false
@@ -390,6 +392,9 @@ function CheckForSexMods()
 		elseif m=="OSA.esm"
 			bSexModInstalled=true
 			bOSA=true
+		elseif m=="Ostim.esp" || m=="OStim.esp"
+			bSexModInstalled=true
+			bOstim=true
 		elseif m=="AP Skyrim.esm"
 			bSexModInstalled=true
 			bAP=true
@@ -423,6 +428,10 @@ function CheckForSexMods()
 			bSexModInstalled=true
 			bOSA=true
 		endif		
+		if FWUtility.ModFile("Ostim") || FWUtility.ModFile("OStim")
+			bSexModInstalled=true
+			bOstim=true
+		endif
 		if FWUtility.ModFile("AP Skyrim")
 			bSexModInstalled=true
 			bAP=true
@@ -2020,6 +2029,8 @@ Event OnPageReset(string page)
 	; the bSSL Variable defines if SexLab Framework is active or not
 	bool bSSL = Manager.IsAddOnActive("BF_SSL")
 	int iOptionBSSL = OPTION_FLAG_NONE
+	bool bOstimAddOn = Manager.IsAddOnActive("BF_Ostim")
+	int iOptionBOstim = OPTION_FLAG_NONE
 	PageResetJobID=4
 	bool bPlayerAllowed = System.IsValidateActor(PlayerRef, true) > 0
 	bool bPlayerIsFemale= PlayerRef.GetLeveledActorBase().GetSex()==1
@@ -2027,6 +2038,9 @@ Event OnPageReset(string page)
 	if !bSSL
 		;CreatureSperm=false
 		iOptionBSSL = OPTION_FLAG_DISABLED
+	endif
+	if !bOstimAddOn
+		iOptionBOstim = OPTION_FLAG_DISABLED
 	endif
 	
 	; When the page is empty, load the Title-Screen, Otherwise unload it
@@ -3242,7 +3256,17 @@ Event OnPageReset(string page)
 				AddTextOption("SexLab Framework", cTxt[0], iOptionBSSL)
 			endif
 		endif
-		PageResetJobID=51
+		if bOstim
+			PageResetJobID=51
+			if bOstimAddOn
+				PageResetJobID=52
+				AddTextOption("Ostim", cTxt[1], iOptionBOstim)
+			else
+				PageResetJobID=53
+				AddTextOption("Ostim", cTxt[0], iOptionBOstim)
+			endif
+		endif
+		PageResetJobID=54
 		if bAP
 			if FWUtility.ScriptHasString("aasexorgasimscaipt","BeeingFemale")
 				AddTextOption("Animated Prostitution", cTxt[1],OPTION_FLAG_DISABLED)

@@ -19,6 +19,7 @@ float property Duration_05_Trimester1 = 1.0 auto
 float property Duration_06_Trimester2 = 1.0 auto
 float property Duration_07_Trimester3 = 1.0 auto
 float property Duration_08_Recovery = 1.0 auto
+float property Duration_09_LaborPains = 1.0 auto
 float property Duration_10_SecondsBetweenLaborPains = 1.0 auto
 float property Duration_11_SecondsBetweenBabySpawn = 1.0 auto
 float property Duration_MaleSperm = 1.0 auto
