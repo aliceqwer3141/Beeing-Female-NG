@@ -16,7 +16,7 @@ string function GetVersionString() global
 		;debug.trace("BF: version="+version)
 		return version
 	else
-		return "2.8"
+		return "3.0"
 	endif
 	;;;;;;;;;;;;;;;;;;;;;;;;;
 EndFunction
@@ -37,7 +37,7 @@ int Function GetVersion() global
 		;debug.trace("BF: Integer version="+versionInt)
 		return versionInt
 	else
-		return 20800
+		return 30000
 	endif
 	;;;;;;;;;;;;;;;;;;;;;;;;;
 EndFunction

@@ -190,7 +190,7 @@ Event OnEffectStart(Actor target, Actor caster)
 			endif
 			
 			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 0) == 1)
-				Debug.Trace("BeeingFemaleSE_Opt - FWAbilityBeeingFemale : removing SPID distributed items for actor " + ActorRef + ", whose name is " + ActorRef.GetDisplayName())
+				Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale : removing SPID distributed items for actor " + ActorRef + ", whose name is " + ActorRef.GetDisplayName())
 				System.RemoveSPIDitems(ActorRef)
 			endIf
 		endif

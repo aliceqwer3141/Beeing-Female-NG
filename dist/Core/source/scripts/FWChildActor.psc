@@ -727,14 +727,14 @@ function InitChild()
 	endif
 
 	Race myChildRace = StorageUtil.GetFormValue(self, "FW.Child.Race" ) as race
-	Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - InitChild: The race of the child " + self + " is " + myChildRace)
+	Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: The race of the child " + self + " is " + myChildRace)
 	
 	if(StorageUtil.GetIntValue(myChildRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
 		self.AllowPCDialogue(true)
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - InitChild: Child " + self + " can talk to player")
+		Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: Child " + self + " can talk to player")
 	elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
 		self.AllowPCDialogue(true)
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - InitChild: Child " + self + " can talk to player, from global AddOn settings")
+		Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: Child " + self + " can talk to player, from global AddOn settings")
 	endIf
 
 	RefreshAI()
@@ -765,13 +765,13 @@ Event OnDeath(Actor akKiller)
 endEvent
 
 Event OnUpdateGameTime()
-	Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - OnUpdateGameTime is called")
+	Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime is called")
 
 	if self.GetType() == 62
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - OnUpdateGameTime : Type of " + self + " is kCharacter.")
+		Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime : Type of " + self + " is kCharacter.")
 
 		if IsDead() == false
-			Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - OnUpdateGameTime : " + self + " is not dead. Updating size and etc...")
+			Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime : " + self + " is not dead. Updating size and etc...")
 			
 			StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
 			UpdateSize()
@@ -786,23 +786,23 @@ event OnUpdate()
 endEvent
 
 function UpdateSize()
-	Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize is called")
+	Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize is called")
 	bool IsGrowing = (StorageUtil.GetIntValue(self, "FW.AddOn.StartGrowing", 0) == 1)
 
 	if(IsGrowing)
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : " + self + " is growing!")
+		Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is growing!")
 		
 		if self.GetType() == 62
-			Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : Type of " + self + " is kCharacter.")
+			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : Type of " + self + " is kCharacter.")
 
 			race myChildRace = StorageUtil.GetFormValue(self, "FW.Child.Race" ) as race
 			float modifiedSizeDuration = _SizeDuration * Manager.RaceMatureTimeScale(myChildRace)
 			float modifiedFinalScale = Manager.RaceFinalScale(myChildRace)
-			Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is " + modifiedSizeDuration)
-			Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : modifiedFinalScale of " + self + " is " + modifiedFinalScale)
+			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is " + modifiedSizeDuration)
+			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedFinalScale of " + self + " is " + modifiedFinalScale)
 			
 			if(modifiedSizeDuration > 0)
-				Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is positive")
+				Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is positive")
 				
 				If Age >= modifiedSizeDuration
 	;				SetScale(1.0)
@@ -811,16 +811,16 @@ function UpdateSize()
 					Manager.AddToSLandBF(self)
 					
 					StorageUtil.SetIntValue(self, "FW.AddOn.StartGrowing", 0)
-					Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
+					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
 				elseif Age < 0.0
 					SetScale(_SmallSizeScale)
 
-					Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : The age of " + self + " is negative. Setting the scale to be SmallSizeScale, " + GetScale())
+					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : The age of " + self + " is negative. Setting the scale to be SmallSizeScale, " + GetScale())
 				else
 	;				SetScale((((1.0 - _SmallSizeScale) / modifiedSizeDuration) * Age) + _SmallSizeScale)
 					SetScale((((modifiedFinalScale - _SmallSizeScale) / modifiedSizeDuration) * Age) + _SmallSizeScale)
 					
-					Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : " + self + " is growing! Current scale is " + GetScale())
+					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is growing! Current scale is " + GetScale())
 				endIf
 			else
 				SetScale(modifiedFinalScale)
@@ -828,7 +828,7 @@ function UpdateSize()
 				Manager.AddToSLandBF(self)
 				
 				StorageUtil.SetIntValue(self, "FW.AddOn.StartGrowing", 0)
-				Debug.Trace("BeeingFemaleSE_Opt - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
+				Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
 			endIf
 		endif
 	endIf

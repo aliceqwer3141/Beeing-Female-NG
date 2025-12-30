@@ -388,7 +388,7 @@ event ChildLoadPerkData(string hookName, string argString, float argNum, form Se
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - ChildLoadPerkData : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildLoadPerkData : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	int i = lastInitPerk
@@ -497,7 +497,7 @@ event ChildActorPerk(string hookName, string argString, float argNum, form Sende
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - ChildActorPerk : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildActorPerk : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(Sender == menuChild)
@@ -549,7 +549,7 @@ event ChildActorSkilled(string hookName, string argString, float argNum, form Se
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - ChildActorSkilled : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildActorSkilled : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(Sender == menuChild)
@@ -573,7 +573,7 @@ event ChildSkillMenuClosed(string hookName, string argString, float argNum, form
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - ChildSkillMenuClosed : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildSkillMenuClosed : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(menuChild.IsLearning) ;Tkc (Loverslab) optimization
@@ -591,7 +591,7 @@ event GetBeeingFemaleChildData(string hookName, string argString, float argNum, 
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - GetBeeingFemaleChildData : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildData : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	; Info Tab
@@ -688,7 +688,7 @@ event GetBeeingFemaleChildStats(string hookName, string argString, float argNum,
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - GetBeeingFemaleChildStats : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildStats : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(menuChild)
@@ -715,7 +715,7 @@ event GetBeeingFemaleChildStats(string hookName, string argString, float argNum,
 		intA[17] = menuChild.GetActorValue("Sneak")
 		intA[18] = menuChild.GetActorValue("Health")
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWChildSettings - GetBeeingFemaleChildStats : menuChild is none!")
+		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildStats : menuChild is none!")
 	endIf
 	
 	int numPerks=0

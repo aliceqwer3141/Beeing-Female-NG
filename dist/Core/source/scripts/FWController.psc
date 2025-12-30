@@ -883,7 +883,7 @@ function GiveBirth(actor Mother)
 		Mother.SetDontMove(false)
 		
 		if(cfg.NPCHaveItems)
-			Debug.Trace("BeeingFemaleSE_Opt - FWController : NPCHaveItems option is turned on, and thus adding contraception to " + Mother + " whose name is " + Mother.GetDisplayName())
+			Debug.Trace("[Beeing Female NG] - FWController : NPCHaveItems option is turned on, and thus adding contraception to " + Mother + " whose name is " + Mother.GetDisplayName())
 			Mother.AddItem(ContraceptionMid,3)
 			Mother.AddItem(ContraceptionLow,12)
 		endIf

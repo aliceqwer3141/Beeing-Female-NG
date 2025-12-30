@@ -267,7 +267,7 @@ function RemoveSPIDitems(actor woman)
 			ithItem = Pill_Items.GetAt(index)
 			ithItemNum = woman.GetItemCount(ithItem)
 			if(ithItemNum)
-				Debug.Trace("BeeingFemaleSE_Opt - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
+				Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
 				woman.RemoveItem(ithItem, ithItemNum, true)
 			endIf
 			index += 1
@@ -280,7 +280,7 @@ function RemoveSPIDitems(actor woman)
 			ithItem = WashOut_List.GetAt(index)
 			ithItemNum = woman.GetItemCount(ithItem)
 			if(ithItemNum)
-				Debug.Trace("BeeingFemaleSE_Opt - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
+				Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
 				woman.RemoveItem(ithItem, ithItemNum, true)
 			endIf
 			index += 1
@@ -289,19 +289,19 @@ function RemoveSPIDitems(actor woman)
 	
 	ithItemNum = woman.GetItemCount(Tampon_Normal)
 	if(ithItemNum)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " tampons. Removing...")
+		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " tampons. Removing...")
 		woman.RemoveItem(Tampon_Normal, ithItemNum, true)
 	endIf
 
 	ithItemNum = woman.GetItemCount(Sanitary_Napkin_Normal)
 	if(ithItemNum)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " panties. Removing...")
+		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " panties. Removing...")
 		woman.RemoveItem(Sanitary_Napkin_Normal, ithItemNum, true)
 	endIf
 
 	ithItemNum = woman.GetItemCount(CallChildren2)
 	if(ithItemNum)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " child scrolls. Removing...")
+		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " child scrolls. Removing...")
 		woman.RemoveItem(CallChildren2, ithItemNum, true)
 	endIf
 endFunction
@@ -655,7 +655,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 					bool myIsCustomChildActor = (StorageUtil.GetIntValue(myCustomChildActor, "FW.Child.IsCustomChildActor", 0) == 1)
 					if(myIsCustomChildActor)
 					else
-						Debug.Trace("BeeingFemaleSE_Opt - FWSystem: Adding IsCustomChildActor flag to the actor: " + myCustomChildActor)
+						Debug.Trace("[Beeing Female NG] - FWSystem: Adding IsCustomChildActor flag to the actor: " + myCustomChildActor)
 						StorageUtil.SetIntValue(myCustomChildActor, "FW.Child.IsCustomChildActor", 1)
 					endIf			
 				else
@@ -1846,7 +1846,7 @@ int function calculateNumChildren(actor Woman)
 	
 	float myMultipleBabySperm = Manager.ActorMultipleBabySperm(Woman)
 	if(myMultipleBabySperm > 0.0)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: MultipleBabySperm = " + myMultipleBabySperm + " for actor " + Woman)
+		Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: MultipleBabySperm = " + myMultipleBabySperm + " for actor " + Woman)
 		float[] relevantSperm = Controller.GetRelevantSpermFloatTimed(Woman, GameDaysPassed.GetValue(), false, false)
 		float relevanceTotal = 0.0
 		int c = relevantSperm.length
@@ -1860,21 +1860,21 @@ int function calculateNumChildren(actor Woman)
 			
 		float myMultipleBabySpermChance = Manager.ActorMultipleBabyChancePerSperm(Woman)
 		if(myMultipleBabySpermChance > 0.0)
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: MultipleBabyChancePerSperm = " + myMultipleBabySpermChance + " for actor " + Woman)
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: The amount of sperm in " + Woman + " is " + relevanceTotal)
+			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: MultipleBabyChancePerSperm = " + myMultipleBabySpermChance + " for actor " + Woman)
+			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: The amount of sperm in " + Woman + " is " + relevanceTotal)
 				
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: Original multiple baby chance for " + Woman + " was " + myOrigMaxBabyChance)
+			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Original multiple baby chance for " + Woman + " was " + myOrigMaxBabyChance)
 			float myMaxBabyChanceMultiplier = relevanceTotal * myMultipleBabySpermChance / myMultipleBabySperm
 			MaxBabyChance *= myMaxBabyChanceMultiplier
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: Multiple baby chance for " + Woman + " will be multiplied by " + myMaxBabyChanceMultiplier)
+			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Multiple baby chance for " + Woman + " will be multiplied by " + myMaxBabyChanceMultiplier)
 		endIf
 	endIf
 	myMaxBabyChance = (1.0 / (cfg.MultipleThreshold)) * MaxBabyChance
 	if(myMaxBabyChance > 1.0)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: Multiple baby chance cannot exceed 100 percent! Changing the probability for " + Woman + " to 100 percent")
+		Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Multiple baby chance cannot exceed 100 percent! Changing the probability for " + Woman + " to 100 percent")
 		myMaxBabyChance = 1.0
 	endIf
-	Debug.Trace("BeeingFemaleSE_Opt - FWSystem - calculateNumChildren: Current multiple baby chance for " + Woman + " is " + myMaxBabyChance)
+	Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Current multiple baby chance for " + Woman + " is " + myMaxBabyChance)
 	
 	; on a realistic base of 1 / 85 (~1.2%) following results will be
 	; 1 Child    - 100.0000000000%
@@ -2068,14 +2068,14 @@ bool function canBecomePregnant(actor woman)
 				endif
 				chance *= Manager.PregnancyChanceActorScale(woman)
 
-				Debug.Trace("BeeingFemaleSE_Opt - FWSystem - canBecomePregnant: the actor " + woman + "'s pregnancy chance is " + chance)
+				Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + "'s pregnancy chance is " + chance)
 
 				if(Utility.RandomFloat(0.0, 99.9) < chance)
-					Debug.Trace("BeeingFemaleSE_Opt - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
+					Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
 
 					return true
 				else
-					Debug.Trace("BeeingFemaleSE_Opt - FWSystem - canBecomePregnant: the actor " + woman + " cannot become pregnant yet")
+					Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " cannot become pregnant yet")
 				endIf
 			endIf
 		endIf
@@ -2459,13 +2459,13 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 	
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildSexDetermMale = Manager.ActorChildSexDetermMale(Father)
-	Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
+	Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
 
 	if(myProbRandom < myChildSexDetermMale)
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildSexDetermMale. Child will be a boy.")
+		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildSexDetermMale. Child will be a boy.")
 		gender=0
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
+		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
 		gender=1
 	endif
 	actorbase newChildBase = BabyItemList.getBabyActor(Mother, Father,gender)
@@ -2555,20 +2555,20 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		
 		Race newChildRace = BabyItemList.LastRace
 		
-		Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
+		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
 		Manager.RaceExcludeFromSLandBF(newChild, newChildRace)
 		
 		if(StorageUtil.GetIntValue(newChildRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
 			newChild.AllowPCDialogue(true)
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
+			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
 		elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
 			newChild.AllowPCDialogue(true)
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player, from global AddOn settings")
+			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player, from global AddOn settings")
 		endIf
 		
 		FWChildActor fwchild = newChild as FWChildActor
 		if fwchild; != none ;Tkc (Loverslab): optimization
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: Child " + newChild + " belongs to FWChildActor")
+			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " belongs to FWChildActor")
 			StorageUtil.SetIntValue(fwchild, "FW.AddOn.StartGrowing", 1)
 			
 ;			fwchild.ChildRace = BabyItemList.LastRace
@@ -2642,7 +2642,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 			endif
 			fwchild.InitChild()
 		else
-			Debug.Trace("BeeingFemaleSE_Opt - FWSystem - SpawnChildActor: Child " + newChild + " does not belong to FWChildActor")
+			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " does not belong to FWChildActor")
 			newChild.StopCombat()
 			if Mother
 				newChild.SetRelationshipRank(Mother, ChildSettings.ParentRelationShipLevel)

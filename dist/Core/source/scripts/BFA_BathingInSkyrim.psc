@@ -36,15 +36,15 @@ event OnUpdate()
 ;		endif
 ;	endwhile
 
-	Debug.Trace("BeeingFemaleSE_Opt - BFA_BathingInSkyrim - checking whether Bathing in Skyrim is installed...")
+	Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - checking whether Bathing in Skyrim is installed...")
 	string modName = FWUtility.ModFile("Bathing in Skyrim")
 	if modName != ""
-		Debug.Trace("BeeingFemaleSE_Opt - BFA_BathingInSkyrim - Bathing in Skyrim is installed. Its plugin name is " + modName)
+		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - Bathing in Skyrim is installed. Its plugin name is " + modName)
 		sBathingEffect = Game.GetFormFromFile(0x68A026, modName) as MagicEffect
 		sBathingEffectSoap = Game.GetFormFromFile(0x68A02A, modName) as MagicEffect
 		sBathingEffectSoapAnimated = Game.GetFormFromFile(0x68A02B, modName) as MagicEffect
 		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none))
-		Debug.Trace("BeeingFemaleSE_Opt - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
+		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
 		TryRegisterCount=0
 		return
 	endif

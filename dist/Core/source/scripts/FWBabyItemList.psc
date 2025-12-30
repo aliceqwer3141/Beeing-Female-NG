@@ -202,15 +202,15 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 		ParentRace = ParentActor.GetLeveledActorBase().GetRace()
 	Else
-		Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 		ParentRace = MotherRace
@@ -344,15 +344,15 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 	
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 		ParentRace = ParentActor.GetLeveledActorBase().GetRace()
 	Else
-		Debug.Trace("BeeingFemaleSE_Opt - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 		ParentRace = MotherRace

@@ -328,7 +328,7 @@ Form Function GetFormFromStringSE(string s) global	; Use this one INSTEAD of Get
 							
 		return Game.GetFormFromFile(myStringFormID, myStringMasterPlugin)
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:)...")
+		Debug.Trace("[Beeing Female NG] - FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:)...")
 		
 		return none
 	endIf

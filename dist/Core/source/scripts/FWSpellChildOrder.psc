@@ -84,10 +84,10 @@ function TeleportTo(Actor c, quest q, string AliasName)
 			;Debug.Trace("Failed to teleport child '" + c.GetDisplayName() + "' - Not possible to teleport to an LocationAlias")
 			;c.MoveToInteractionLocation(la.GetLocation())
 		else
-			Debug.Trace("BeeingFemaleSE_Opt - FWSpellChildOrder - TeleportTo: Failed to teleport child '" + c.GetDisplayName() + "' - No validate alias")
+			Debug.Trace("[Beeing Female NG] - FWSpellChildOrder - TeleportTo: Failed to teleport child '" + c.GetDisplayName() + "' - No validate alias")
 		endif
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWSpellChildOrder - TeleportTo: Failed to teleport child '" + c.GetDisplayName() + "' - Unknown alias")
+		Debug.Trace("[Beeing Female NG] - FWSpellChildOrder - TeleportTo: Failed to teleport child '" + c.GetDisplayName() + "' - Unknown alias")
 	endif
 endfunction
 

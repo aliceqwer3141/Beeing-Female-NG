@@ -99,7 +99,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				
 				bool myIsDispelledCustomChildActor = (StorageUtil.GetIntValue(akTarget, "FW.Child.DispelledCustomChildActor", 0) == 1)
 				if(myIsDispelledCustomChildActor)
-					Debug.Trace("BeeingFemaleSE_Opt - FWCloaking: Recasting DefaultCustomChildSpell to the actor " + akTarget)
+					Debug.Trace("[Beeing Female NG] - FWCloaking: Recasting DefaultCustomChildSpell to the actor " + akTarget)
 					akTarget.AddSpell(System._BF_DefaultCustomChildSpell)
 					StorageUtil.SetIntValue(akTarget, "FW.Child.DispelledCustomChildActor", 0)
 				endIf

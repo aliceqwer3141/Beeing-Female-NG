@@ -2644,7 +2644,7 @@ Event OnPageReset(string page)
 		
 		; No AddOn was selected. Print a list with all AddOns
 		else
-;			Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - Loading AddOns...")
+;			Debug.Trace("[Beeing Female NG] - FWSystemConfig - Loading AddOns...")
 			; Var Definitions
 			int iFCount=FWUtility.GetFileCount("AddOn","ini")
 			int iCMisc=0
@@ -2668,7 +2668,7 @@ Event OnPageReset(string page)
 			string[] regGroup=new string[128]
 			int cGroup=0
 			
-;			Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - Number of AddOns is " + iFCount)
+;			Debug.Trace("[Beeing Female NG] - FWSystemConfig - Number of AddOns is " + iFCount)
 
 			; Read in all AddOns
 			while iFCount>0
@@ -2682,12 +2682,12 @@ Event OnPageReset(string page)
 				string sAddOnType = FWUtility.toLower(FWUtility.getIniCString("AddOn", f, "AddOn", "type", ""))
 				string required = FWUtility.getIniCString("AddOn",f,"AddOn","required")
 
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bAddOnEnabled = " + bAddOnEnabled)
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bAddOnLocked = " + bAddOnLocked)
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bAddOnHidden = " + bAddOnHidden)
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: sAddOnName = " + sAddOnName)
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: sAddOnType = " + sAddOnType)
-;				Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: required = " + required)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnEnabled = " + bAddOnEnabled)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnLocked = " + bAddOnLocked)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnHidden = " + bAddOnHidden)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sAddOnName = " + sAddOnName)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sAddOnType = " + sAddOnType)
+;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: required = " + required)
 
 				bool bUse=true
 				if required;/!=""/;
@@ -2696,14 +2696,14 @@ Event OnPageReset(string page)
 					int myIndex = 0
 					int NumOfRequired = requiredA.Length
 					while(myIndex < NumOfRequired)
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: " + (myIndex + 1) + "th required plugin is = " + requiredA[myIndex])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: " + (myIndex + 1) + "th required plugin is = " + requiredA[myIndex])
 						myIndex += 1
 					endWhile
 
 ;					if FWUtility.AreModsInstalled(requiredA)==false
 					if(FWUtility.AreModsInstalled(requiredA))
 					else
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: requirement is not satisfied...")
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: requirement is not satisfied...")
 						bUse=false
 					endif
 				endif
@@ -2721,9 +2721,9 @@ Event OnPageReset(string page)
 						bERace[iCRace]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNRace[iCRace]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnRaces[" + iCRace + "] is " + UIS_AddOnRaces[iCRace])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bERace[" + iCRace + "] is " + bERace[iCRace])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: sNRace[" + iCRace + "] is " + sNRace[iCRace])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnRaces[" + iCRace + "] is " + UIS_AddOnRaces[iCRace])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bERace[" + iCRace + "] is " + bERace[iCRace])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNRace[" + iCRace + "] is " + sNRace[iCRace])
 
 						iCRace+=1
 ;					elseif sAddOnType=="cme" || sAddOnType=="Cme" || sAddOnType=="CME" || sAddOnType=="CMe"
@@ -2732,9 +2732,9 @@ Event OnPageReset(string page)
 						bECME[iCCME]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNCME[iCCME]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnCME[" + iCCME + "] is " + UIS_AddOnCME[iCCME])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bECME[" + iCCME + "] is " + bECME[iCCME])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: sNCME[" + iCCME + "] is " + sNCME[iCCME])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnCME[" + iCCME + "] is " + UIS_AddOnCME[iCCME])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bECME[" + iCCME + "] is " + bECME[iCCME])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNCME[" + iCCME + "] is " + sNCME[iCCME])
 
 						iCCME+=1
 ;					elseif sAddOnType=="misc" || sAddOnType=="Misc" || sAddOnType=="MISC" || sAddOnType=="MISc"
@@ -2743,9 +2743,9 @@ Event OnPageReset(string page)
 						bEMisc[iCMisc]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNMisc[iCMisc]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnMisc[" + iCMisc + "] is " + UIS_AddOnMisc[iCMisc])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: bEMisc[" + iCMisc + "] is " + bEMisc[iCMisc])
-;						Debug.Trace("BeeingFemaleSE_Opt - FWSystemConfig - " + iFCount + "th AddOn: sNMisc[" + iCMisc + "] is " + sNMisc[iCMisc])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnMisc[" + iCMisc + "] is " + UIS_AddOnMisc[iCMisc])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bEMisc[" + iCMisc + "] is " + bEMisc[iCMisc])
+;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNMisc[" + iCMisc + "] is " + sNMisc[iCMisc])
 
 						iCMisc+=1
 					endif

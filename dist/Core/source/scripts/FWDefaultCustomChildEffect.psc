@@ -22,13 +22,13 @@ int CurrentMatureStep
 Actor TargetActor
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-;	Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: akTarget = " + akTarget + ", and akCaster = " + akCaster)
+;	Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: akTarget = " + akTarget + ", and akCaster = " + akCaster)
 	TargetActor = akTarget
 	DayOfBirth = StorageUtil.GetFloatValue(TargetActor, "FW.Child.DOB", -1)
 	finalScale = BF_AddOnManager.ActorFinalScale(TargetActor)
 
 	if(DayOfBirth == -1)
-		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: Started for the first time on actor: " + akTarget + " by caster: " + akCaster)
+		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: Started for the first time on actor: " + akTarget + " by caster: " + akCaster)
 		DayOfBirth = GameDaysPassed.GetValue()
 
 		StorageUtil.SetFloatValue(TargetActor, "FW.Child.DOB", DayOfBirth)
@@ -48,19 +48,19 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				
 			TargetActor.SetScale(initialScale)
 
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureStep = " + MatureStep)
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureTime = " + MatureTimeInHours + " hours")
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: initialScale = " + initialScale)
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: finalScale = " + finalScale)
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureTimeStep = " + MatureTimeStep + " hours")
-	;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: ScaleStep = " + ScaleStep)
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureStep = " + MatureStep)
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureTime = " + MatureTimeInHours + " hours")
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: initialScale = " + initialScale)
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: finalScale = " + finalScale)
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureTimeStep = " + MatureTimeStep + " hours")
+	;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: ScaleStep = " + ScaleStep)
 				
 			RegisterForSingleUpdateGameTime(MatureTimeStep)
 		else
 			FinalizeMature()
 		endIf
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: restarted for some reason on actor: " + akTarget + " by caster: " + akCaster)
+		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: restarted for some reason on actor: " + akTarget + " by caster: " + akCaster)
 
 		CurrentAgeInHours = 24 * (GameDaysPassed.GetValue() - DayOfBirth)
 		MatureTimeInHours = BF_AddOnManager.ActorCustomMatureTimeInHours(TargetActor)
@@ -76,12 +76,12 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 				ScaleStep = BF_AddOnManager.ActorMatureScaleStep(TargetActor)		
 				initialScale = BF_AddOnManager.ActorInitialScale(TargetActor)
 					
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureStep = " + MatureStep)
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureTime = " + MatureTimeInHours + " hours")
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: initialScale = " + initialScale)
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: finalScale = " + finalScale)
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: MatureTimeStep = " + MatureTimeStep + " hours")
-		;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: ScaleStep = " + ScaleStep)
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureStep = " + MatureStep)
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureTime = " + MatureTimeInHours + " hours")
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: initialScale = " + initialScale)
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: finalScale = " + finalScale)
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureTimeStep = " + MatureTimeStep + " hours")
+		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: ScaleStep = " + ScaleStep)
 					
 				RegisterForSingleUpdate(1.0)
 			else
@@ -101,8 +101,8 @@ Event OnUpdate()
 		CurrentScale = initialScale + (CurrentMatureStep * ScaleStep)
 		TargetActor.SetScale(CurrentScale)
 
-;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: CurrentMatureStep = " + CurrentMatureStep)
-;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: CurrentScale = " + CurrentScale)
+;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: CurrentMatureStep = " + CurrentMatureStep)
+;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: CurrentScale = " + CurrentScale)
 		RegisterForSingleUpdateGameTime(MatureTimeStep)
 	else
 		FinalizeMature()
@@ -117,8 +117,8 @@ Event OnUpdateGameTime()
 		CurrentScale = initialScale + (CurrentMatureStep * ScaleStep)
 		TargetActor.SetScale(CurrentScale)
 
-;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: CurrentMatureStep = " + CurrentMatureStep)
-;		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: CurrentScale = " + CurrentScale)
+;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: CurrentMatureStep = " + CurrentMatureStep)
+;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: CurrentScale = " + CurrentScale)
 		RegisterForSingleUpdateGameTime(MatureTimeStep)
 	else
 		FinalizeMature()
@@ -126,20 +126,20 @@ Event OnUpdateGameTime()
 endEvent
 
 Function FinalizeMature()
-;	Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: Finished mature process. Removing...")	
+;	Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: Finished mature process. Removing...")	
 	TargetActor.SetScale(finalScale)
 	BF_AddOnManager.AddToSLandBF(TargetActor)
 endFunction
 
 Event OnEffectFinish(Actor akTarget, Actor akCaster)
 	if(TargetActor.Is3DLoaded())
-		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: Finished for some unknown reason!")
+		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: Finished for some unknown reason!")
 		if((!TargetActor.HasSpell(_BF_DefaultCustomChildSpell)) || (!TargetActor.HasMagicEffect(_BF_DefaultCustomChildEffect)))
-			Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: re-casting!")
+			Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: re-casting!")
 			TargetActor.AddSpell(_BF_DefaultCustomChildSpell)
 		endIf
 	else
-		Debug.Trace("BeeingFemaleSE_Opt - FWDefaultCustomChildEffect: Finished as player is far away from the actor " + TargetActor)
+		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: Finished as player is far away from the actor " + TargetActor)
 		StorageUtil.SetIntValue(TargetActor, "FW.Child.DispelledCustomChildActor", 1)
 	endIf
 endEvent
