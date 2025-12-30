@@ -400,7 +400,7 @@ function CheckForSexMods()
 			bAP=true
 		elseif m=="zzEstrus.esp"
 			bEstrus=true
-		elseif m=="Bathing in Skyrim - Main.esp"
+		elseif m=="Bathing in Skyrim.esp"
 			bBathingInSkyrim=true
 		elseif m=="ASX_Spells.esp"
 			bSexModInstalled=true
@@ -439,7 +439,7 @@ function CheckForSexMods()
 		if FWUtility.ModFile("zzEstrus")
 			bEstrus=true
 		endif		
-		if FWUtility.ModFile("Bathing in Skyrim - Main")
+		if FWUtility.ModFile("Bathing in Skyrim")
 			bBathingInSkyrim=true
 		endif		
 		if FWUtility.ModFile("ASX_Spells")

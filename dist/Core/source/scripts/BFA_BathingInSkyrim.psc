@@ -43,7 +43,7 @@ event OnUpdate()
 		sBathingEffect = Game.GetFormFromFile(0x68A026, modName) as MagicEffect
 		sBathingEffectSoap = Game.GetFormFromFile(0x68A02A, modName) as MagicEffect
 		sBathingEffectSoapAnimated = Game.GetFormFromFile(0x68A02B, modName) as MagicEffect
-		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none))
+		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none)) && (sBathingEffectSoapAnimated != none))
 		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
 		TryRegisterCount=0
 		return
