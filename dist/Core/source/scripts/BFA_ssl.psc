@@ -39,7 +39,7 @@ event OnUpdate()
 		Lib = Game.GetFormFromFile(0x00000D62, "SexLab.esm") as sslThreadLibrary
 		if SexLab && Lib
 			bSexLab = true
-			;RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
+			RegisterForModEvent("OrgasmStart", "OnSexLabOrgasm")
 			RegisterForModEvent("HookOrgasmStart", "OnSexLabOrgasm")
 			RegisterForModEvent("SexLabOrgasmSeparate", "OnSexLabOrgasmSeparate")
 			;Trace("BFA_ssl::OnGameLoad() = true");temporary uncommented for tests
