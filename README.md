@@ -70,20 +70,24 @@ dist/Core/skse/plugins
 Beeing Female NG listens for a few mod events you can emit from your own Papyrus scripts.
 
 - `BeeingFemale` (SendModEvent): command-style event; sender must be an Actor (typically the female).
-  - `AddContraception` (numArg = %): add contraception to the actor.
-  - `AddSperm` (numArg = donor FormID): add sperm from the donor to the actor.
-  - `WashOutSperm` (numArg = %): wash out a percentage of stored sperm. Strength applied to the chances in the ini file
-  - `ChangeState` (numArg = 0..8): force a cycle state by index (e.g. 3 = menstruation).
-  - `InfoBox` (numArg = sort mode): open the info window for the actor.
-  - `DamageBaby` / `HealBaby` (numArg = amount): apply damage/heal to the unborn baby.
-  - `CanBecomePregnant` / `CanBecomePMS` (numArg = 1 or 0): toggle eligibility flags for the actor.
-  - `TestScale` (numArg = scale): run a scaling test on the actor.
-  - `CheckAbortus` (numArg unused): force an abortus check.
-  - `Update` (numArg unused): refresh actor data/state.
-  - `Belly` / `Birth` (numArg unused): refresh belly state (birth triggers the same update path).
-  - `Dispel` (numArg unused): dispel the BF effect on the actor.
-  - `ConceptionChance` (numArg = 1 player, 2 follower, 3 npc): update auto-impregnation flags by target group.
-- `AddActorSperm` and `AddSperm` (ModEvent): push two Actor forms (woman first, donor second).
+  - `AddContraception` (numArg = %): add contraception to the sender; values > 0 only.
+  - `AddSperm` (numArg = donor FormID): add sperm from the donor to the sender; donor must resolve to an Actor.
+  - `WashOutSperm` (numArg = %): wash out a percentage of stored sperm on the sender; strength scales the configured washout chances (higher % increases the effective washout chance for that call).
+  - `ChangeState` (numArg = 0..8): force a cycle state by index; only valid for female actors.
+    - `0` Follicular, `1` Ovulating, `2` Luteal, `3` Menstruating
+    - `4` 1st Trimester, `5` 2nd Trimester, `6` 3rd Trimester
+    - `7` Labor pains, `8` Replenish from birth
+    - Note: UI-only states `20` (Pregnant) and `21` (Pregnant by chaurus) are not valid targets here.
+  - `InfoBox` (numArg = sort mode): open the info window for the sender; 100 is the default sort mode.
+  - `DamageBaby` / `HealBaby` (numArg = amount): apply damage/heal to the unborn baby of the sender.
+  - `CanBecomePregnant` / `CanBecomePMS` (numArg = 1 or 0): toggle eligibility flags for the sender (1 = allow, 0 = disallow).
+  - `TestScale` (numArg = scale): run a scaling test on the sender (debug).
+  - `CheckAbortus` (numArg unused): run the abortus state machine on the sender; it may start/advance/resolve abortus based on unborn health, trimester timing, and randomness.
+  - `Update` (numArg unused): refresh cached data/state for the sender.
+  - `Belly` / `Birth` (numArg unused): refresh belly visuals for the sender.
+  - `Dispel` (numArg unused): dispel the BeeingFemale effect on the sender.
+  - `ConceptionChance` (numArg = 1 player, 2 follower, 3 npc): update auto-impregnation flags for the sender based on target group.
+- `AddActorSperm` and `AddSperm` (ModEvent): push two Actor forms (woman first, donor second). Both must be valid actors; adds sperm without using a command string.
 
 Examples:
 
@@ -105,4 +109,12 @@ FemaleActor.SendModEvent("BeeingFemale", "Belly")
 FemaleActor.SendModEvent("BeeingFemale", "Birth")
 FemaleActor.SendModEvent("BeeingFemale", "Dispel")
 FemaleActor.SendModEvent("BeeingFemale", "ConceptionChance", 2)
+```
+
+Abortus trigger example (requires a pregnant actor and abortus enabled in config):
+
+```papyrus
+; Reduce unborn health, then force a check
+FemaleActor.SendModEvent("BeeingFemale", "DamageBaby", 999)
+FemaleActor.SendModEvent("BeeingFemale", "CheckAbortus")
 ```
