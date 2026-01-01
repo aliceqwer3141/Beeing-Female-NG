@@ -3296,8 +3296,17 @@ endEvent
 
 int function getCompatiblity_Skyrim()
 	string v = Debug.GetVersionNumber()
-	string f = StringUtil.SubString(v, 0, 3)
-	if (f as float) >= 1.9
+	int dot1 = StringUtil.Find(v, ".")
+	if dot1 < 0
+		return 2
+	endif
+	int dot2 = StringUtil.Find(v, ".", dot1 + 1)
+	if dot2 < 0
+		return 2
+	endif
+	int major = (StringUtil.SubString(v, 0, dot1)) as int
+	int minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
+	if (major > 1) || (major == 1 && minor >= 5)
 		return 1
 	endif
 	return 2
@@ -3314,8 +3323,8 @@ int function getCompatiblity_SKSE()
 endFunction
 
 int function getCompatiblity_PapyrusUtil()
-	if SKSE.GetPluginVersion("papyrusutil plugin")==-1
-		return 0
+	if PapyrusUtil.GetVersion() < 30
+		return 2
 	endif
 	return 1
 endFunction

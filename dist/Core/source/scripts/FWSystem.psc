@@ -476,7 +476,16 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		Message(Content.Req_BF,MSG_Always)
 	endif
 	LoadState=4
-	if (StringUtil.SubString(Debug.GetVersionNumber(), 0, 3) as float) < 1.5
+	string v = Debug.GetVersionNumber()
+	int dot1 = StringUtil.Find(v, ".")
+	int dot2 = StringUtil.Find(v, ".", dot1 + 1)
+	int major = 0
+	int minor = 0
+	if dot1 >= 0 && dot2 >= 0
+		major = (StringUtil.SubString(v, 0, dot1)) as int
+		minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
+	endif
+	if (major < 1) || (major == 1 && minor < 5)
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
 		;if bFirstRun;/==true/; || cfg.Messages<=1 ;Tkc (Loverslab): optimization: Commented condition because Progress.Set was also commented and will be doing nothing
