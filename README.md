@@ -65,7 +65,29 @@ dist/Core/skse/plugins
 - OStim: optional integration via `dist/Core/source/scripts/BFA_Ostim.psc` that listens for OStim orgasm events and applies sperm/impregnation logic when a male and female pair have vaginal sex (supports OStim API 23+ with NG thread events when available).
 - SexLab: optional integration via `dist/Core/source/scripts/BFA_ssl.psc` and `dist/Core/source/scripts/BFA_AbilityEffectPMSSexHurt.psc` that hooks orgasm and stage events to apply sperm/impregnation logic and PMS sex-hurt effects; also uses the SexLab AnimatingFaction and optionally Devious Devices keywords when present. Recognises hentairim tags now and is more precise
 
-## Papyrus ModEvents
+## For Modders
+
+### Reading State and Sperm Info
+
+Use StorageUtil to read the current state and inspect stored sperm data.
+
+```papyrus
+; Current state (0..8)
+int s = StorageUtil.GetIntValue(PlayerRef, "FW.CurrentState", 0)
+
+; Check if there is significant sperm stored
+int sa = StorageUtil.FormListCount(PlayerRef, "FW.SpermName")
+bool isCumInside = false
+while sa > 0
+	sa -= 1
+	float amo = StorageUtil.FloatListGet(PlayerRef, "FW.SpermAmount", sa)
+	if amo > 0.3
+		isCumInside = true
+	endif
+endwhile
+```
+
+### Papyrus ModEvents
 
 Beeing Female NG listens for a few mod events you can emit from your own Papyrus scripts.
 
@@ -118,3 +140,19 @@ Abortus trigger example (requires a pregnant actor and abortus enabled in config
 FemaleActor.SendModEvent("BeeingFemale", "DamageBaby", 999)
 FemaleActor.SendModEvent("BeeingFemale", "CheckAbortus")
 ```
+
+### Custom Race Add-ons
+
+Use a race add-on INI to customize pregnancy/cycle behavior per custom race.
+
+1) Copy `dist/Core/BeeingFemale/AddOn/CustomRace AddOn Example.ini` and rename it.
+2) In `[AddOn]`:
+   - Set `name`, `description`, `author`, and `type=race`.
+   - Set `required=YourRacePlugin.esp` (optional but recommended).
+   - Set `enabled=true` if you want it active by default (or enable it in MCM later).
+3) Set `races=N`, then add `[Race1]...[RaceN]` sections.
+4) In each `[RaceN]`, set `id=PluginName:FormID` (hex FormID without `0x`; commas allowed).
+5) Edit the per-race settings you need (durations, pain scales, pregnancy chance, etc.).
+6) (Optional) If you need custom baby actors/items, follow `dist/Core/BeeingFemale/AddOn/ChildActor AddOn Example.ini`.
+
+After saving the INI, enable the add-on in the BeeingFemale MCM if it is not enabled by default.
