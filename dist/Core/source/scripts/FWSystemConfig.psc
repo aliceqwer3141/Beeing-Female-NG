@@ -3306,7 +3306,8 @@ int function getCompatiblity_Skyrim()
 	endif
 	int major = (StringUtil.SubString(v, 0, dot1)) as int
 	int minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
-	if (major > 1) || (major == 1 && minor >= 5)
+	bool isVR = (major == 1 && minor == 4)
+	if (major > 1) || (major == 1 && minor >= 5) || isVR
 		return 1
 	endif
 	return 2
@@ -3315,11 +3316,26 @@ endFunction
 int function getCompatiblity_SKSE()
 	if(SKSE.GetVersionRelease() == 0)
 		return 0
+	endif
+	string v = Debug.GetVersionNumber()
+	int dot1 = StringUtil.Find(v, ".")
+	int dot2 = -1
+	int major = 0
+	int minor = 0
+	if dot1 >= 0
+		dot2 = StringUtil.Find(v, ".", dot1 + 1)
+	endif
+	if dot1 >= 0 && dot2 >= 0
+		major = (StringUtil.SubString(v, 0, dot1)) as int
+		minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
+	endif
+	bool isVR = (major == 1 && minor == 4)
+	if isVR
+		return 1
 	elseif SKSE.GetScriptVersionRelease()<48
 		return 2
-	else
-		return 1
 	endif
+	return 1
 endFunction
 
 int function getCompatiblity_PapyrusUtil()

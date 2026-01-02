@@ -485,7 +485,8 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		major = (StringUtil.SubString(v, 0, dot1)) as int
 		minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
 	endif
-	if (major < 1) || (major == 1 && minor < 5)
+	bool isVR = (major == 1 && minor == 4)
+	if (major < 1) || ((major == 1 && minor < 5) && !isVR)
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
 		;if bFirstRun;/==true/; || cfg.Messages<=1 ;Tkc (Loverslab): optimization: Commented condition because Progress.Set was also commented and will be doing nothing
@@ -503,7 +504,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		LoadState=6
 		Message(Content.Req_SKSE, MSG_Always, MSG_Box)
 		return
-	elseif SKSE.GetScriptVersionRelease()<48
+	elseif !isVR && SKSE.GetScriptVersionRelease()<48
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
 		;if bFirstRun;/==true/; || cfg.Messages<=1 ;Tkc (Loverslab): optimization: Commented condition because Progress.Set was also commented and will be doing nothing
