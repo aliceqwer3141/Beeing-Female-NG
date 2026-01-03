@@ -3,7 +3,6 @@ import FWHentairimUtils
 
 SexLabFramework Property SexLab Auto
 sslThreadLibrary Lib
-OSexIntegrationMain OStim
 bool bSexLab = false
 FWSystem property System auto
 
@@ -247,6 +246,11 @@ Function OrgasmSeparate(sslThreadController ssl_controller, sslBaseAnimation ani
 	else
 		return
 	EndIf
+	; To determine whether zad_DeviousPlugAnal affects AddSperm
+	bool bool_cameInsideAnal = false
+	if(anim.hasTag("Anal") && isAnalInside && (Utility.RandomInt(1, 100) <= cfg.NoVaginalCumChance))
+		bool_cameInsideAnal = true
+	endIf
 	String callback = ""
 	int i = actors.length
 	while i > 0
@@ -257,13 +261,13 @@ Function OrgasmSeparate(sslThreadController ssl_controller, sslBaseAnimation ani
 			If currentOrgasmingActor != actors[i]
 				; only inseminate if the actor is female (or male pretending to be female!) and the animation position has cum effect set
 				If ((actorGender == 1) && cumSpot != -1)
-					processPair(actors[i], currentOrgasmingActor)
+					processPair(actors[i], currentOrgasmingActor, bool_cameInsideAnal)
 				EndIf
 			EndIf
 		EndWhile
 EndFunction
 
-Function processPair(Actor female, Actor Male)
+Function processPair(Actor Female, Actor Male, bool bool_cameInsideAnal)
 	If !Female || !Male
 		return
 	endif
@@ -302,7 +306,7 @@ Function processPair(Actor female, Actor Male)
 
 		if bZad;/==true/;
 			;Trace("7. Check for Device")
-			if Female.WornHasKeyword(zad_DeviousBelt) || female.WornHasKeyword(zad_DeviousPlugVaginal); Female.IsEquipped(System.DeviceBelt);/==true/;  Bane --> Fixed to cover all Chastity Belts
+			if(Female.WornHasKeyword(zad_DeviousBelt) || Female.WornHasKeyword(zad_DeviousPlugVaginal) || (bool_cameInsideAnal && Female.WornHasKeyword(zad_DeviousPlugAnal)))
 				;Trace("   A Device-Belt was detected")
 				;Trace("[/SexLabOrgasmEvent]")
 				return

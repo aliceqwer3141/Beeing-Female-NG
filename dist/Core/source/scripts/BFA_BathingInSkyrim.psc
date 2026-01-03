@@ -5,8 +5,9 @@ int TryRegisterCount=0
 FWSystem property System auto
 MagicEffect property sBathingEffect auto
 MagicEffect property sBathingEffectSoap auto
+MagicEffect property sBathingEffectSoapAnim = none auto hidden
 bool bActive = false
-MagicEffect sBathingEffectSoapAnimated
+
 FWController property Controller auto
 
 function OnGameLoad()
@@ -16,7 +17,6 @@ function OnGameLoad()
 	bIsInstalled = false
 	sBathingEffect = none
 	sBathingEffectSoap = none
-	sBathingEffectSoapAnimated = none
 	TryRegisterCount=0
 	RegisterForSingleUpdate(5)
 endFunction
@@ -37,17 +37,31 @@ event OnUpdate()
 ;	endwhile
 
 	Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - checking whether Bathing in Skyrim is installed...")
-	string modName = FWUtility.ModFile("Bathing in Skyrim")
+	string modName = FWUtility.ModFile("Bathing in Skyrim - Main")
 	if modName != ""
 		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - Bathing in Skyrim is installed. Its plugin name is " + modName)
-		sBathingEffect = Game.GetFormFromFile(0x68A026, modName) as MagicEffect
-		sBathingEffectSoap = Game.GetFormFromFile(0x68A02A, modName) as MagicEffect
-		sBathingEffectSoapAnimated = Game.GetFormFromFile(0x68A02B, modName) as MagicEffect
-		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none) && (sBathingEffectSoapAnimated != none))
+		sBathingEffect = Game.GetFormFromFile(0x28a3b, modName) as MagicEffect
+		sBathingEffectSoap = Game.GetFormFromFile(0x228ff, modName) as MagicEffect
+		sBathingEffectSoapAnim = sBathingEffectSoap
+		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none))
 		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
 		TryRegisterCount=0
 		return
-	endif
+	else
+		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - checking whether Bathing in Skyrim - Renewed is installed...")
+		modName = FWUtility.ModFile("Bathing in Skyrim")
+		if modName != ""
+			Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - Bathing in Skyrim - Renewed is installed. Its plugin name is " + modName)
+			sBathingEffect = Game.GetFormFromFile(0x00002C, modName) as MagicEffect
+			sBathingEffectSoap = Game.GetFormFromFile(0x00002A, modName) as MagicEffect
+			sBathingEffectSoapAnim = Game.GetFormFromFile(0x00002B, modName) as MagicEffect
+			bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none) && (sBathingEffectSoapAnim != none))
+			Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
+			TryRegisterCount=0
+			return
+		endif
+	endIf
+
 		
 	if !(TryRegisterCount>10)
 		TryRegisterCount+=1
@@ -59,7 +73,8 @@ function OnMagicEffectApply(Actor akWoman, ObjectReference akCaster, MagicEffect
 	if bIsInstalled && bActive
 		if akEffect==sBathingEffect
 			Controller.WashOutSperm(akWoman, 1, 0.6)
-		elseif akEffect==sBathingEffectSoap || akEffect==sBathingEffectSoapAnimated
+		;elseif akEffect==sBathingEffectSoap
+		elseif((akEffect == sBathingEffectSoap) || (akEffect == sBathingEffectSoapAnim))
 			Controller.WashOutSperm(akWoman, 1, 0.8)
 		endif
 	endif
@@ -86,7 +101,8 @@ bool function IsActive()
 		RegisterForSingleUpdate(5)
 		return false
 	endif
-	if sBathingEffectSoap==none
+;	if sBathingEffectSoap==none
+	if((sBathingEffectSoap == none) || (sBathingEffectSoapAnim == none))
 		RegisterForSingleUpdate(5)
 		return false
 	endif
