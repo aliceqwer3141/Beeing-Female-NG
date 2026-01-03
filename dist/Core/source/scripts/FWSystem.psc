@@ -1871,23 +1871,35 @@ float function getEggTravelingDuration(actor a)
 endFunction
 
 bool function IsActorPregnantByChaurus(actor woman)
-	return zzEstrusChaurusBreederFaction && woman.IsInFaction(zzEstrusChaurusBreederFaction)
-	;if EstrusActive == true
-	;	if ChaurusBreeder != none
-	;		return woman.HasSpell(ChaurusBreeder)
-	;	endif
-	;endif
-	;return false
+	if zzEstrusChaurusBreederFaction && woman.IsInFaction(zzEstrusChaurusBreederFaction)
+		return true
+	endif
+	if EstrusActive && ChaurusBreeder != none
+		return woman.HasSpell(ChaurusBreeder)
+	endif
+	return false
 endFunction
 
 
 bool function IsActorPregnantByEstrusSpider(actor woman)
-	return zzEstrusSpiderBreederFaction && woman.IsInFaction(zzEstrusSpiderBreederFaction)
+	if zzEstrusSpiderBreederFaction && woman.IsInFaction(zzEstrusSpiderBreederFaction)
+		return true
+	endif
+	if EstrusSpiderActive && EstrusSpiderBreeder != none
+		return woman.HasSpell(EstrusSpiderBreeder)
+	endif
+	return false
 endFunction
 
 
 bool function IsActorPregnantByEstrusDwemer(actor woman)
-	return zzEstrusDwemerBreederFaction && woman.IsInFaction(zzEstrusDwemerBreederFaction)
+	if zzEstrusDwemerBreederFaction && woman.IsInFaction(zzEstrusDwemerBreederFaction)
+		return true
+	endif
+	if EstrusDwemerActive && EstrusDwemerBreeder != none
+		return woman.HasSpell(EstrusDwemerBreeder)
+	endif
+	return false
 endFunction
 
 
