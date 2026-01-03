@@ -319,9 +319,9 @@ event OnUpdateGameTime()
 	
 	float stateDuration = System.getStateDuration(CurrentState, ActorRef)
 
-	if((ActorCurrentState == "PregnantChaurus_State") || (ActorCurrentState == "PregnantEstrusSpider_State") || (ActorCurrentState == "PregnantEstrusDwemer_State"))
-		if((CurrentState == 2) || (CurrentState == 8))
-			stateEnterTime = GameDaysPassed.GetValue() ;Hold Luteal or Replenish State at 0% complete whilst Chaurus Pregnant
+	if((CurrentState == 2) || (CurrentState == 8))
+		If((ActorCurrentState == "PregnantChaurus_State") || (ActorCurrentState == "PregnantEstrusSpider_State") || (ActorCurrentState == "PregnantEstrusDwemer_State"))
+			stateEnterTime = currentTime ;Hold Luteal or Replenish State at 0% complete whilst Chaurus Pregnant
 		EndIf
 	endIf
 
