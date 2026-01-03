@@ -414,14 +414,138 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 			
 			StorageUtil.SetIntValue(Mother,"FW.NumChilds",numChild)
 			actor[] Fathers = FWUtility.ActorArray(numChild)
+
+			float my_Impreg_boost_prev = 0
+			float my_Impreg_boost_new = 0
+			float my_Impreg_boost_abs_max = 0
+			actor my_prev_cand = none
+			actor my_new_cand = none
+			float my_determinator = 0
+			float my_prev_determ = 0
+			float my_next_determ = 0
+			float rnd_r = 0
+			int j = 0
+
 			while numChild>0
 				numChild-=1
-				float rnd_r= Utility.RandomFloat(0,relevanceTotal)
-				int j=0
-				while rnd_r>=relevantSperm[j] && j<c
-					rnd_r-=relevantSperm[j]
-					j+=1
-				endWhile
+				;float rnd_r= Utility.RandomFloat(0,relevanceTotal)
+				;int j=0
+				rnd_r = Utility.RandomFloat(0, relevanceTotal)
+				j = 0
+
+				if(c > 1)
+					my_prev_cand = a[j]
+					my_Impreg_boost_prev = StorageUtil.GetFloatValue(my_prev_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_boost_prev == 0)
+						my_Impreg_boost_prev = StorageUtil.GetFloatValue(my_prev_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_boost_prev == 0)
+							my_Impreg_boost_prev = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+						endIf
+					endIf
+
+					my_new_cand = a[j + 1]
+					my_Impreg_boost_new = StorageUtil.GetFloatValue(my_new_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_boost_new == 0)
+						my_Impreg_boost_new = StorageUtil.GetFloatValue(my_new_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_boost_new == 0)
+							my_Impreg_boost_new = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+						endIf
+					endIf
+					
+					if(my_Impreg_boost_prev < 0)
+						if(my_Impreg_boost_new < 0)
+							if(my_Impreg_boost_prev < my_Impreg_boost_new)
+								my_Impreg_boost_abs_max = -my_Impreg_boost_prev
+							else
+								my_Impreg_boost_abs_max = -my_Impreg_boost_new
+							endIf
+						else
+							if((-my_Impreg_boost_prev) < my_Impreg_boost_new)
+								my_Impreg_boost_abs_max = my_Impreg_boost_new
+							else
+								my_Impreg_boost_abs_max = -my_Impreg_boost_prev
+							endIf
+						endIf
+					else
+						if(my_Impreg_boost_new < 0)
+							if(my_Impreg_boost_prev < (-my_Impreg_boost_new))
+								my_Impreg_boost_abs_max = -my_Impreg_boost_new
+							else
+								my_Impreg_boost_abs_max = my_Impreg_boost_prev
+							endIf
+						else
+							if(my_Impreg_boost_prev < my_Impreg_boost_new)
+								my_Impreg_boost_abs_max = my_Impreg_boost_new
+							else
+								my_Impreg_boost_abs_max = my_Impreg_boost_prev
+							endIf
+						endIf
+					endIf
+
+					my_prev_determ = my_Impreg_boost_prev * relevantSperm[j]
+					my_next_determ = my_Impreg_boost_new * relevantSperm[j + 1]
+					if(my_Impreg_boost_abs_max <= 0)
+						my_determinator = (my_prev_determ - my_next_determ)
+					else
+						my_determinator = (my_prev_determ - my_next_determ) / my_Impreg_boost_abs_max
+					endIf
+
+					;while rnd_r>=relevantSperm[j] && j<c
+					while((rnd_r >= my_determinator) && ((j + 1) < c))
+						rnd_r -= relevantSperm[j]
+						j += 1
+
+						my_prev_cand = my_new_cand
+						my_Impreg_boost_prev = my_Impreg_boost_new
+						my_prev_determ = my_next_determ
+
+						my_new_cand = a[j + 1]
+						my_Impreg_boost_new = StorageUtil.GetFloatValue(my_new_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_boost_new == 0)
+							my_Impreg_boost_new = StorageUtil.GetFloatValue(my_new_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+							if(my_Impreg_boost_new == 0)
+								my_Impreg_boost_new = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+							endIf
+						endIf
+						
+						if(my_Impreg_boost_prev < 0)
+							if(my_Impreg_boost_new < 0)
+								if(my_Impreg_boost_prev < my_Impreg_boost_new)
+									my_Impreg_boost_abs_max = -my_Impreg_boost_prev
+								else
+									my_Impreg_boost_abs_max = -my_Impreg_boost_new
+								endIf
+							else
+								if((-my_Impreg_boost_prev) < my_Impreg_boost_new)
+									my_Impreg_boost_abs_max = my_Impreg_boost_new
+								else
+									my_Impreg_boost_abs_max = -my_Impreg_boost_prev
+								endIf
+							endIf
+						else
+							if(my_Impreg_boost_new < 0)
+								if(my_Impreg_boost_prev < (-my_Impreg_boost_new))
+									my_Impreg_boost_abs_max = -my_Impreg_boost_new
+								else
+									my_Impreg_boost_abs_max = my_Impreg_boost_prev
+								endIf
+							else
+								if(my_Impreg_boost_prev < my_Impreg_boost_new)
+									my_Impreg_boost_abs_max = my_Impreg_boost_new
+								else
+									my_Impreg_boost_abs_max = my_Impreg_boost_prev
+								endIf
+							endIf
+						endIf
+
+						my_next_determ = my_Impreg_boost_new * relevantSperm[j + 1]
+						if(my_Impreg_boost_abs_max <= 0)
+							my_determinator = (my_prev_determ - my_next_determ)
+						else
+							my_determinator = (my_prev_determ - my_next_determ) / my_Impreg_boost_abs_max
+						endIf
+					endWhile
+				endIf
 				StorageUtil.FormListAdd(Mother,"FW.ChildFather", a[j])
 				Fathers[numChild]=a[j]
 			endWhile
@@ -647,33 +771,61 @@ function ContraceptionSpermKillTimed(actor Woman, float Time)
 	System.Trace("FWController.ContraceptionSpermKillTimed",Woman)
 	float contraception = getContraceptionTimed(Woman,Time)
 	int c= StorageUtil.FormListCount(woman, "FW.SpermName");StorageUtil.FloatListCount(Woman, "FW.SpermAmount")
+	
+	actor man_candidate = none
+	race man_r = none
+	float anti_cont = -1
+	float rnd_determine = 0
+	bool man_ignore_contraception = false
+	
 	while c>0
 		c-=1
-		float amo = StorageUtil.FloatListGet(Woman, "FW.SpermAmount", c)
-		if amo>Sperm_Min_Amount_For_Impregnation
-			int rnd1= Utility.RandomInt(0,3)
-			float rnd2
-			if rnd1 < 2
-				if rnd1==0
-					rnd2 = Utility.RandomFloat(1,95.0)
-				else
-					rnd2 = Utility.RandomFloat(10.0,100.0)
-				endIf
-			else
-				if rnd1==2
-					rnd2 = Utility.RandomFloat(20.0,100.0)
-				else
-					rnd2 = Utility.RandomFloat(40.0,100.0)
-				endIf
+		
+		man_ignore_contraception = false
+		man_candidate = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
+		anti_cont = StorageUtil.GetFloatValue(man_candidate, "FW.AddOn.Ignore_Contraception_Prob", 0)
+		if(anti_cont == 0)
+			man_r = man_candidate.GetRace()
+			anti_cont = StorageUtil.GetFloatValue(man_r, "FW.AddOn.Ignore_Contraception_Prob", 0)
+			if(anti_cont == 0)
+				anti_cont = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Ignore_Contraception_Prob", 0)
 			endIf
-			
-;			if contraception>rnd2
-			if(contraception >= rnd2)
-				StorageUtil.FloatListSet(Woman, "FW.SpermAmount", c, Sperm_Min_Amount_For_Impregnation)
-			elseif contraception > 20
-				StorageUtil.FloatListSet(Woman, "FW.SpermAmount", c, amo - (contraception * 0.002))
+		endIf
+		if(anti_cont > 0)
+			rnd_determine = Utility.RandomFloat(0, 99)
+			if(rnd_determine < anti_cont)
+				man_ignore_contraception = true
+			endIf
+		endIf
+		
+		if(man_ignore_contraception)
+		else
+			float amo = StorageUtil.FloatListGet(Woman, "FW.SpermAmount", c)
+			if amo>Sperm_Min_Amount_For_Impregnation
+				int rnd1= Utility.RandomInt(0,3)
+				float rnd2
+				if rnd1 < 2
+					if rnd1==0
+						rnd2 = Utility.RandomFloat(1,95.0)
+					else
+						rnd2 = Utility.RandomFloat(10.0,100.0)
+					endIf
+				else
+					if rnd1==2
+						rnd2 = Utility.RandomFloat(20.0,100.0)
+					else
+						rnd2 = Utility.RandomFloat(40.0,100.0)
+					endIf
+				endIf
+				
+	;			if contraception>rnd2
+				if(contraception >= rnd2)
+					StorageUtil.FloatListSet(Woman, "FW.SpermAmount", c, Sperm_Min_Amount_For_Impregnation)
+				elseif contraception > 20
+					StorageUtil.FloatListSet(Woman, "FW.SpermAmount", c, amo - (contraception * 0.002))
+				endif
 			endif
-		endif
+		endIf
 	endWhile
 endFunction
 
@@ -742,14 +894,71 @@ function GiveBirth(actor Mother)
 	Mother.EvaluatePackage()
 	float UnbornHealth=StorageUtil.GetFloatValue(Mother,"FW.UnbornHealth",100.0)
 	Actor[] ChildFather = FWUtility.ActorArray(NumChilds)
+	
+	actor my_ChildFather = none
+	actorbase my_ChildFather_ab = none
+	race my_ChildFather_abr = none
+	float my_IntervalBabyScale = 10000
+	float my_IntervalLaborScale = 10000
+	float my_BirthPainDamageScale = 10000
+
+	float temp_IntervalBabyScale = 10000
+	float temp_IntervalLaborScale = 10000
+	float temp_BirthPainDamageScale = 10000
+
 	int k=NumChilds
 	while k>0
 		k-=1
-		ChildFather[k]=StorageUtil.FormListGet(Mother,"FW.ChildFather",k) as actor
+		
+		my_ChildFather = StorageUtil.FormListGet(Mother, "FW.ChildFather", k) as actor
+		my_ChildFather_abr = my_ChildFather.GetRace()
+
+		temp_IntervalBabyScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+		if(temp_IntervalBabyScale == 0)
+			temp_IntervalBabyScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+			if(temp_IntervalBabyScale == 0)
+				temp_IntervalBabyScale = 1.0
+			endIf
+		endIf
+		
+		temp_IntervalLaborScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+		if(temp_IntervalLaborScale == 0)
+			temp_IntervalLaborScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+			if(temp_IntervalLaborScale == 0)
+				temp_IntervalLaborScale = 1.0
+			endIf
+		endIf
+		
+		temp_BirthPainDamageScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1.0)
+		if(temp_BirthPainDamageScale == 1.0)
+			temp_BirthPainDamageScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1.0)
+		endIf
+		
+		if(temp_IntervalBabyScale < my_IntervalBabyScale)
+			my_IntervalBabyScale = temp_IntervalBabyScale
+		endIf
+		if(temp_IntervalLaborScale < my_IntervalLaborScale)
+			my_IntervalLaborScale = temp_IntervalLaborScale
+		endIf
+		if(temp_BirthPainDamageScale < my_BirthPainDamageScale)
+			my_BirthPainDamageScale = temp_BirthPainDamageScale
+		endIf
+		
+		ChildFather[k] = my_ChildFather
 	endWhile
-	float IntervalBabyScale = Manager.getActorDuration_BabySpawn(Mother)
-	float IntervalLaborScale = Manager.getActorDuration_BetweenLaborPains(Mother)
-	float BirthPainDamageScale=System.getDamageScale(4,Mother)
+	my_IntervalBabyScale *= Manager.getActorDuration_BabySpawn(Mother)
+	if(my_IntervalBabyScale < 0.3)
+		my_IntervalBabyScale = 0.3
+	endIf
+	my_IntervalLaborScale *= Manager.getActorDuration_BetweenLaborPains(Mother)
+	if(my_IntervalLaborScale < 0.3)
+		my_IntervalLaborScale = 0.3
+	endIf
+	my_BirthPainDamageScale *= System.getDamageScale(4,Mother)
+	
+	float IntervalBabyScale = my_IntervalBabyScale
+	float IntervalLaborScale = my_IntervalLaborScale
+	float BirthPainDamageScale = my_BirthPainDamageScale
 	float DamageScale = 1.0 * BirthPainDamageScale
 	if Mother.IsOnMount();/==true/;
 		Mother.Dismount()
@@ -782,19 +991,28 @@ function GiveBirth(actor Mother)
 		DamageScale -= 0.3 ; Arkay is helping with birth
 	endIf
 	
+	bool my_BirthPain = true
+	if(DamageScale <= 0)
+		my_BirthPain = false
+	endIf
+	
 	if(cfg.PlayAnimations)
 		Utility.Wait(3*IntervalLaborScale)
 		Debug.SendAnimationEvent(Mother, "Birth_S1")
 		
-		System.Mimik(Mother, "Pained", 50)
-		System.PlayPainSound(Mother)
-		System.doDamage(Mother, 8 * DamageScale ,10)
+		if(my_BirthPain)
+			System.Mimik(Mother, "Pained", 50)
+			System.PlayPainSound(Mother)
+			System.doDamage(Mother, 8 * DamageScale ,10)
+		endIf
 		Utility.Wait(3*IntervalLaborScale)
 	endif
 	
-	System.Mimik(Mother, "Pained", 60)
-	System.PlayPainSound(Mother,40)
-	System.DoDamage(Mother, 11 * DamageScale ,10)
+	if(my_BirthPain)
+		System.Mimik(Mother, "Pained", 60)
+		System.PlayPainSound(Mother,40)
+		System.DoDamage(Mother, 11 * DamageScale ,10)
+	endIf
 	; Raise the values
 	int NumBirth = StorageUtil.GetIntValue(Mother,"FW.NumBirth")
 	int NumBabys = StorageUtil.GetIntValue(Mother,"FW.NumBabys")
@@ -802,45 +1020,55 @@ function GiveBirth(actor Mother)
 	NumBabys+=NumChilds
 	StorageUtil.SetIntValue(Mother,"FW.NumBirth",NumBirth)
 	StorageUtil.SetIntValue(Mother,"FW.NumBabys",NumBabys)
-	System.ActorAddSpellOpt(Mother,Effect_VaginalBloodLow,false,true)
+
+	if(my_BirthPain)
+		System.ActorAddSpellOpt(Mother,Effect_VaginalBloodLow,false,true)
+	endIf
+	
 	while NumChilds > 0
 		NumChilds -= 1
 		Utility.Wait(4*IntervalBabyScale)
 		
-		System.Mimik(Mother, "Pained", 30)
+		if(my_BirthPain)
+			System.Mimik(Mother, "Pained", 30)
+
 		
-		if(cfg.PlayAnimations)
-			Debug.SendAnimationEvent(Mother, "Birth_S2");
-			Utility.Wait(1)
-			int j = 8
-			Debug.SendAnimationEvent(Mother, "Birth_S3");
-			System.Mimik(Mother, "Pained", 40)
-			while j > 0
-				System.PlayPainSound(Mother)
-				System.DoDamage(Mother,9 * DamageScale,10)
+			if(cfg.PlayAnimations)
+				Debug.SendAnimationEvent(Mother, "Birth_S2");
+				Utility.Wait(1)
+				int j = 8
+				Debug.SendAnimationEvent(Mother, "Birth_S3");
+				System.Mimik(Mother, "Pained", 40)
+				while j > 0
+					System.PlayPainSound(Mother)
+					System.DoDamage(Mother,9 * DamageScale,10)
+					Utility.Wait(2*IntervalBabyScale)
+					j -= 1
+				endWhile
+				System.Mimik(Mother, "Pained", 20)
+			
+				;Debug.SendAnimationEvent(Mother, "Birth_S3");
 				Utility.Wait(2*IntervalBabyScale)
-				j -= 1
-			endWhile
-			System.Mimik(Mother, "Pained", 20)
+				System.Mimik(Mother, "Pained", 80)
+			else
+				int j = 4
+				while j > 0
+					System.DoDamage(Mother,16 * DamageScale,10)
+					Utility.Wait(1*IntervalBabyScale)
+					j -= 1
+				endWhile
+			endif
+			
+			System.PlayPainSound(Mother,60)
+			System.DoDamage(Mother,18 * DamageScale,9)
+		endIf
 		
-			;Debug.SendAnimationEvent(Mother, "Birth_S3");
-			Utility.Wait(2*IntervalBabyScale)
-			System.Mimik(Mother, "Pained", 80)
-		else
-			int j = 4
-			while j > 0
-				System.DoDamage(Mother,16 * DamageScale,10)
-				Utility.Wait(1*IntervalBabyScale)
-				j -= 1
-			endWhile
-		endif
-		
-		System.PlayPainSound(Mother,60)
-		System.DoDamage(Mother,18 * DamageScale,9)
 		float HealthRnd = Utility.RandomFloat(0.0,35.0)
 		if UnbornHealth > HealthRnd || cfg.abortus==false
 			;System.raiseModEvent("FWSpawnChild",self)
-			System.ActorAddSpellOpt(Mother,Effect_VaginalBloodBig,false,true)
+			if(my_BirthPain)
+				System.ActorAddSpellOpt(Mother,Effect_VaginalBloodBig,false,true)
+			endIf
 			System.SpawnChild(Mother,ChildFather[NumChilds])
 		else
 			System.Message("You've born a dead child...", System.MSG_ALWAYS)
@@ -852,7 +1080,11 @@ function GiveBirth(actor Mother)
 			Debug.SendAnimationEvent(Mother, "Birth_S1")
 		endif
 		Utility.Wait(2)
-		System.Mimik(Mother, "Pained", 80)
+
+		if(my_BirthPain)
+			System.Mimik(Mother, "Pained", 80)
+		endIf
+		
 		StorageUtil.SetIntValue(Mother,"FW.NumChilds",NumChilds)
 		if NumChilds ;Tkc (Loverslab): optimization
 			SetBelly(Mother,false)
@@ -912,62 +1144,84 @@ endFunction
 
 ; This function will damage the unborn child of the given mother
 function DamageBaby(actor Mother,float Damage)
-	System.Trace("FWController.DamageBaby",Mother)
-	If (StorageUtil.FormListFind(none,"FW.SavedNPCs",Mother)<0)
-		;CreateFemaleActor(Mother)
-		return; never was initialised - so can't be pregnant
-	EndIf
-	if StorageUtil.GetIntValue(Mother, "FW.Abortus",0)>1
-		; Abortus has already been started
-		return
-	endif
-	int s = StorageUtil.GetIntValue(Mother,"FW.CurrentState",0)
-	if s<4 && s==8
-		; Not pregnant or in replenish
-		return
-	endif
-	float hp = StorageUtil.GetFloatValue(Mother, "FW.UnbornHealth",100.0)
-	
-	if Damage>0
-		Damage*=Manager.ActorBabyDamageScale(Mother)
-	else
-		Damage*=Manager.ActorBabyHealingScale(Mother)
-	endif
-	
-	if cfg.Difficulty == 0
-		Damage = 0
-		hp = 100
-	else
+	if(cfg.abortus)
+		Debug.Trace("[Beeing Female NG] - FWController - DamageBaby: Abortus is turned on! Processing DamageBaby on mother " + Mother)
+
+		System.Trace("FWController.DamageBaby",Mother)
+		If (StorageUtil.FormListFind(none,"FW.SavedNPCs",Mother)<0)
+			;CreateFemaleActor(Mother)
+			return; never was initialised - so can't be pregnant
+		EndIf
+		if StorageUtil.GetIntValue(Mother, "FW.Abortus",0)>1
+			; Abortus has already been started
+			return
+		endif
+		int s = StorageUtil.GetIntValue(Mother,"FW.CurrentState",0)
+		if s<4 && s==8
+			; Not pregnant or in replenish
+			return
+		endif
+		float hp = StorageUtil.GetFloatValue(Mother, "FW.UnbornHealth",100.0)
+		
+		
+		int num_babies_orig = StorageUtil.FormListCount(Mother, "FW.ChildFather")
+		actor Father = none
+		float DamageScaleByFather = 0
+		float HealingScaleByFather = 0
+		
+		int num_babies = num_babies_orig
+		while(num_babies > 0)
+			num_babies -= 1
+			Father = (StorageUtil.FormListGet(Mother, "FW.ChildFather", num_babies) As Actor)
+			DamageScaleByFather += Manager.ActorBabyDamageScaleByFather(Father)
+			HealingScaleByFather += Manager.ActorBabyHealingScaleByFather(Father)
+		endWhile
+		
+		
 		if Damage>0
-			if cfg.Difficulty > 0
-				if cfg.Difficulty < 3
-					if cfg.Difficulty == 1 ; Easy
-						Damage *= 0.7
-					endIf
-				else
-					if cfg.Difficulty == 3 ; Advanced
-						Damage *= 1.3
-					elseif cfg.Difficulty == 4 ; Heavy
-						Damage *= 1.7
-					endIf
-				endIf
-			endIf
+			Damage *= ((Manager.ActorBabyDamageScale(Mother)) * DamageScaleByFather / num_babies_orig)
+		else
+			Damage *= ((Manager.ActorBabyHealingScale(Mother)) * HealingScaleByFather / num_babies_orig)
 		endif
 		
-		if hp - Damage<0.0
-			hp=0
-		elseif hp - Damage >100.0
-			hp=100
+		if cfg.Difficulty == 0
+			Damage = 0
+			hp = 100
 		else
-			hp-=Damage
+			if Damage>0
+				if cfg.Difficulty > 0
+					if cfg.Difficulty < 3
+						if cfg.Difficulty == 1 ; Easy
+							Damage *= 0.7
+						endIf
+					else
+						if cfg.Difficulty == 3 ; Advanced
+							Damage *= 1.3
+						elseif cfg.Difficulty == 4 ; Heavy
+							Damage *= 1.7
+						endIf
+					endIf
+				endIf
+			endif
+			
+			if hp - Damage<0.0
+				hp=0
+			elseif hp - Damage >100.0
+				hp=100
+			else
+				hp-=Damage
+			endIf
 		endIf
-	endIf
-	StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",hp)
-	if PlayerRef == Mother
-		System.Player.checkAbortus()
-		BabyHealthWidget.showTimed(Mother)
+		StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",hp)
+		if PlayerRef == Mother
+			System.Player.checkAbortus()
+			BabyHealthWidget.showTimed(Mother)
+		else
+			SendModEvent("BeeingFemale","CheckAbortus",Mother.GetFormID())
+		endIf
 	else
-		SendModEvent("BeeingFemale","CheckAbortus",Mother.GetFormID())
+		Debug.Trace("[Beeing Female NG] - FWController - DamageBaby: Abortus is turned off!")
+		return
 	endIf
 endFunction
 
@@ -1018,10 +1272,26 @@ function HealBaby(actor Mother,float Healing)
 		return
 	endif
 	float hp = StorageUtil.GetFloatValue(Mother, "FW.UnbornHealth",100.0)
+	
+	
+	int num_babies_orig = StorageUtil.FormListCount(Mother, "FW.ChildFather")
+	actor Father = none
+	float DamageScaleByFather = 0
+	float HealingScaleByFather = 0
+		
+	int num_babies = num_babies_orig
+	while(num_babies > 0)
+		num_babies -= 1
+		Father = (StorageUtil.FormListGet(Mother, "FW.ChildFather", num_babies) As Actor)
+		DamageScaleByFather += Manager.ActorBabyDamageScaleByFather(Father)
+		HealingScaleByFather += Manager.ActorBabyHealingScaleByFather(Father)
+	endWhile
+		
+
 	if Healing>0
-		Healing*=Manager.ActorBabyHealingScale(Mother)
+		Healing *= ((Manager.ActorBabyHealingScale(Mother)) * HealingScaleByFather / num_babies_orig)
 	else
-		Healing*=Manager.ActorBabyDamageScale(Mother)
+		Healing *= ((Manager.ActorBabyDamageScale(Mother)) * DamageScaleByFather / num_babies_orig)
 	endif
 	if hp + Healing < 0.0
 		hp=0.0
@@ -1752,6 +2022,361 @@ float[] function GetRelevantSpermFloatTimed(actor woman,float Time, bool bShowTr
 	;	return none
 	;endIf
 endfunction
+
+
+
+
+; Check for the normal impregnation at the given time, using the sperm, the value if she can become pregnant in this cycle, and so on.
+bool function MyActiveSpermImpregnationTimedForAnyPeriod(actor Mother, bool bIgnoreContraception = false)
+	System.Trace("FWController.MyActiveSpermImpregnationTimedForAnyPeriod",Mother)
+	float Time = GameDaysPassed.GetValue()
+	
+	if Mother==PlayerRef ;Tkc (Loverslab) optimization
+	else;if Mother!=PlayerRef
+		if cfg.NPCCanBecomePregnant
+		else;if System.cfg.NPCCanBecomePregnant==false
+			return false
+		endif
+	endif
+	bool bCanBecomePregnant=canBecomePregnant(Mother)
+	if bCanBecomePregnant ;Tkc (Loverslab) optimization
+	else;if bCanBecomePregnant==false
+		return false
+	endif
+	if bIgnoreContraception ;Tkc (Loverslab) optimization
+	else;if bIgnoreContraception==false
+		ContraceptionSpermKillTimed(Mother,Time)
+	endIf
+
+	if HasRelevantSpermTimed(Mother, Time, false)
+		if Manager.ActorCanBecomePregnant(Mother);/==true/;
+			; Impregnate by active sperm
+			int numChild=System.calculateNumChildren(Mother)
+			if numChild ;Tkc (Loverslab) optimization
+			else;if numChild==0
+				return false
+			endIf
+
+			actor[] a = MyGetRelevantSpermActorsTimedForAnyPeriod(Mother, Time, false, false)
+			float[] relevantSperm = MyGetRelevantSpermFloatTimedForAnyPeriod(Mother, Time, false, false)
+
+			int c = relevantSperm.length
+			if c ;Tkc (Loverslab) optimization
+			else;if c==0
+				return false
+			endif
+			int i = 0
+			float relevanceTotal = 0.0
+			while i<c
+				relevanceTotal += relevantSperm[i]
+				i += 1
+			endWhile
+			
+			StorageUtil.SetIntValue(Mother, "FW.NumChilds", numChild)
+			actor[] Fathers = FWUtility.ActorArray(numChild)
+
+			float my_Impreg_Chance_prev = 0
+			float my_Impreg_Chance_new = 0
+			float my_Impreg_Chance_abs_max = 0
+			actor my_prev_cand = none
+			actor my_new_cand = none
+			float my_determinator = 0
+			float my_prev_determ = 0
+			float my_next_determ = 0
+			float rnd_r = 0
+			int j = 0
+
+			while(numChild > 0)
+				numChild -= 1
+				rnd_r = Utility.RandomFloat(0, relevanceTotal)
+				j = 0
+
+				if(c > 1)
+					my_prev_cand = a[j]
+					my_Impreg_Chance_prev = StorageUtil.GetFloatValue(my_prev_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_Chance_prev == 0)
+						my_Impreg_Chance_prev = StorageUtil.GetFloatValue(my_prev_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_Chance_prev == 0)
+							my_Impreg_Chance_prev = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+						endIf
+					endIf
+
+					my_new_cand = a[j + 1]
+					my_Impreg_Chance_new = StorageUtil.GetFloatValue(my_new_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_Chance_new == 0)
+						my_Impreg_Chance_new = StorageUtil.GetFloatValue(my_new_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_Chance_new == 0)
+							my_Impreg_Chance_new = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+						endIf
+					endIf
+					
+					if(my_Impreg_Chance_prev < my_Impreg_Chance_new)
+						my_Impreg_Chance_abs_max = my_Impreg_Chance_new
+					else
+						my_Impreg_Chance_abs_max = my_Impreg_Chance_prev
+					endIf
+
+					my_prev_determ = my_Impreg_Chance_prev * relevantSperm[j]
+					my_next_determ = my_Impreg_Chance_new * relevantSperm[j + 1]
+					if(my_Impreg_Chance_abs_max <= 0)
+						my_determinator = (my_prev_determ - my_next_determ)
+					else
+						my_determinator = (my_prev_determ - my_next_determ) / my_Impreg_Chance_abs_max
+					endIf
+
+					while((rnd_r >= my_determinator) && ((j + 1) < c))
+						rnd_r -= relevantSperm[j]
+						j += 1
+
+						my_prev_cand = my_new_cand
+						my_Impreg_Chance_prev = my_Impreg_Chance_new
+						my_prev_determ = my_next_determ
+
+						my_new_cand = a[j + 1]
+						my_Impreg_Chance_new = StorageUtil.GetFloatValue(my_new_cand, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_Chance_new == 0)
+							my_Impreg_Chance_new = StorageUtil.GetFloatValue(my_new_cand.GetRace(), "FW.AddOn.Sperm_Impregnation_Boost", 0)
+							if(my_Impreg_Chance_new == 0)
+								my_Impreg_Chance_new = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+							endIf
+						endIf
+						
+						if(my_Impreg_Chance_prev < my_Impreg_Chance_new)
+							my_Impreg_Chance_abs_max = my_Impreg_Chance_new
+						else
+							my_Impreg_Chance_abs_max = my_Impreg_Chance_prev
+						endIf
+
+						my_next_determ = my_Impreg_Chance_new * relevantSperm[j + 1]
+						if(my_Impreg_Chance_abs_max <= 0)
+							my_determinator = (my_prev_determ - my_next_determ)
+						else
+							my_determinator = (my_prev_determ - my_next_determ) / my_Impreg_Chance_abs_max
+						endIf
+					endWhile
+				endIf
+				StorageUtil.FormListAdd(Mother,"FW.ChildFather", a[j])
+				Fathers[numChild]=a[j]
+			endWhile
+			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
+			StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
+			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
+			ChangeStateTimed(Mother,Time,4)
+			return true
+		endIf
+	endIf
+	
+	return false
+endFunction
+
+; Get a list of actors that are most relevant at the given time
+actor[] function MyGetRelevantSpermActorsTimedForAnyPeriod(actor woman, float Time, bool bShowTravelingSperm = false, bool bSort = true)
+	System.Trace("FWController.MyGetRelevantSpermActorsTimedForAnyPeriod", woman)
+	If(StorageUtil.FormListFind(none, "FW.SavedNPCs", woman) < 0)
+		CreateFemaleActor(woman)
+	EndIf
+	int c = StorageUtil.FormListCount(woman, "FW.SpermName");StorageUtil.FormListCount(woman, "FW.SpermName")
+	actor[] actors
+	bool bFirst = true
+	if c ;Tkc (Loverslab) optimization
+	else;if c==0
+		return actors
+	endif
+
+	int my_Impreg_Any = 0
+	float my_Impreg_Chance = 0
+	race abr = none
+	
+	if((bSort == false) || (c == 1))
+		while(c > 0)
+			c -= 1
+			float STime = StorageUtil.FloatListGet(woman, "FW.SpermTime", c)
+			actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
+			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
+			float maxSDuration = System.getMaleSpermDuration(SName)
+
+			my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+			if(my_Impreg_Any <= 0)
+				abr = SName.GetRace()
+				if abr
+					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any > 0)
+							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+				endIf
+			else
+				my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+			endIf
+
+			if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
+				if bFirst;/==true/;
+					actors = new Actor[1]
+					actors[0] = SName
+					bFirst=false
+				else
+					actors = FWUtility.ActorArrayAppend(actors, SName)
+				endif
+			endif
+		endwhile
+	else
+		float[] actorr
+		while(c > 0)
+			c -= 1
+			float STime = StorageUtil.FloatListGet(woman, "FW.SpermTime", c)
+			actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
+			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
+			float maxSDuration = System.getMaleSpermDuration(SName)
+					
+			my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+			if(my_Impreg_Any <= 0)
+				abr = SName.GetRace()
+				if abr
+					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any > 0)
+							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+				endIf
+			else
+				my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+			endIf
+
+			if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
+				float SpermDurationPercent = (Time - STime) / maxSDuration
+				float xScale = 1.0
+				if(SpermDurationPercent > 0.65)
+					xScale -= SpermDurationPercent - 0.65
+				endIf
+
+				if bFirst;/==true/;
+					actors = new Actor[1]
+					actors[0] = SName
+					actorr = new Float[1]
+					actorr[0] = System.GetSpermRelevance(woman, SName) * SAmou * xScale
+					bFirst = false
+				else
+					actors = FWUtility.ActorArrayAppend(actors, SName)
+					actorr = FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+				endif
+			endif
+		endwhile
+		
+		int bi = 1
+		int bj
+		int bc = actors.length ; Count
+		bool bl = true ; Flag
+		actor ba ; Temp
+		float bf ; Temp
+		while((bi <= bc) && bl)
+			bl = false
+			bj = 0
+			while(bj < bc - 1)
+				if(actorr[bj + 1] > actorr[bj])
+					ba = actors[bj]
+					actors[bj] = actors[bj + 1]
+					actors[bj + 1] = ba
+					bf = actorr[bj]
+					actorr[bj] = actorr[bj + 1]
+					actorr[bj + 1] = bf
+					bl = true
+				endIf
+				bj += 1
+			endWhile
+			bi += 1
+		endWhile
+	endif
+	
+	return actors
+endfunction
+
+; Get a list of actors that are most relevant at the given time
+float[] function MyGetRelevantSpermFloatTimedForAnyPeriod(actor woman, float Time, bool bShowTravelingSperm = false, bool bSort = true)
+	System.Trace("FWController.MyGetRelevantSpermFloatTimedForAnyPeriod", woman)
+	If (StorageUtil.FormListFind(none,"FW.SavedNPCs",woman)<0)
+		CreateFemaleActor(woman)
+	EndIf
+	int c = StorageUtil.FormListCount(woman, "FW.SpermName");StorageUtil.FormListCount(woman, "FW.SpermAmount")
+	float[] actorr
+	if c ;Tkc (Loverslab) optimization
+	else;if c==0
+		return actorr
+	endif
+	
+	int my_Impreg_Any = 0
+	float my_Impreg_Chance = 0
+	race abr = none
+	
+	while(c > 0)
+		c -= 1
+		float STime = StorageUtil.FloatListGet(woman, "FW.SpermTime", c)
+		actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
+		float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
+		float maxSDuration = System.getMaleSpermDuration(SName)
+		
+		my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+		if(my_Impreg_Any <= 0)
+			abr = SName.GetRace()
+			if abr
+				my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any > 0)
+						my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+				else
+					my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+			endIf
+		else
+			my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+		endIf
+
+		if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation) && System.CheckIsLoreFriendlyMetting(woman, SName))
+			float SpermDurationPercent = (Time - STime) / maxSDuration
+			float xScale = 1.0
+			if SpermDurationPercent>0.65
+				xScale-=SpermDurationPercent - 0.65
+			endIf
+			actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+		endif
+	endwhile
+	if bSort ;Tkc (Loverslab) optimization
+	else;if bSort==false
+		int bi=1
+		int bj
+		int bc=actorr.length ; Count
+		bool bl=true ; Flag
+		actor ba ; Temp
+		float bf ; Temp
+		while bi<=bc && bl
+			bl=false
+			bj=0
+			while bj<bc - 1
+				if actorr[bj+1]>actorr[bj]
+					bf=actorr[bj]
+					actorr[bj]=actorr[bj+1]
+					actorr[bj+1]=bf
+					bl=true
+				endIf
+				bj+=1
+			endWhile
+			bi+=1
+		endWhile
+	endif
+	
+	return actorr
+endfunction
+
+
 
 
 ; Check if the woman got sperm from 'potential father' inside

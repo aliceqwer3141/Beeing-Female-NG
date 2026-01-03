@@ -45,6 +45,11 @@ int[] UI_AddOnGlobal
 string[] UIS_AddOnGlobal
 int UI_AddOnGlobalWarning
 int UI_AddOnRaceWarning
+
+int AddOnActiveActors = -1
+int[] UI_AddOnActors
+string[] UIS_AddOnActors
+int UI_AddOnActorsWarning
 ;---------------------------------------------
 ; Element values
 ;---------------------------------------------
@@ -91,6 +96,7 @@ int   Property WeightGainMax = 50 Auto Hidden
 int   Property MaxBabys = 3 Auto Hidden
 int   Property BabySpawn = 1 Auto Hidden
 int   Property BabySpawnNPC = 1 Auto Hidden
+bool  property AllowNTRbaby = false auto hidden
 ;int   Property BirthCamera = 0 Auto Hidden
 ; NPC
 bool  Property NPCCanBecomePregnant = true Auto Hidden
@@ -180,6 +186,7 @@ float WashOutFluidChanceDef = 0.6
 float WashOutHourDelayDef = 0.25
 int BabySpawnDef = 1
 int BabySpawnNPCDef = 1
+bool NTRbabyDef = false
 ;int BirthCameraDef = 0
 ; NPC
 bool NPCCanBecomePregnantDef = true
@@ -285,6 +292,10 @@ bool bBathingInSkyrim=false
 bool bASX=false
 bool bHAnimations=false
 
+bool bEstrusChaurus=false
+bool bEstrusSpider=false
+bool bEstrusDwemer=false
+
 FWStateWidget property StateWidget auto
 FWContraceptionWidget property ContraceptionWidget auto
 FWBabyHealthWidget property BabyHealthWidget auto
@@ -365,6 +376,9 @@ function OnLoadGame()
 	AddOnActiveGlobal = -1
 
 	AddOnActiveRaces=-1
+
+	AddOnActiveActors = -1
+
 	AddOnActiveCME=-1
 	AddOnActiveMisc=-1
 	bRunUpdateAllWoman = false
@@ -382,6 +396,10 @@ function CheckForSexMods()
 	bBathingInSkyrim=false
 	bASX=false
 	bHAnimations=false
+
+	bEstrusChaurus=false
+	bEstrusSpider=false
+	bEstrusDwemer=false
 	;/int c=Game.GetModCount()
 	while c>0
 		c-=1
@@ -400,7 +418,7 @@ function CheckForSexMods()
 			bAP=true
 		elseif m=="zzEstrus.esp"
 			bEstrus=true
-		elseif m=="Bathing in Skyrim.esp"
+		elseif m=="Bathing in Skyrim - Main.esp"
 			bBathingInSkyrim=true
 		elseif m=="ASX_Spells.esp"
 			bSexModInstalled=true
@@ -439,7 +457,7 @@ function CheckForSexMods()
 		if FWUtility.ModFile("zzEstrus")
 			bEstrus=true
 		endif		
-		if FWUtility.ModFile("Bathing in Skyrim")
+		if(FWUtility.ModFile("Bathing in Skyrim - Main") || FWUtility.ModFile("Bathing in Skyrim"))
 			bBathingInSkyrim=true
 		endif		
 		if FWUtility.ModFile("ASX_Spells")
@@ -460,7 +478,17 @@ function CheckForSexMods()
 		   FWUtility.ModFile("SLAnimLoader") || \
 		   FWUtility.ModFile("FemaleWerewolf")
 			bSexModInstalled=true
-		endif		
+		endif
+		
+		if FWUtility.ModFile("EstrusChaurus")
+			bEstrusChaurus=true
+		endIf
+		if FWUtility.ModFile("EstrusSpider")
+			bEstrusSpider=true
+		endIf
+		if FWUtility.ModFile("EstrusDwemer")
+			bEstrusDwemer=true
+		endIf
 endFunction
 
 event OnUpdate()
@@ -1911,6 +1939,9 @@ function ResetConfigArrays()
 	UI_AddOnGlobal = new int[128]
 
 	UI_AddOnRaces = new int[128]
+
+	UI_AddOnActors = new int[128]
+
 	UI_AddOnPMS = new int[128]
 	UI_AddOnCME = new int[128]
 	UI_AddOnMisc = new int[128]
@@ -2020,6 +2051,9 @@ Event OnPageReset(string page)
 		AddOnActiveGlobal = -1
 
 		AddOnActiveRaces=-1
+
+		AddOnActiveActors = -1
+
 		AddOnActiveCME=-1
 		AddOnActiveMisc=-1
 	endif
@@ -2090,6 +2124,7 @@ Event OnPageReset(string page)
 			;AddToggleOptionST("ToggleShowStatsSpell", "$FW_MENU_SETTINGS_StatsSpell", PlayerRef.hasSpell(System.BeeingFemaleInfoSpell))
 		endIf
 		AddToggleOptionST("ToggleAbortus","$FW_MENU_PREGNANCY_Abortus", abortus, optionFlag)
+		AddToggleOptionST("ToggleNTRbaby", "$FW_MENU_PREGNANCY_AllowNTRbaby", AllowNTRbaby, optionFlag)
 		
 		; Check for animation
 		AddToggleOptionST("TogglePlayAnimations","$FW_MENU_SETTINGS_PlayAnimations", PlayAnimations, OPTION_FLAG_NONE)
@@ -2528,7 +2563,132 @@ Event OnPageReset(string page)
 					endif
 				endWhile
 			endif
+		; Check if an Actor-AddOn was selected. Display the Actor-AddOn Infos
+		elseif(AddOnActiveActors >= 0)
+			string f = UIS_AddOnActors[AddOnActiveActors]
+			
+			bool bAddOnEnabled = FWUtility.getIniCBool("AddOn", f, "AddOn", "enabled", false)
+			bool bAddOnLocked = FWUtility.getIniCBool("AddOn", f, "AddOn", "locked", false)
+			string sAddOnName = FWUtility.getIniCString("AddOn", f, "AddOn", "name", "")
+			string sAddOnType = FWUtility.getIniCString("AddOn", f, "AddOn", "type", "")
+			string author = FWUtility.getIniCString("AddOn", f, "AddOn", "author", f)
+			string required = FWUtility.getIniCString("AddOn", f, "AddOn", "required", "")
+			bool bUse = true
+			if required;/!=""/;
+				string[] requiredA = StringUtil.Split(required, ",")
+;				if FWUtility.AreModsInstalled(requiredA)==false
+				if(FWUtility.AreModsInstalled(requiredA))
+				else
+					bUse = false
+				endif
+			endif
+		
+			SetCursorFillMode(LEFT_TO_RIGHT)
+			SetCursorPosition(offset)
+			AddHeaderOption("Actor AddOn: " + sAddOnName)
+			UI_AddOnBack = AddTextOption("", "$FW_MENU_ADDON_Back")
+			UI_Activator = AddToggleOption("$FW_MENU_ADDON_Activate", (bAddOnEnabled || bAddOnLocked) && bUse, SwitchInt(bAddOnLocked || !bUse, OPTION_FLAG_DISABLED, OPTION_FLAG_NONE))
+			offset += 4
+			SetCursorPosition(offset)
+			if author;/!=""/;
+				AddTextOption("$FW_MENU_ADDON_Author", author, OPTION_FLAG_DISABLED)
+				offset += 4
+				SetCursorPosition(offset)
+			else
+				offset += 2
+				SetCursorPosition(offset)
+			endif
+			AddHeaderOption("$FW_MENU_ADDON_ActorList")
+			offset += 2
+			i = 0
+			int xActors = FWUtility.getIniInt("AddOn", f, "actors", 0)
+			int ActorsListed = 0
+			if(xActors == 0)
+				; There is only the default category - so only 1 Actor Part
+				string ids = FWUtility.getIniCString("AddOn", f, "AddOn", "id")
+				if ids;/!=""/;
+					string[] saActors = StringUtil.Split(ids, ",")
+					int c2 = saActors.length
+					while(c2 > 0)
+						c2 -= 1
+;						race r=FWUtility.GetFormFromString(saRaces[c2]) as Race		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+						actor a = FWUtility.GetFormFromStringSE(saActors[c2]) as actor
 
+						if a;/!=none/; && (ActorsListed < 80) ; List a maximum of 80 actors - Otherwise it may give a array overflow from MCM
+							race abr = a.GetRace()
+							string strR = a.GetLeveledActorBase().GetName()
+							if abr.HasKeyword(keywordVampire)
+								strR += "[Vampire]"
+							endif
+							if abr.HasKeyword(keywordBeast)
+								strR += "[Beast]"
+							endif
+							if abr.IsChildRace()
+								strR += "<font color='#ff0000'>[Child]</font>"
+							endif
+							if abr.HasKeyword(keywordCreature)
+								strR += "[Creature]"
+							endif
+							SetCursorPosition(offset + i)
+							AddTextOption(strR, "")
+							i += 1
+							ActorsListed += 1
+						endif
+					endWhile
+				endif
+			else
+				; There are multiple Actor Categories, list them all
+				while(xActors > 0)
+					string ids = FWUtility.getIniCString("AddOn", f, "Actor" + xActors, "id")
+					if ids;/!=""/;
+						string[] saActors = StringUtil.Split(ids, ",")
+						int c2 = saActors.length
+						while(c2 > 0)
+							c2 -= 1
+;							race r=FWUtility.GetFormFromString(saRaces[c2]) as Race		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+							actor a = FWUtility.GetFormFromStringSE(saActors[c2]) as actor
+							
+							if a;/!=none/; && (ActorsListed < 80) ; List a maximum of 80 actors - Otherwise it may give a array overflow from MCM
+								race abr = a.GetRace()
+								string strR = a.GetLeveledActorBase().GetName() + " "
+								if abr.HasKeyword(keywordVampire)
+									strR += "[Vampire]"
+								endif
+								if abr.HasKeyword(keywordBeast)
+									strR += "[Beast]"
+								endif
+								if abr.IsChildRace()
+									strR += "<font color='#ff0000'>[Child]</font>"
+								endif
+								if abr.HasKeyword(keywordCreature)
+									strR += "[Creature]"
+								endif
+								SetCursorPosition(offset + i)
+								AddTextOption(strR, "")
+								i += 1
+								ActorsListed += 1
+							endif
+						endWhile
+					endif
+					xActors-=1
+				endWhile
+			endif
+			
+			; Check for missing requirements
+			if !bUse
+				offset += (i + 2)
+				offset += (offset % 2)
+				SetCursorPosition(offset)
+				string[] requiredA = StringUtil.Split(required, ",")
+				int k = requiredA.length
+				while(k > 0)
+					k -= 1
+					if FWUtility.IsModInstalled(requiredA[k]) ;Tkc (Loverslab): optimization
+					else;if FWUtility.IsModInstalled(requiredA[k])==false
+						AddTextOption("<font color='#ff0000'>" + requiredA[k] + "</font>", "")
+					endif
+				endWhile
+			endif
 		; Check if an CME-AddOn was selected. Display the CME-AddOn Infos
 		elseif AddOnActiveCME>=0
 			string f = UIS_AddOnCME[AddOnActiveCME]
@@ -2664,6 +2824,12 @@ Event OnPageReset(string page)
 			UIS_AddOnGlobal = new string[128]
 			bool[] bEGlobal = new bool[128]
 			string[] sNGlobal = new string[128]
+
+			int iCActor = 0
+			UIS_AddOnActors = new string[128]
+			bool[] bEActor = new bool[128]
+			string[] sNActor = new string[128]
+
 			
 			string[] regGroup=new string[128]
 			int cGroup=0
@@ -2727,6 +2893,12 @@ Event OnPageReset(string page)
 
 						iCRace+=1
 ;					elseif sAddOnType=="cme" || sAddOnType=="Cme" || sAddOnType=="CME" || sAddOnType=="CMe"
+					elseif(sAddOnType == "actor")
+						UIS_AddOnActors[iCActor] = f
+						bEActor[iCActor] = (bAddOnEnabled || bAddOnLocked) && bUse
+						sNActor[iCActor] = FWUtility.SwitchString(sAddOnName == "", f, sAddOnName)
+						
+						iCActor += 1
 					elseif sAddOnType=="cme"; || sAddOnType=="Cme" || sAddOnType=="CME" || sAddOnType=="CMe"
 						UIS_AddOnCME[iCCME]=f
 						bECME[iCCME]=(bAddOnEnabled || bAddOnLocked) && bUse
@@ -2788,6 +2960,23 @@ Event OnPageReset(string page)
 			if Messages<=1
 				SetCursorPosition(offset+1)
 				AddTextOption("",iCRace)
+			endif
+			
+			; Print Actor AddOns
+			offset += i + (i % 2) + 4
+			SetCursorPosition(offset + 2)
+			UI_AddOnActorsWarning = AddTextOption("", "$FW_MENU_ADDON_Actor_Warning")
+			i = 0
+			While(i < iCActor)
+				SetCursorPosition(offset + 3 + i)
+				UI_AddOnActors[i] = AddToggleOption(sNActor[i], bEActor[i])
+				i += 1
+			EndWhile
+			SetCursorPosition(offset)
+			AddHeaderOption("$FW_MENU_ADDON_Actor")
+			if(Messages <= 1)
+				SetCursorPosition(offset + 1)
+				AddTextOption("", iCActor)
 			endif
 			
 			; Print CME AddOns
@@ -3223,11 +3412,12 @@ Event OnPageReset(string page)
 		
 		; Compatiblity
 		SetCursorPosition(1)
-		string[] cTxt = new String[4]
+		string[] cTxt = new String[5]
 		cTxt[0] = "$FW_MENU_OPTIONS_Compatible_None"
 		cTxt[1] = "$FW_MENU_OPTIONS_Compatible_Full"
 		cTxt[2] = "$FW_MENU_OPTIONS_Overdue"
 		cTxt[3] = "$FW_MENU_OPTIONS_Compatible_NOT_INSTALLED"
+		cTxt[4] = "$FW_MENU_OPTIONS_Compatible_Ignored"
 		AddHeaderOption("$FW_MENU_SYSTEM_Compatible")
 		AddTextOption("Skyrim "+Debug.GetVersionNumber(), cTxt[getCompatiblity_Skyrim()],OPTION_FLAG_DISABLED)
 		AddTextOption("SKSE", cTxt[getCompatiblity_SKSE()],OPTION_FLAG_DISABLED)
@@ -3237,7 +3427,8 @@ Event OnPageReset(string page)
 		
 		if bBathingInSkyrim
 			bool bBiS = Manager.IsAddOnActive("BF_BathingInSkyrim")
-			if bBiS;/==true/;
+			bool bBiS_renewed = Manager.IsAddOnActive("BF_BathingInSkyrimRenewed")
+			if(bBiS || bBiS_renewed);/==true/;
 				AddTextOption("Bathing in Skyrim", cTxt[1],OPTION_FLAG_DISABLED)
 			else
 				AddTextOption("Bathing in Skyrim", cTxt[0],OPTION_FLAG_DISABLED)
@@ -3255,6 +3446,8 @@ Event OnPageReset(string page)
 				PageResetJobID=50
 				AddTextOption("SexLab Framework", cTxt[0], iOptionBSSL)
 			endif
+		else
+			AddTextOption("SexLab Framework", cTxt[3], OPTION_FLAG_DISABLED)			
 		endif
 		if bOstim
 			PageResetJobID=51
@@ -3265,6 +3458,8 @@ Event OnPageReset(string page)
 				PageResetJobID=53
 				AddTextOption("Ostim", cTxt[0], iOptionBOstim)
 			endif
+		else
+			AddTextOption("Ostim", cTxt[3], OPTION_FLAG_DISABLED)
 		endif
 		PageResetJobID=54
 		if bAP
@@ -3273,6 +3468,8 @@ Event OnPageReset(string page)
 			else
 				AddTextOption("Animated Prostitution", cTxt[0],OPTION_FLAG_DISABLED)
 			endif
+		else
+			AddTextOption("Animated Prostitution", cTxt[3], OPTION_FLAG_DISABLED)
 		endif
 		if bFlowerGirls
 			if FWUtility.ScriptHasString("dxPerformSexScript","BeeingFemale") || \
@@ -3284,10 +3481,32 @@ Event OnPageReset(string page)
 			else
 				AddTextOption("Flower Girls", cTxt[0],OPTION_FLAG_DISABLED)
 			endif
+		else
+			AddTextOption("Flower Girls", cTxt[3], OPTION_FLAG_DISABLED)
 		endif
 		if bASX
 			AddTextOption("ASX - Spells", cTxt[0],OPTION_FLAG_DISABLED)
+		else
+			AddTextOption("ASX - Spells", cTxt[3], OPTION_FLAG_DISABLED)
 		endif
+
+		if bEstrusChaurus
+			AddTextOption("Estrus Chaurus", cTxt[4], OPTION_FLAG_DISABLED)
+		else
+			AddTextOption("Estrus Chaurus", cTxt[3], OPTION_FLAG_DISABLED)
+		endIf
+
+		if bEstrusSpider
+			AddTextOption("Estrus Spider Addon", cTxt[4], OPTION_FLAG_DISABLED)
+		else
+			AddTextOption("Estrus Spider Addon", cTxt[3], OPTION_FLAG_DISABLED)
+		endIf
+
+		if bEstrusDwemer
+			AddTextOption("Estrus Dwemer Addon", cTxt[4], OPTION_FLAG_DISABLED)
+		else
+			AddTextOption("Estrus Dwemer Addon", cTxt[3], OPTION_FLAG_DISABLED)
+		endIf
 	EndIf
 	
 	PageResetJobID=0
@@ -3306,8 +3525,7 @@ int function getCompatiblity_Skyrim()
 	endif
 	int major = (StringUtil.SubString(v, 0, dot1)) as int
 	int minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
-	bool isVR = (major == 1 && minor == 4)
-	if (major > 1) || (major == 1 && minor >= 5) || isVR
+	if (major > 1) || (major == 1 && minor >= 5)
 		return 1
 	endif
 	return 2
@@ -3316,26 +3534,11 @@ endFunction
 int function getCompatiblity_SKSE()
 	if(SKSE.GetVersionRelease() == 0)
 		return 0
-	endif
-	string v = Debug.GetVersionNumber()
-	int dot1 = StringUtil.Find(v, ".")
-	int dot2 = -1
-	int major = 0
-	int minor = 0
-	if dot1 >= 0
-		dot2 = StringUtil.Find(v, ".", dot1 + 1)
-	endif
-	if dot1 >= 0 && dot2 >= 0
-		major = (StringUtil.SubString(v, 0, dot1)) as int
-		minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
-	endif
-	bool isVR = (major == 1 && minor == 4)
-	if isVR
-		return 1
 	elseif SKSE.GetScriptVersionRelease()<48
 		return 2
+	else
+		return 1
 	endif
-	return 1
 endFunction
 
 int function getCompatiblity_PapyrusUtil()
@@ -3426,7 +3629,7 @@ Event OnOptionSelect(int option)
 	; The AddOn Page is open, handle the addon clicks
 	elseif CurrentPage==Pages[FW_MENU_PAGE_AddOn] ; AddOn Page
 ;		if AddOnActiveRaces==-1 && AddOnActiveCME==-1 && AddOnActiveMisc==-1
-		if((AddOnActiveGlobal == -1) && (AddOnActiveRaces == -1) && (AddOnActiveCME == -1) && (AddOnActiveMisc == -1))
+		if((AddOnActiveGlobal == -1) && (AddOnActiveRaces == -1) && (AddOnActiveActors == -1) && (AddOnActiveCME == -1) && (AddOnActiveMisc == -1))
 ;			int index = UI_AddOnRaces.Find(option)
 			int index
 			int i=0
@@ -3441,6 +3644,13 @@ Event OnOptionSelect(int option)
 			index = UI_AddOnRaces.Find(option)
 			If index >= 0
 				AddOnActiveRaces=index
+				ForcePageReset()
+				Return
+			EndIf
+	
+			index = UI_AddOnActors.Find(option)
+			If(index >= 0)
+				AddOnActiveActors = index
 				ForcePageReset()
 				Return
 			EndIf
@@ -3469,6 +3679,10 @@ Event OnOptionSelect(int option)
 				bool bActive=!FWUtility.getIniCBool("AddOn",UIS_AddOnRaces[AddOnActiveRaces],"AddOn","enabled",false)
 				FWUtility.setIniCBool("AddOn",UIS_AddOnRaces[AddOnActiveRaces],"AddOn","enabled",bActive)
 				SetToggleOptionValue(option, bActive)
+			elseif(AddOnActiveActors >= 0)
+				bool bActive = !FWUtility.getIniCBool("AddOn", UIS_AddOnActors[AddOnActiveActors], "AddOn", "enabled", false)
+				FWUtility.setIniCBool("AddOn", UIS_AddOnActors[AddOnActiveActors], "AddOn", "enabled", bActive)
+				SetToggleOptionValue(option, bActive)
 			elseif AddOnActiveCME>=0
 				bool bActive=!FWUtility.getIniCBool("AddOn",UIS_AddOnCME[AddOnActiveCME],"AddOn","enabled",false)
 				FWUtility.setIniCBool("AddOn",UIS_AddOnCME[AddOnActiveCME],"AddOn","enabled",bActive)
@@ -3494,6 +3708,9 @@ Event OnOptionSelect(int option)
 			AddOnActiveGlobal = -1
 
 			AddOnActiveRaces=-1
+
+			AddOnActiveActors = -1
+
 			AddOnActiveCME=-1
 			AddOnActiveMisc=-1
 			Manager.RefreshAddOn()
@@ -3503,6 +3720,9 @@ Event OnOptionSelect(int option)
 			AddOnActiveGlobal = -1
 
 			AddOnActiveRaces=-1
+
+			AddOnActiveActors = -1
+
 			AddOnActiveCME=-1
 			AddOnActiveMisc=-1
 			ForcePageReset()
@@ -3596,6 +3816,17 @@ Event OnOptionHighlight(int option)
 			index = UI_AddOnRaces.Find(option)
 			If index >= 0
 				SetInfoText(UIS_AddOnRaces[index]+" AddOn: "+FWUtility.getIniCString("AddOn",UIS_AddOnRaces[index],"AddOn","description"))
+				return
+			endIf
+	
+			if(option == UI_AddOnActorsWarning)
+				SetInfoText("$FW_MENU_ADDON_Actor_Warning_TXT")
+				return
+			endIf
+			
+			index = UI_AddOnActors.Find(option)
+			If(index >= 0)
+				SetInfoText(UIS_AddOnActors[index] + " AddOn: " + FWUtility.getIniCString("AddOn", UIS_AddOnActors[index], "AddOn", "description"))
 				return
 			endIf
 	
@@ -5830,6 +6061,24 @@ State ToggleAbortus
 		SetInfoText("$FW_MENUTXT_PREGNANCY_Abortus")
 	EndEvent
 EndState
+
+
+State ToggleNTRbaby
+	Event OnSelectST()
+		AllowNTRbaby = (! AllowNTRbaby)
+		SetToggleOptionValueST(AllowNTRbaby)
+	EndEvent
+	
+	Event OnDefaultST()
+		AllowNTRbaby = NTRbabyDef
+		SetToggleOptionValueST(AllowNTRbaby)
+	EndEvent
+	
+	Event OnHighlightST()
+		SetInfoText("$FW_MENUTXT_PREGNANCY_AllowNTRbaby")
+	EndEvent
+EndState
+
 
 State ToggleRelevantNPC
 	Event OnSelectST()

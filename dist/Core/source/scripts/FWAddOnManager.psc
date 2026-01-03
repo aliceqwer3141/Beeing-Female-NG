@@ -171,10 +171,12 @@ endFunction
 
 function RefreshAddOnH(int type=127)
 	_LoadingState=0x20
-	if Math.LogicalAnd(type,2)==2
-		ResetAllRaceAddOns()
-	endif
+;	if Math.LogicalAnd(type,2)==2
+;		ResetAllRaceAddOns()
+;	endif
 	Clear(type)
+	
+	ClearActorAddOns()
 	
 	ClearGlobalSettings()
 	
@@ -331,6 +333,9 @@ function RefreshAddOnH(int type=127)
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_RemoveSPIDitems is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 1)
 							endIf
+							LoadGlobalAddOnValue(n, "Global_WidgetFadeOutTime")
+							LoadGlobalAddOnValue(n, "Global_WidgetFlashShowTime")
+							LoadGlobalAddOnValue(n, "Global_WidgetNoFlashShowTime")
 
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisablePregnancy", false))
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Activating Global_DisablePregnancy")	
@@ -366,14 +371,58 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_Sizes_Belly_Max_Multiple")
 							LoadGlobalAddOnValue(n, "Global_Sizes_Breasts_Max")
 							LoadGlobalAddOnValue(n, "Global_Sizes_Breasts_Max_Multiple")
+							LoadGlobalAddOnValue(n, "Global_Preg1stBellyScale")
+							LoadGlobalAddOnValue(n, "Global_Preg2ndBellyScale")
+							LoadGlobalAddOnValue(n, "Global_Preg3rdBellyScale")
+							LoadGlobalAddOnValue(n, "Global_Preg1stBreastsScale")
+							LoadGlobalAddOnValue(n, "Global_Preg2ndBreastsScale")
+							LoadGlobalAddOnValue(n, "Global_Preg3rdBreastsScale")
+							LoadGlobalAddOnValue(n, "Global_MultipleBabySperm")
+							LoadGlobalAddOnValue(n, "Global_MultipleBabyChancePerSperm")
+							LoadGlobalAddOnValue(n, "Global_Baby_Healing_Scale")
+							LoadGlobalAddOnValue(n, "Global_Baby_Damage_Scale")
+
 
 							LoadGlobalAddOnValue(n, "Global_Duration_MaleSperm")
 							LoadGlobalAddOnValue(n, "Global_Sperm_Amount_Scale")
-							LoadGlobalAddOnValue(n, "Global_Baby_Healing_Scale")
-							LoadGlobalAddOnValue(n, "Global_Baby_Damage_Scale")
 							LoadGlobalAddOnValue(n, "Global_Male_Recovery_Scale")
+							LoadGlobalAddOnValue(n, "Global_Ignore_Contraception_Prob")
+							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Allow_Impregnation_For_Any_Period", false)
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
+								
+								LoadGlobalAddOnValue(n, "Global_Sperm_Impregnation_Prob_For_Any_Period")
+								if(StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
+									StorageUtil.SetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", 1)
+								else
+									StorageUtil.SetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", 0)
+								endif
+							endif
+							LoadGlobalAddOnValueAnything(n, "Global_Sperm_Impregnation_Boost")
+							LoadGlobalAddOnValueAnything(n, "Global_Modify_Baby_Healing_Scale_by_FatherRace")
+							LoadGlobalAddOnValueAnything(n, "Global_Modify_Baby_Damage_Scale_by_FatherRace")
 
-							LoadGlobalAddOnValueInt(n, "Global_MatureStep")
+
+							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Female_Force_This_Baby", false)
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Female_Force_This_Baby")
+								
+								StorageUtil.SetIntValue(none, "FW.AddOn.Global_Female_Force_This_Baby", 1)
+							endif
+							AddGlobalAddOnArrayToList(n, "Global_BabyActor_Female")
+							AddGlobalAddOnArrayToList(n, "Global_BabyActor_FemalePlayer")
+							AddGlobalAddOnArrayToList(n, "Global_BabyActor_Male")
+							AddGlobalAddOnArrayToList(n, "Global_BabyActor_MalePlayer")
+							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_MixWithCopyActorBase", false))
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_MixWithCopyActorBase and reading Global_ProbChildActorBorn...")
+								
+								StorageUtil.SetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase", 1)
+								LoadGlobalAddOnValueInt(n, "Global_ProbChildActorBorn")
+							endif
+							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowPCDialogue", false)
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_AllowPCDialogue is true")
+								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 1)
+							endif
+							LoadGlobalAddOnValue(n, "Global_initialScale")
+							LoadGlobalAddOnValue(n, "Global_finalScale")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisableMatureTime", false)
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_DisableMatureTime is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableMatureTime", 1)
@@ -381,33 +430,40 @@ function RefreshAddOnH(int type=127)
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_DisableMatureTime is false. Reading Global_MatureTimeScale...")
 								LoadGlobalAddOnValue(n, "Global_MatureTimeScale")	
 							endif
-							LoadGlobalAddOnValue(n, "Global_initialScale")
-							LoadGlobalAddOnValue(n, "Global_finalScale")
-
+							LoadGlobalAddOnValueInt(n, "Global_MatureStep")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowUnrestrictedS", false)
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_AllowUnrestrictedS is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 1)
 							endif
-
-							LoadGlobalAddOnValue(n, "Global_Preg1stBellyScale")
-							LoadGlobalAddOnValue(n, "Global_Preg2ndBellyScale")
-							LoadGlobalAddOnValue(n, "Global_Preg3rdBellyScale")
-
-							LoadGlobalAddOnValue(n, "Global_Preg1stBreastsScale")
-							LoadGlobalAddOnValue(n, "Global_Preg2ndBreastsScale")
-							LoadGlobalAddOnValue(n, "Global_Preg3rdBreastsScale")
-	
-							LoadGlobalAddOnValue(n, "Global_MultipleBabySperm")
-							LoadGlobalAddOnValue(n, "Global_MultipleBabyChancePerSperm")
-
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_ProtectedChildActor", false)
 								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_ProtectedChildActor is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 1)
 							endif
-
-							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowPCDialogue", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_AllowPCDialogue is true")
-								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 1)
+						elseif(t == "actor")
+							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is actor")
+							
+							string sActorCount = FWUtility.getIniString("AddOn", n, "actors", "")							
+							int ActorCount = 0
+							if sActorCount;/!=""/; ;Tkc (Loverslab): optimization
+								ActorCount = sActorCount as int
+								
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount = " + ActorCount)
+							else
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : sActorCount is zero")
+							endif
+							if(ActorCount == 0)
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount is zero. Running AddActorAddOnCat...")
+								
+								AddActorAddOnCat(n, "AddOn")
+							else
+								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount is not zero")
+								
+								while(ActorCount > 0)
+									Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : Running " + ActorCount + "th AddActorAddOnCat...")
+									
+									AddActorAddOnCat(n, "Actor" + ActorCount)
+									ActorCount -= 1
+								endwhile
 							endif
 						else
 							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type cannot be recognized in BeeingFemale...")
@@ -874,9 +930,9 @@ function AddRaceAddOnValue(race r, string n, string cat,string valueName)
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		
 		float oldVal = StorageUtil.GetFloatValue(r,"FW.AddOn."+valueName,1.0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + oldVal * v)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
 		
-		StorageUtil.SetFloatValue(r, "FW.AddOn."+valueName, oldVal * v)
+		StorageUtil.SetFloatValue(r, "FW.AddOn."+valueName, (oldVal * v))
 ;	else
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName > 0 is not satisfied..")
 	endif
@@ -893,6 +949,24 @@ function LoadRaceAddOnValue(race r, string n, string cat, string valueName)
 ;	else
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
+endFunction
+
+function LoadRaceAddOnValueIncludingZero(race r, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
+	
+	if v >= 0
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
+	endif
+endFunction
+
+function LoadRaceAddOnValueAnything(race r, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
+	
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 endFunction
 
 function LoadRaceAddOnValueInt(race r, string n, string cat, string valueName)
@@ -948,7 +1022,10 @@ function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
 			endWhile
 		else
 			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is not zero")
-			
+
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r)
+			StorageUtil.FormListClear(r, "FW.AddOn." + valueName)
+
 			while c>0
 				c-=1
 				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
@@ -959,11 +1036,12 @@ function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
 					if itm;/!=none/;
 						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r + " to add " + itm)
-						StorageUtil.FormListClear(r,"FW.AddOn."+valueName)
-
 						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
-						StorageUtil.FormListAdd(r,"FW.AddOn."+valueName,itm)
+						if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm) ;Tkc (Loverslab): optimization
+;							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
+						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
+							StorageUtil.FormListAdd(r,"FW.AddOn."+valueName,itm)
+						endIf
 ;					else
 ;						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
 					endif
@@ -1014,13 +1092,6 @@ function AddRaceAddOn(race r, string n, string cat)
 		StorageUtil.FormListAdd(none,"FW.AddOn.Races",r)
 	endif
 	
-	if FWUtility.getIniCBool("AddOn",n,cat,"Female_Force_This_Baby",false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
-		
-		StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",1)
-;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.Female_Force_This_Baby for this race")
-	endif
 	if FWUtility.getIniCBool("AddOn",n,cat,"DisablePregnancy",false)
 		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisablePregnancy for this race")
 	
@@ -1028,14 +1099,6 @@ function AddRaceAddOn(race r, string n, string cat)
 ;	else
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.DisablePregnancy for this race")
 	endif
-	
-	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Female")
-	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Male")
-	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_FemalePlayer")
-	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_MalePlayer")
-	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Female")
-	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Male")
-	
 	AddRaceAddOnValue(r,n,cat,"ChanceToBecomePregnantScale")
 	AddRaceAddOnValue(r,n,cat,"ContraceptionDuration")
 	AddRaceAddOnValue(r,n,cat,"Duration_01_Follicular")
@@ -1067,16 +1130,90 @@ function AddRaceAddOn(race r, string n, string cat)
 	AddRaceAddOnValue(r,n,cat,"Sizes_Belly_Max_Multiple")
 	AddRaceAddOnValue(r,n,cat,"Sizes_Breasts_Max")
 	AddRaceAddOnValue(r,n,cat,"Sizes_Breasts_Max_Multiple")
+	LoadRaceAddOnValue(r, n, cat, "Preg1stBellyScale")
+	LoadRaceAddOnValue(r, n, cat, "Preg2ndBellyScale")
+	LoadRaceAddOnValue(r, n, cat, "Preg3rdBellyScale")
+	LoadRaceAddOnValue(r, n, cat, "Preg1stBreastsScale")
+	LoadRaceAddOnValue(r, n, cat, "Preg2ndBreastsScale")
+	LoadRaceAddOnValue(r, n, cat, "Preg3rdBreastsScale")
+	LoadRaceAddOnValue(r, n, cat, "MultipleBabySperm")
+	LoadRaceAddOnValue(r, n, cat, "MultipleBabyChancePerSperm")	
+	AddRaceAddOnValue(r,n,cat,"Baby_Healing_Scale")
+	AddRaceAddOnValue(r,n,cat,"Baby_Damage_Scale")
+	
 	
 	AddRaceAddOnValue(r,n,cat,"Duration_MaleSperm")
 	AddRaceAddOnValue(r,n,cat,"Sperm_Amount_Scale")
-	AddRaceAddOnValue(r,n,cat,"Baby_Healing_Scale")
-	AddRaceAddOnValue(r,n,cat,"Baby_Damage_Scale")
 	AddRaceAddOnValue(r,n,cat,"Male_Recovery_Scale")
-
 	LoadRaceAddOnValueInt(r, n, cat, "ProbChildRaceDeterminedByFather")
 	LoadRaceAddOnValueInt(r, n, cat, "ProbChildSexDetermMale")
-	LoadRaceAddOnValueInt(r, n, cat, "MatureStep")
+	LoadRaceAddOnValue(r, n, cat, "Ignore_Contraception_Prob")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Trimester1_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Trimester2_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Trimester3_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_LaborPainsPeriod_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Recovery_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_SecondsBetweenLaborPains_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_SecondsBetweenBabySpawn_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Pain_Abortus_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Pain_GivingBirth_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Pain_LaborPains_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg1stBellyScale_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg2ndBellyScale_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg3rdBellyScale_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg1stBreastsScale_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
+	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
+	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this race")
+		
+		LoadRaceAddOnValue(r, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
+		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_Impregnation_For_Any_Period", 1)
+		else
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_Impregnation_For_Any_Period", 0)
+		endif
+	endif
+	LoadRaceAddOnValueAnything(r, n, cat, "Sperm_Impregnation_Boost")
+	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_NTR_baby for this race")
+		
+		LoadRaceAddOnValue(r, n, cat, "Sperm_NTR_baby_Prob")
+		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_NTR_baby", 1)
+		else
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_NTR_baby", 0)
+		endif
+	endif
+	LoadRaceAddOnValueAnything(r, n, cat, "Modify_Baby_Healing_Scale_by_FatherRace")
+	LoadRaceAddOnValueAnything(r, n, cat, "Modify_Baby_Damage_Scale_by_FatherRace")
+
+
+	if FWUtility.getIniCBool("AddOn",n,cat,"Female_Force_This_Baby",false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
+		
+		StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",1)
+;	else
+;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.Female_Force_This_Baby for this race")
+	endif
+	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Female")
+	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Male")
+	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Female")
+	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_FemalePlayer")
+	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Male")
+	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_MalePlayer")
+	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
+		
+		StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 1)
+		LoadRaceAddOnValueInt(r, n, cat, "ProbChildActorBorn")
+	endif
+	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
+		StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 1)
+	endIf
+	LoadRaceAddOnValue(r, n, cat, "initialScale")
+	LoadRaceAddOnValue(r, n, cat, "finalScale")
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
 		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisableMatureTime for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.DisableMatureTime", 1)
@@ -1084,40 +1221,14 @@ function AddRaceAddOn(race r, string n, string cat)
 		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". FW.AddOn.DisableMatureTime is disabled for this race. Reading MatureTimeScale...")
 		LoadRaceAddOnValue(r, n, cat, "MatureTimeScale")	
 	endif
-	LoadRaceAddOnValue(r, n, cat, "initialScale")
-	LoadRaceAddOnValue(r, n, cat, "finalScale")
-
+	LoadRaceAddOnValueInt(r, n, cat, "MatureStep")
 	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
 		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowUnrestrictedS for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.AllowUnrestrictedS", 1)
 	endif
-	
-	LoadRaceAddOnValue(r, n, cat, "Preg1stBellyScale")
-	LoadRaceAddOnValue(r, n, cat, "Preg2ndBellyScale")
-	LoadRaceAddOnValue(r, n, cat, "Preg3rdBellyScale")
-
-	LoadRaceAddOnValue(r, n, cat, "Preg1stBreastsScale")
-	LoadRaceAddOnValue(r, n, cat, "Preg2ndBreastsScale")
-	LoadRaceAddOnValue(r, n, cat, "Preg3rdBreastsScale")
-	
-	LoadRaceAddOnValue(r, n, cat, "MultipleBabySperm")
-	LoadRaceAddOnValue(r, n, cat, "MultipleBabyChancePerSperm")	
-
-	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
-		
-		StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 1)
-		LoadRaceAddOnValueInt(r, n, cat, "ProbChildActorBorn")
-	endif
-
 	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
 		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.ProtectedChildActor for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.ProtectedChildActor", 1)
-	endIf
-
-	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
-		StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 1)
 	endIf
 endFunction
 
@@ -1125,6 +1236,10 @@ endFunction
 Function ClearGlobalSettings()
 	; Reset variables
 	StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", -1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime", -1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime", -1)
+
 
 	StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisablePregnancy", 0)
 	
@@ -1157,38 +1272,52 @@ Function ClearGlobalSettings()
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sizes_Belly_Max_Multiple", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max", 1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max_Multiple", 1)
-
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_MaleSperm", 1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sperm_Amount_Scale", 1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale", 1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale", 1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Male_Recovery_Scale", 1)
-
-	StorageUtil.SetIntValue(none, "FW.AddOn.Global_MatureStep", -1)
-	StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableMatureTime", 0)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_MatureTimeScale", -1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_initialScale", -1)
-	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
-
-	StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 0)
-
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg1stBellyScale", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg2ndBellyScale", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg3rdBellyScale", -1)
-
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg1stBreastsScale", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg2ndBreastsScale", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Preg3rdBreastsScale", -1)
-
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_MultipleBabySperm", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_MultipleBabyChancePerSperm", -1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale", 1)
 
+
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Duration_MaleSperm", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sperm_Amount_Scale", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Male_Recovery_Scale", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Ignore_Contraception_Prob", -1)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Healing_Scale_by_FatherRace", 1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Damage_Scale_by_FatherRace", 1)
+	
+
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_Female_Force_This_Baby", 0)
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_Female")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_FemalePlayer")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_Male")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_MalePlayer")			
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase", 0)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProbChildActorBorn", -1)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_initialScale", -1)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableMatureTime", 0)
+	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_MatureTimeScale", -1)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_MatureStep", -1)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 0)
 	StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0)
 
-	StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0)
 
 	; Unset variables
 	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime")
+
 
 	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_DisablePregnancy")
 	
@@ -1221,37 +1350,45 @@ Function ClearGlobalSettings()
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sizes_Belly_Max_Multiple")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max_Multiple")
-
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_MaleSperm")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sperm_Amount_Scale")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Male_Recovery_Scale")
-
-	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_MatureStep")
-	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_DisableMatureTime")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_MatureTimeScale")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_initialScale")
-	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_finalScale")
-
-	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS")
-
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg1stBellyScale")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg2ndBellyScale")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg3rdBellyScale")
-
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg1stBreastsScale")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg2ndBreastsScale")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Preg3rdBreastsScale")
-
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_MultipleBabySperm")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_MultipleBabyChancePerSperm")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale")
 
-	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_ProtectedChildActor")
 
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Duration_MaleSperm")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sperm_Amount_Scale")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Male_Recovery_Scale")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Ignore_Contraception_Prob")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Healing_Scale_by_FatherRace")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Damage_Scale_by_FatherRace")
+
+
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_Female_Force_This_Baby")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_Female")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_FemalePlayer")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_Male")
+	StorageUtil.FormListClear(none, "FW.AddOn.Global_BabyActor_MalePlayer")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_ProbChildActorBorn")
 	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_AllowPCDialogue")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_initialScale")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_finalScale")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_DisableMatureTime")
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_MatureTimeScale")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_MatureStep")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_ProtectedChildActor")
 endFunction
-
 function LoadGlobalAddOnValue(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
 	
@@ -1264,7 +1401,22 @@ function LoadGlobalAddOnValue(string n, string valueName)
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
 endFunction
-
+function LoadGlobalAddOnValueIncludingZero(string n, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
+	
+	if(v >= 0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+		StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
+	endif
+endFunction
+function LoadGlobalAddOnValueAnything(string n, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, 0)
+	
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+	StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
+endFunction
 function LoadGlobalAddOnValueInt(string n, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, "AddOn", valueName, -1)
 	
@@ -1276,6 +1428,497 @@ function LoadGlobalAddOnValueInt(string n, string valueName)
 ;	else
 ;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
+endFunction
+function AddGlobalAddOnArrayToList(string n, string valueName)
+	string s = FWUtility.getIniCString("AddOn", n, "AddOn", valueName, "")
+	if s;/!=""/; ;Tkc (Loverslab): optimization
+		string[] ss = StringUtil.Split(s, ",")
+		int c = ss.length
+		
+		if StorageUtil.GetIntValue(none, "FW.AddOn.Female_Force_This_Baby", 0) == 0
+			while(c > 0)
+				c -= 1
+				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
+;					form itm = FWUtility.GetFormFromString(ss[c])		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+					form itm = FWUtility.GetFormFromStringSE(ss[c])				
+
+					if itm;/!=none/;
+						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
+						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
+							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
+						endif
+					endif
+				endif
+			endWhile
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Global FW.AddOn.Female_Force_This_Baby is not zero")
+
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Clearing FW.AddOn." + valueName + " in global settings")
+			StorageUtil.FormListClear(none, "FW.AddOn." + valueName)
+
+			while(c > 0)
+				c -= 1
+				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
+					form itm = FWUtility.GetFormFromStringSE(ss[c])
+
+					if itm;/!=none/;
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
+						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
+							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
+						endIf
+					endif
+				endif
+			endWhile
+		endif
+	endif
+endFunction
+
+
+function AddActorAddOnArrayToList(actor a, string n, string cat, string valueName)
+	string s = FWUtility.getIniCString("AddOn", n, cat, valueName, "")
+	if s;/!=""/; ;Tkc (Loverslab): optimization
+		string[] ss = StringUtil.Split(s, ",")
+		int c = ss.length
+		
+		if(StorageUtil.GetIntValue(a, "FW.AddOn.Female_Force_This_Baby", 0) == 0)
+			while(c > 0)
+				c -= 1
+				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
+;					form itm = FWUtility.GetFormFromString(ss[c])		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+					form itm = FWUtility.GetFormFromStringSE(ss[c])				
+
+					if itm;/!=none/;
+						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
+						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
+							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
+						endif
+					endif
+				endif
+			endWhile
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". For actor " + a + ", FW.AddOn.Female_Force_This_Baby is not zero")
+
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in actor " + a)
+			StorageUtil.FormListClear(a, "FW.AddOn." + valueName)
+
+			while(c > 0)
+				c -= 1
+				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
+;					form itm = FWUtility.GetFormFromString(ss[c])		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+					form itm = FWUtility.GetFormFromStringSE(ss[c])
+
+					if itm;/!=none/;
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
+						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
+							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
+						endIf
+					endif
+				endif
+			endWhile
+		endif
+	endif
+endFunction
+function AddActorAddOnValue(actor a, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 1.0)
+	
+	if(v > 0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		
+		float oldVal = StorageUtil.GetFloatValue(a, "FW.AddOn." + valueName, 1.0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
+		
+		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, (oldVal * v))
+	endif
+endFunction
+function LoadActorAddOnValueInt(actor a, string n, string cat, string valueName)
+	int v = FWUtility.getIniCInt("AddOn", n, cat, valueName, -1)
+	
+	if(v >= 0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValueInt : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		StorageUtil.SetIntValue(a, "FW.AddOn." + valueName, v)
+	endif
+endFunction
+function LoadActorAddOnValue(actor a, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
+	
+	if(v > 0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
+	endif
+endFunction
+function LoadActorAddOnValueIncludingZero(actor a, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
+	
+	if(v >= 0)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
+	endif
+endFunction
+function LoadActorAddOnValueAnything(actor a, string n, string cat, string valueName)
+	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
+	
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
+endFunction
+
+function AddActorAddOnCat(string n, string cat)
+	string ids = FWUtility.getIniCString("AddOn", n, cat, "id", "")
+	if ids;/!=""/; ;Tkc (Loverslab): optimization
+		string[] saActors = StringUtil.Split(ids, ",")
+		int c2 = saActors.length
+		while(c2 > 0)
+			c2 -= 1
+;			race r=FWUtility.GetFormFromString(saRaces[c2]) as Race		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
+			actor a = FWUtility.GetFormFromStringSE(saActors[c2]) as actor
+			
+			if a;/!=none/;
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th actor is " + a)
+					
+				AddActorAddOn(a, n, cat)
+			endif
+		endWhile
+	endif
+endFunction
+function AddActorAddOn(actor a, string n, string cat)
+	if StorageUtil.FormListHas(none, "FW.AddOn.Actors", a) ;Tkc (Loverslab): optimization
+	else;if !StorageUtil.FormListHas(none,"FW.AddOn.Races",r)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Adding this Actor to FW.AddOn.Actors")
+
+		StorageUtil.FormListAdd(none, "FW.AddOn.Actors", a)
+	endif
+	
+	if FWUtility.getIniCBool("AddOn", n, cat, "DisablePregnancy", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisablePregnancy for this actor")
+	
+		StorageUtil.SetIntValue(a, "FW.AddOn.DisablePregnancy", 1)
+	endif
+	AddActorAddOnValue(a, n, cat, "ChanceToBecomePregnantScale")
+	AddActorAddOnValue(a, n, cat, "ContraceptionDuration")
+	AddActorAddOnValue(a, n, cat, "Duration_01_Follicular")
+	AddActorAddOnValue(a, n, cat, "Duration_02_Ovulation")
+	AddActorAddOnValue(a, n, cat, "Duration_03_Luteal")
+	AddActorAddOnValue(a, n, cat, "Duration_04_Menstruation")
+	AddActorAddOnValue(a, n, cat, "Duration_05_Trimester1")
+	AddActorAddOnValue(a, n, cat, "Duration_06_Trimester2")
+	AddActorAddOnValue(a, n, cat, "Duration_07_Trimester3")
+	AddActorAddOnValue(a, n, cat, "Duration_08_Recovery")
+	AddActorAddOnValue(a, n, cat, "Duration_08_Recovery")
+	AddActorAddOnValue(a, n, cat, "Duration_09_LaborPains")
+	AddActorAddOnValue(a, n, cat, "Duration_11_SecondsBetweenBabySpawn")
+	AddActorAddOnValue(a, n, cat, "Irregulation_Chance_Scale")
+	AddActorAddOnValue(a, n, cat, "Irregulation_Value_Scale")
+	AddActorAddOnValue(a, n, cat, "Multiple_Threshold_Chance")
+	AddActorAddOnValue(a, n, cat, "Multiple_Threshold_Max_Babys")
+	AddActorAddOnValue(a, n, cat, "Pain_Abortus")
+	AddActorAddOnValue(a, n, cat, "Pain_GivingBirth")
+	AddActorAddOnValue(a, n, cat, "Pain_LaborPains")
+	AddActorAddOnValue(a, n, cat, "Pain_Mittelschmerz")
+	AddActorAddOnValue(a, n, cat, "Pain_Phase_CyclePains")
+	AddActorAddOnValue(a, n, cat, "Pain_Phase_PregnantPains")
+	AddActorAddOnValue(a, n, cat, "Pain_PMS")
+	AddActorAddOnValue(a, n, cat, "PMS_ChanceScale")
+	AddActorAddOnValue(a, n, cat, "Sizes_Belly_Max")
+	AddActorAddOnValue(a, n, cat, "Sizes_Belly_Max_Multiple")
+	AddActorAddOnValue(a, n, cat, "Sizes_Breasts_Max")
+	AddActorAddOnValue(a, n, cat, "Sizes_Breasts_Max_Multiple")
+	LoadActorAddOnValue(a, n, cat, "Preg1stBellyScale")
+	LoadActorAddOnValue(a, n, cat, "Preg2ndBellyScale")
+	LoadActorAddOnValue(a, n, cat, "Preg3rdBellyScale")
+	LoadActorAddOnValue(a, n, cat, "Preg1stBreastsScale")
+	LoadActorAddOnValue(a, n, cat, "Preg2ndBreastsScale")
+	LoadActorAddOnValue(a, n, cat, "Preg3rdBreastsScale")
+	LoadActorAddOnValue(a, n, cat, "MultipleBabySperm")
+	LoadActorAddOnValue(a, n, cat, "MultipleBabyChancePerSperm")	
+	AddActorAddOnValue(a, n, cat, "Baby_Healing_Scale")
+	AddActorAddOnValue(a, n, cat, "Baby_Damage_Scale")
+	
+	
+	AddActorAddOnValue(a, n, cat, "Duration_MaleSperm")
+	AddActorAddOnValue(a, n, cat, "Sperm_Amount_Scale")
+	AddActorAddOnValue(a, n, cat, "Male_Recovery_Scale")
+	LoadActorAddOnValueInt(a, n, cat, "ProbChildRaceDeterminedByFather")
+	LoadActorAddOnValueInt(a, n, cat, "ProbChildSexDetermMale")
+	LoadActorAddOnValue(a, n, cat, "Ignore_Contraception_Prob")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Trimester1_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Trimester2_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Trimester3_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_LaborPainsPeriod_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Recovery_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_SecondsBetweenLaborPains_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_SecondsBetweenBabySpawn_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Pain_Abortus_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Pain_GivingBirth_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Pain_LaborPains_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg1stBellyScale_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg2ndBellyScale_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg3rdBellyScale_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg1stBreastsScale_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
+	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
+	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this actor")
+		
+		LoadActorAddOnValue(a, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
+		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", 1)
+		else
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", 0)
+		endif
+	endif
+	LoadActorAddOnValueAnything(a, n, cat, "Sperm_Impregnation_Boost")
+	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_NTR_baby for this actor")
+		
+		LoadActorAddOnValue(a, n, cat, "Sperm_NTR_baby_Prob")
+		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_NTR_baby", 1)
+		else
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_NTR_baby", 0)
+		endif
+	endif
+	LoadActorAddOnValueAnything(a, n, cat, "Modify_Baby_Healing_Scale_by_FatherRace")
+	LoadActorAddOnValueAnything(a, n, cat, "Modify_Baby_Damage_Scale_by_FatherRace")
+
+
+	if FWUtility.getIniCBool("AddOn", n, cat, "Female_Force_This_Baby", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Female_Force_This_Baby for this actor")
+		
+		StorageUtil.SetIntValue(a, "FW.AddOn.Female_Force_This_Baby", 1)
+	endif
+	AddActorAddOnArrayToList(a, n, cat, "BabyActor_Female")
+	AddActorAddOnArrayToList(a, n, cat, "BabyActor_FemalePlayer")
+	AddActorAddOnArrayToList(a, n, cat, "BabyActor_Male")
+	AddActorAddOnArrayToList(a, n, cat, "BabyActor_MalePlayer")
+	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.MixWithCopyActorBase for this actor and reading ProbChildActorBorn...")
+		
+		StorageUtil.SetIntValue(a, "FW.AddOn.MixWithCopyActorBase", 1)
+		LoadActorAddOnValueInt(a, n, cat, "ProbChildActorBorn")
+	endif
+	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowPCDialogue for this actor")
+		StorageUtil.SetIntValue(a, "FW.AddOn.AllowPCDialogue", 1)
+	endIf
+	LoadActorAddOnValue(a, n, cat, "initialScale")
+	LoadActorAddOnValue(a, n, cat, "finalScale")
+	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisableMatureTime for this actor")
+		StorageUtil.SetIntValue(a, "FW.AddOn.DisableMatureTime", 1)
+	else
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". FW.AddOn.DisableMatureTime is disabled for this actor. Reading MatureTimeScale...")
+		LoadActorAddOnValue(a, n, cat, "MatureTimeScale")	
+	endif
+	LoadActorAddOnValueInt(a, n, cat, "MatureStep")
+	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowUnrestrictedS for this actor")
+		StorageUtil.SetIntValue(a, "FW.AddOn.AllowUnrestrictedS", 1)
+	endif
+	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.ProtectedChildActor for this actor")
+		StorageUtil.SetIntValue(a, "FW.AddOn.ProtectedChildActor", 1)
+	endIf
+endFunction
+function ClearActorAddOns()
+	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearActorAddOns : Clearing...")
+
+	int c = StorageUtil.FormListCount(none, "FW.AddOn.Actors")
+	while(c > 0)
+		c -= 1
+		actor a = StorageUtil.FormListGet(none, "FW.AddOn.Actors", c) as actor
+		if a ;Tkc (Loverslab): optimization
+			StorageUtil.SetIntValue(a, "FW.AddOn.DisablePregnancy", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.ChanceToBecomePregnantScale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.ContraceptionDuration", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_01_Follicular", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_02_Ovulation", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_03_Luteal", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_04_Menstruation", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_05_Trimester1", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_06_Trimester2", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_07_Trimester3", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_08_Recovery", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_09_LaborPains", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_10_SecondsBetweenLaborPains", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_11_SecondsBetweenBabySpawn", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Irregulation_Chance_Scale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Irregulation_Value_Scale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Multiple_Threshold_Chance", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Multiple_Threshold_Max_Babys", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_Abortus", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_GivingBirth", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_LaborPains", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_Mittelschmerz", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_Phase_CyclePains", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_Phase_PregnantPains", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Pain_PMS", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.PMS_ChanceScale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sizes_Belly_Max", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sizes_Belly_Max_Multiple", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max_Multiple", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg1stBellyScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg2ndBellyScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg3rdBellyScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg1stBreastsScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg2ndBreastsScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Preg3rdBreastsScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.MultipleBabySperm", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.MultipleBabyChancePerSperm", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Baby_Healing_Scale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Baby_Damage_Scale", 1)
+			
+		
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Duration_MaleSperm", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sperm_Amount_Scale", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Male_Recovery_Scale", 1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.ProbChildRaceDeterminedByFather", -1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.ProbChildSexDetermMale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Ignore_Contraception_Prob", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Trimester1_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Trimester2_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Trimester3_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Recovery_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Pain_LaborPains_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.Allow_NTR_baby", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace", 1)
+
+
+			StorageUtil.SetIntValue(a, "FW.AddOn.Female_Force_This_Baby", 0)
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_Female")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_FemalePlayer")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_Male")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_MalePlayer")			
+			StorageUtil.SetIntValue(a, "FW.AddOn.MixWithCopyActorBase", 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.ProbChildActorBorn", -1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.AllowUnrestrictedS", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.initialScale", -1)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.finalScale", -1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.DisableMatureTime", 0)
+			StorageUtil.SetFloatValue(a, "FW.AddOn.MatureTimeScale", -1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.MatureStep", -1)
+			StorageUtil.SetIntValue(a, "FW.AddOn.AllowPCDialogue", 0)
+			StorageUtil.SetIntValue(a, "FW.AddOn.ProtectedChildActor", 0)
+		else;if r==none
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.DisablePregnancy")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.ChanceToBecomePregnantScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.ContraceptionDuration")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_01_Follicular")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_02_Ovulation")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_03_Luteal")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_04_Menstruation")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_05_Trimester1")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_06_Trimester2")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_07_Trimester3")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_08_Recovery")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_09_LaborPains")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_10_SecondsBetweenLaborPains")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_11_SecondsBetweenBabySpawn")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Irregulation_Chance_Scale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Irregulation_Value_Scale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Multiple_Threshold_Chance")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Multiple_Threshold_Max_Babys")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_Abortus")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_GivingBirth")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_LaborPains")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_Mittelschmerz")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_Phase_CyclePains")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_Phase_PregnantPains")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Pain_PMS")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.PMS_ChanceScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sizes_Belly_Max")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sizes_Belly_Max_Multiple")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max_Multiple")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg1stBellyScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg2ndBellyScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg3rdBellyScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg1stBreastsScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg2ndBreastsScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Preg3rdBreastsScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.MultipleBabySperm")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.MultipleBabyChancePerSperm")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Baby_Healing_Scale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Baby_Damage_Scale")
+
+		
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Duration_MaleSperm")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sperm_Amount_Scale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Male_Recovery_Scale")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.ProbChildRaceDeterminedByFather")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.ProbChildSexDetermMale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Ignore_Contraception_Prob")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Trimester1_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Trimester2_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Trimester3_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Recovery_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Pain_LaborPains_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Boost")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.Allow_NTR_baby")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace")
+
+
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.Female_Force_This_Baby")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_Female")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_FemalePlayer")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_Male")
+			StorageUtil.FormListClear(a, "FW.AddOn.BabyActor_MalePlayer")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.MixWithCopyActorBase")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.ProbChildActorBorn")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.AllowPCDialogue")		
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.initialScale")
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.finalScale")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.DisableMatureTime")			
+			StorageUtil.UnsetFloatValue(a, "FW.AddOn.MatureTimeScale")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.MatureStep")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.AllowUnrestrictedS")
+			StorageUtil.UnsetIntValue(a, "FW.AddOn.ProtectedChildActor")
+		endif
+	endWhile
+	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Actors")
 endFunction
 
 
@@ -1327,98 +1970,6 @@ function ClearCMEAddOns()
 	StorageUtil.FormListClear(none,"FW.AddOn.Sometimes_Trimester3")
 endFunction
 
-Function ResetAllRaceAddOns()
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ResetAllRaceAddOns : Resetting...")
-
-	int c = StorageUtil.FormListCount(none, "FW.AddOn.Races")
-	while c>0
-		c-=1
-		race r = StorageUtil.FormListGet(none, "FW.AddOn.Races",c) as race
-		ResetRaceAddOns(r)
-	endWhile
-endFunction
-
-function ResetRaceAddOns(race r)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ResetRaceAddOns : Resetting...")
-
-	if r;/!=none/;
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Female")
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Male")
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_FemalePlayer")
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_MalePlayer")
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Female")
-		StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Male")
-		
-		StorageUtil.SetIntValue(r,"FW.AddOn.DisablePregnancy",0)
-		StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",0)
-		
-		StorageUtil.SetFloatValue(r,"FW.AddOn.ChanceToBecomePregnantScale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.ContraceptionDuration",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_01_Follicular",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_02_Ovulation",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_03_Luteal",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_04_Menstruation",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_05_Trimester1",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_06_Trimester2",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_07_Trimester3",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_08_Recovery",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_09_LaborPains",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Irregulation_Chance_Scale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Irregulation_Value_Scale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Max_CME_EffectScale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Multiple_Threshold_Chance",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Multiple_Threshold_Max_Babys",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Abortus",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_GivingBirth",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_LaborPains",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Menstruation",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Mittelschmerz",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Phase_CyclePains",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Phase_PregnantPains",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_PMS",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.PMS_ChanceScale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Belly_Max",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Belly_Max_Multiple",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max_Multiple",1)
-	
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_MaleSperm",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Sperm_Amount_Scale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Baby_Healing_Scale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Baby_Damage_Scale",1)
-		StorageUtil.SetFloatValue(r,"FW.AddOn.Male_Recovery_Scale",1)
-
-		StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildRaceDeterminedByFather", -1)
-		StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildSexDetermMale", -1)
-		StorageUtil.SetIntValue(r, "FW.AddOn.MatureStep", -1)
-		StorageUtil.SetIntValue(r, "FW.AddOn.DisableMatureTime", 0)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.MatureTimeScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.initialScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.finalScale", -1)
-
-		StorageUtil.SetIntValue(r, "FW.AddOn.AllowUnrestrictedS", 0)
-
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg1stBellyScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg2ndBellyScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg3rdBellyScale", -1)
-
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg1stBreastsScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg2ndBreastsScale", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.Preg3rdBreastsScale", -1)
-
-		StorageUtil.SetFloatValue(r, "FW.AddOn.MultipleBabySperm", -1)
-		StorageUtil.SetFloatValue(r, "FW.AddOn.MultipleBabyChancePerSperm", -1)
-
-		StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 0)
-		StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildActorBorn", -1)
-
-		StorageUtil.SetIntValue(r, "FW.AddOn.ProtectedChildActor", 0)
-
-		StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 0)
-	endif
-endFunction
 function ClearRaceAddOns()
 	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearRaceAddOns : Clearing...")
 
@@ -1427,17 +1978,100 @@ function ClearRaceAddOns()
 		c-=1
 		race r = StorageUtil.FormListGet(none, "FW.AddOn.Races",c) as race
 		if r ;Tkc (Loverslab): optimization
-		else;if r==none
-			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Female")
-			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Male")
-			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_FemalePlayer")
-			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_MalePlayer")
+			StorageUtil.SetIntValue(r,"FW.AddOn.DisablePregnancy",0)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.ChanceToBecomePregnantScale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.ContraceptionDuration",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_01_Follicular",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_02_Ovulation",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_03_Luteal",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_04_Menstruation",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_05_Trimester1",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_06_Trimester2",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_07_Trimester3",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_08_Recovery",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_09_LaborPains",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Irregulation_Chance_Scale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Irregulation_Value_Scale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Max_CME_EffectScale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Multiple_Threshold_Chance",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Multiple_Threshold_Max_Babys",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Abortus",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_GivingBirth",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_LaborPains",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Menstruation",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Mittelschmerz",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Phase_CyclePains",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_Phase_PregnantPains",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Pain_PMS",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.PMS_ChanceScale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Belly_Max",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Belly_Max_Multiple",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max_Multiple",1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg1stBellyScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg2ndBellyScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg3rdBellyScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg1stBreastsScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg2ndBreastsScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Preg3rdBreastsScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.MultipleBabySperm", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.MultipleBabyChancePerSperm", -1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Baby_Healing_Scale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Baby_Damage_Scale",1)
+			
+		
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Duration_MaleSperm",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Sperm_Amount_Scale",1)
+			StorageUtil.SetFloatValue(r,"FW.AddOn.Male_Recovery_Scale",1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildRaceDeterminedByFather", -1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildSexDetermMale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Ignore_Contraception_Prob", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Trimester1_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Trimester2_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Trimester3_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Recovery_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Pain_LaborPains_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace", 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_Impregnation_For_Any_Period", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.Allow_NTR_baby", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace", 1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace", 1)
+
+
+			StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",0)
 			StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Female")
 			StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Male")
-		
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Female")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_FemalePlayer")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Male")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_MalePlayer")
+			StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.ProbChildActorBorn", -1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.initialScale", -1)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.finalScale", -1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.DisableMatureTime", 0)
+			StorageUtil.SetFloatValue(r, "FW.AddOn.MatureTimeScale", -1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.MatureStep", -1)
+			StorageUtil.SetIntValue(r, "FW.AddOn.AllowUnrestrictedS", 0)
+			StorageUtil.SetIntValue(r, "FW.AddOn.ProtectedChildActor", 0)
+		else;if r==none
 			StorageUtil.UnsetIntValue(r,"FW.AddOn.DisablePregnancy")
-			StorageUtil.UnsetIntValue(r,"FW.AddOn.Female_Force_This_Baby")
-
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.ChanceToBecomePregnantScale")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.ContraceptionDuration")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_01_Follicular")
@@ -1469,40 +2103,66 @@ function ClearRaceAddOns()
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Sizes_Belly_Max_Multiple")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max")
 			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Sizes_Breasts_Max_Multiple")
-		
-			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_MaleSperm")
-			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Sperm_Amount_Scale")
-			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Baby_Healing_Scale")
-			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Baby_Damage_Scale")
-			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Male_Recovery_Scale")
-
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProbChildRaceDeterminedByFather")
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProbChildSexDetermMale")
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.MatureStep")
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.DisableMatureTime")
-			StorageUtil.UnsetFloatValue(r, "FW.AddOn.MatureTimeScale")
-			StorageUtil.UnsetFloatValue(r, "FW.AddOn.initialScale")
-			StorageUtil.UnsetFloatValue(r, "FW.AddOn.finalScale")
-
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.AllowUnrestrictedS")
-
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg1stBellyScale")
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg2ndBellyScale")
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg3rdBellyScale")
-
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg1stBreastsScale")
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg2ndBreastsScale")
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Preg3rdBreastsScale")
-
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.MultipleBabySperm")
 			StorageUtil.UnsetFloatValue(r, "FW.AddOn.MultipleBabyChancePerSperm")
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Baby_Healing_Scale")
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Baby_Damage_Scale")
 
+
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Duration_MaleSperm")
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Sperm_Amount_Scale")
+			StorageUtil.UnsetFloatValue(r,"FW.AddOn.Male_Recovery_Scale")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProbChildRaceDeterminedByFather")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProbChildSexDetermMale")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Ignore_Contraception_Prob")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Trimester1_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Trimester2_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Trimester3_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Recovery_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Pain_LaborPains_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.Allow_Impregnation_For_Any_Period")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Boost")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.Allow_NTR_baby")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Sperm_NTR_baby_Prob")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace")
+
+
+			StorageUtil.UnsetIntValue(r,"FW.AddOn.Female_Force_This_Baby")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Female")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyArmor_Male")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Female")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_FemalePlayer")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_Male")
+			StorageUtil.FormListClear(r,"FW.AddOn.BabyActor_MalePlayer")
 			StorageUtil.UnsetIntValue(r, "FW.AddOn.MixWithCopyActorBase")
 			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProbChildActorBorn")
-
-			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProtectedChildActor")
-
 			StorageUtil.UnsetIntValue(r, "FW.AddOn.AllowPCDialogue")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.initialScale")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.finalScale")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.DisableMatureTime")
+			StorageUtil.UnsetFloatValue(r, "FW.AddOn.MatureTimeScale")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.MatureStep")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.AllowUnrestrictedS")
+			StorageUtil.UnsetIntValue(r, "FW.AddOn.ProtectedChildActor")
 		endif
 	endWhile
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Races")
@@ -1628,83 +2288,6 @@ Armor function GetBabyArmor(race ParentRace,int Gender)
 	return none
 endFunction
 
-ActorBase function GetBabyActor(race ParentRace,int Gender)
-	ActorBase m;=none ;Tkc (Loverslab): optimization
-	string sGender="BabyActor_Male"
-	if Gender==1
-		sGender="BabyActor_Female"
-	endif
-	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
-	if c>0
-		int r=Utility.RandomInt(0,c - 1)
-		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
-		if m;/!=none/;
-			return m
-		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-			if cfg.ShowDebugMessage
-				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-			endIf
-		endif
-		while c>0
-			c-=1
-			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
-			if m;/!=none/;
-				return m
-			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-				endIf
-			endif
-		endWhile
-	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - Parent race " + ParentRace + " cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
-		endIf
-	endif
-	return none
-endFunction
-
-ActorBase function GetPlayerBabyActor(race ParentRace,int Gender)
-	ActorBase m;=none ;Tkc (Loverslab): optimization
-	string sGender="BabyActor_MalePlayer"
-	if Gender==1
-		sGender="BabyActor_FemalePlayer"
-	endif
-	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
-	if c>0
-		int r=Utility.RandomInt(0,c - 1)
-		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
-		if m;/!=none/;
-			return m
-		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-			if cfg.ShowDebugMessage
-				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-			endIf
-		endif
-		while c>0
-			c-=1
-			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
-			if m;/!=none/;
-				return m
-			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-				endIf
-			endif
-		endWhile
-	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - Parent race " + ParentRace + " cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
-		endIf
-	endif
-	return none
-endFunction
 
 
 
@@ -1886,17 +2469,222 @@ function castCMEEffect(Actor akActor,int EffectID, int MaxEffectNumber)
 endFunction
 
 
-; Alias for getRaceDurationScale - but with Actor-Argument
-float function getActorDurationScale(int Step, Actor a)
+; Get Is canBecomePregnant is Enabled
+bool function ActorCanBecomePregnant(actor a)
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		bool myResult = (StorageUtil.GetIntValue(a, "FW.AddOn.DisablePregnancy", 0) == 0)
+		if(myResult)
+			race abr = a.GetRace()
+			if abr
+				myResult = RaceCanBecomePregnant(abr)
+				Debug.Trace("[Beeing Female NG] - FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + myResult)
+			endIf
+		endIf
+		return myResult
+	endIf
+	return false
+endfunction
+bool function RaceCanBecomePregnant(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceCanBecomePregnant : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
+
+	;WaitRaces()
+;	return StorageUtil.GetFloatValue(RaceID,"FW.AddOn.DisablePregnancy",0)==0
+	bool myResult = (StorageUtil.GetIntValue(RaceID, "FW.AddOn.DisablePregnancy", 0) == 0)
+	if(myResult)
+		myResult = (StorageUtil.GetIntValue(none, "FW.AddOn.Global_DisablePregnancy", 0) == 0)
+	endIf
+
+	return myResult
+endfunction
+
+
+; Get the "BecomePregnant" Chance
+float function PregnancyChanceActorScale(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.ChanceToBecomePregnantScale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
-				result = getRaceDurationScale(Step, abr)
+				result = PregnancyChanceRaceScale(abr)
 			endIf
+		endIf
+	endIf
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endfunction
+float function PregnancyChanceRaceScale(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - PregnancyChanceRaceScale : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
+
+	float result = 1.0;
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale", 1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_ChanceToBecomePregnantScale", 1.0)
+	endIf
+	
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endfunction
+
+
+; Get ContraceptionDuration
+float function getActorContraceptionDuration(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.ContraceptionDuration", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = getRaceContraceptionDuration(abr)
+			endIf
+		endIf
+	endIf
+	if result < 1.0
+		return 1.0 ; return at least 1 Day
+	elseif result > 8.0
+		return 8.0 ; return a maximum of 8 Days
+	else
+		return result
+	endIf
+endFunction
+float function getRaceContraceptionDuration(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceContraceptionDuration : Race = " + RaceID + ". ContraceptionDuration = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration",1.0))
+
+	float result = 1.0
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration", 1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_ContraceptionDuration", 1.0)
+	endIf
+	
+	if result < 1.0
+		return 1.0 ; return at least 1 Day
+	elseif result > 8.0
+		return 8.0 ; return a maximum of 8 Days
+	else
+		return result
+	endIf
+endFunction
+
+
+; Alias for getRaceDurationScale - but with Actor-Argument
+float function getActorDurationScale(int Step, Actor a)
+	float result = 1.0
+	race abr = none
+	
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		if(Step >= 0)
+			if(Step < 8)
+				if(Step < 4)
+					if(Step < 2)
+						if(Step == 0)
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_01_Follicular", -1)
+							if(result < 0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_01_Follicular", -1)
+								if(result < 0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_01_Follicular", 1.0)
+								endIf
+							endIf
+						else;if Step==1
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_02_Ovulation", -1)
+							if(result < 0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_02_Ovulation", -1)
+								if(result < 0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_02_Ovulation", 1.0)
+								endIf
+							endIf
+						endIf
+					else
+						if(Step == 2)
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_03_Luteal", 1.0)
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_03_Luteal", 1.0)
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_03_Luteal", 1.0)
+								endIf
+							endIf
+						else;if Step==3
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_04_Menstruation", 1.0)
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_04_Menstruation", 1.0)
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_04_Menstruation", 1.0)
+								endIf
+							endIf
+						endIf
+					endIf
+				else
+					if(Step < 6)
+						if(Step == 4)
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_05_Trimester1", 1.0)
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_05_Trimester1", 1.0)
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_05_Trimester1", 1.0)
+								endIf
+							endIf
+						else;if Step==5
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_06_Trimester2", 1.0)	
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_06_Trimester2", 1.0)	
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_06_Trimester2", 1.0)	
+								endIf
+							endIf
+						endIf
+					else
+						if(Step == 6)
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_07_Trimester3", 1.0)
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_07_Trimester3", 1.0)
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_07_Trimester3", 1.0)
+								endIf
+							endIf
+						else
+							result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_09_LaborPains", 1.0)
+							if(result == 1.0)
+								abr = a.GetRace()
+								result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_09_LaborPains", 1.0)
+								if(result == 1.0)
+									result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
+								endIf
+							endIf
+						endIf
+					endIf
+				endIf
+			else
+				if(Step == 8)
+					result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_08_Recovery", 1.0)
+					if(result == 1.0)
+						abr = a.GetRace()
+						result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_08_Recovery", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_08_Recovery", 1.0)
+						endIf
+					endIf
+				else
+					return result
+				endIf
+			endIf
+		else
+			return result
 		endIf
 	endIf
 	if result < 0.2
@@ -1905,6 +2693,7 @@ float function getActorDurationScale(int Step, Actor a)
 		return result
 	endIf
 endFunction
+; Deprecated
 float function getRaceDurationScale(int Step, race RaceID)
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_01_Follicular = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_01_Follicular",1.0))
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_02_Ovulation = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_02_Ovulation",1.0))
@@ -1922,7 +2711,7 @@ float function getRaceDurationScale(int Step, race RaceID)
 	float result = 1.0
 	
 	if(Step >= 0)
-		if(Step < 7)
+		if(Step < 8)
 			if(Step < 4)
 				if(Step < 2)
 					if(Step == 0)
@@ -1963,19 +2752,21 @@ float function getRaceDurationScale(int Step, race RaceID)
 						endIf
 					endIf
 				else
-					result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_07_Trimester3", 1.0)
-					if(result == 1.0)
-						result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_07_Trimester3", 1.0)
+					if(Step == 6)
+						result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_07_Trimester3", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_07_Trimester3", 1.0)
+						endIf
+					else;if(Step == 7)
+						result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_09_LaborPains", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
+						endIf
 					endIf
 				endIf
 			endIf
 		else
-			if(Step == 7)
-				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_09_LaborPains", 1.0)
-				if(result == 1.0)
-					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
-				endIf
-			elseif(Step == 8)
+			if(Step == 8)
 				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_08_Recovery", 1.0)
 				if(result == 1.0)
 					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_08_Recovery", 1.0)
@@ -2012,14 +2803,18 @@ float function getRaceDurationScale(int Step, race RaceID)
 	endIf
 endFunction
 
+
 float function getActorDurationScaleLaborPains(actor a)
 	float result = 1.0
+	race abr = none
+	
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = getRaceDurationScaleLaborPains(abr)
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_09_LaborPains", 1.0)
+		if(result == 1.0)
+			abr = a.GetRace()
+			result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Duration_09_LaborPains", 1.0)
+			if(result == 1.0)
+				result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Duration_09_LaborPains", 1.0)
 			endIf
 		endIf
 	endIf
@@ -2031,7 +2826,7 @@ float function getActorDurationScaleLaborPains(actor a)
 		return result
 	endIf
 endFunction
-
+; Deprecated
 float function getRaceDurationScaleLaborPains(race RaceID)
 	float result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Duration_09_LaborPains", 1.0)
 	if(result == 1.0)
@@ -2041,13 +2836,14 @@ float function getRaceDurationScaleLaborPains(race RaceID)
 endFunction
 
 
+; Get Duration_BetweenLaborPains
 float function getActorDuration_BetweenLaborPains(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_10_SecondsBetweenLaborPains", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = getRaceDuration_BetweenLaborPains(abr)
 			endIf
@@ -2076,18 +2872,20 @@ float function getRaceDuration_BetweenLaborPains(race RaceID)
 endFunction
 
 
+; Get Duration_BabySpawn
 float function getActorDuration_BabySpawn(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_11_SecondsBetweenBabySpawn", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = getRaceDuration_BabySpawn(abr)
 			endIf
 		endIf
 	endIf
+	
 	if result < 0.3
 		return 0.3 ; return at least 30%
 	else
@@ -2110,42 +2908,141 @@ float function getRaceDuration_BabySpawn(race RaceID)
 	endIf
 endFunction
 
-float function getActorContraceptionDuration(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = getRaceContraceptionDuration(abr)
+
+; Get IrregulationChance
+float function IrregulationChance(actor woman, int state_number)
+;	int i=0
+	float result = 1.0;
+	if(woman)
+		;actorbase ab = woman.GetLeveledActorBase()
+		;if(ab)
+		
+		result = StorageUtil.GetFloatValue(woman, "FW.AddOn.Irregulation_Chance_Scale", 1.0)
+		if(result == 1.0)
+			;race RaceID = ab.GetRace()
+			
+			race RaceID = woman.GetRace()
+			if(RaceID)
+				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Irregulation_Chance_Scale", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Irregulation_Chance_Scale", 1.0)
+				endIf
 			endIf
 		endIf
 	endIf
-	if result < 1.0
-		return 1.0 ; return at least 1 Day
+
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationChance : Race = " + RaceID + ". Irregulation_Chance_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Chance_Scale",1.0))
+
+	if result < 0.1
+		return 0.1
 	else
 		return result
-	endIf
+	endif
 endFunction
-float function getRaceContraceptionDuration(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceContraceptionDuration : Race = " + RaceID + ". ContraceptionDuration = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration",1.0))
 
+
+; Get IrregulationValue
+float function IrregulationValue(actor woman, int state_number)
+;	int i=0
+	float result = 1.0;
+	if(woman)
+		;actorbase ab = woman.GetLeveledActorBase()
+		;if(ab)
+		
+		result = StorageUtil.GetFloatValue(woman, "FW.AddOn.Irregulation_Value_Scale", 1.0)
+		if(result == 1.0)
+			;race RaceID = ab.GetRace()
+			
+			race RaceID = woman.GetRace()
+			if(RaceID)
+				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Irregulation_Value_Scale", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Irregulation_Value_Scale", 1.0)
+				endIf
+			endIf
+		endIf
+	endIf
+
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationValue : Race = " + RaceID + ". Irregulation_Value_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Value_Scale",1.0))
+
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endFunction
+
+
+; Get the multiple threshold chance
+float function ActorMaxChance(actor a)
 	float result = 1.0
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration",1.0)
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Multiple_Threshold_Chance", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceMaxChance(abr)
+			endIf
+		endIf
+	endIf
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endfunction
+float function RaceMaxChance(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxChance : Race = " + RaceID + ". Multiple_Threshold_Chance = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0))
+
+	float result = 1.0;
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0)
 	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_ContraceptionDuration", 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Multiple_Threshold_Chance", 1.0)
 	endIf
 	
-	if result < 1.0
-		return 1.0 ; return at least 1 Day
-	elseif result > 8.0
-		return 8.0 ; return a maximum of 8 Days
+	if result < 0.1
+		return 0.1
 	else
 		return result
-	endIf
-endFunction
+	endif
+endfunction
 
+
+; Get Max Baby count on multiple threshold
+float function ActorMaxBabse(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Multiple_Threshold_Max_Babys", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceMaxBabse(abr)
+			endIf
+		endIf
+	endIf
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endfunction
+float function RaceMaxBabse(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxBabse : Race = " + RaceID + ". Multiple_Threshold_Max_Babys = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0))
+
+	float result = 1.0;
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Multiple_Threshold_Max_Babys", 1.0)
+	endIf
+	
+	if result < 0.1
+		return 0.1
+	else
+		return result
+	endif
+endfunction
 
 
 ; DamageType Argument:
@@ -2157,22 +3054,86 @@ endFunction
 ;	5 = Aborts
 float function getActorDamageScale(int DamageType, actor a)
 	float result = 1.0
+	float myMulti = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = getRaceDamageScale(DamageType, abr)
+		race abr = a.GetRace()
+
+		if(DamageType >= 0)
+			if(DamageType < 3)
+				if(DamageType < 2)
+					result = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_Mittelschmerz", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_Mittelschmerz", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_Mittelschmerz", 1.0)
+						endIf
+					endIf
+				else;if(DamageType == 2)
+					result = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_PMS", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_PMS", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_PMS", 1.0)
+						endIf
+					endIf
+				endIf
+				
+				myMulti = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_Phase_CyclePains", 1.0)
+				if(myMulti == 1.0)
+					myMulti = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_Phase_CyclePains", 1.0)
+					if(myMulti == 1.0)
+						myMulti = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_Phase_CyclePains", 1.0)
+					endIf
+				endIf
+			elseif(DamageType < 6)
+				if(DamageType < 5)
+					if DamageType==3
+						result = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_LaborPains", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_LaborPains", 1.0)
+							if(result == 1.0)
+								result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_LaborPains", 1.0)
+							endIf
+						endIf
+					else;if(DamageType == 4)
+						result = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_GivingBirth", 1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_GivingBirth", 1.0)
+							if(result == 1.0)
+								result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_GivingBirth", 1.0)
+							endIf
+						endIf
+					endIf
+				else;if DamageType==5
+					result = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_Abortus", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_Abortus",1.0)
+						if(result == 1.0)
+							result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_Abortus",1.0)
+						endIf
+					endIf
+				endIf
+				
+				myMulti = StorageUtil.GetFloatValue(a, "FW.AddOn.Pain_Phase_PregnantPains", 1.0)
+				if(myMulti == 1.0)
+					myMulti = StorageUtil.GetFloatValue(abr, "FW.AddOn.Pain_Phase_PregnantPains", 1.0)
+					if(myMulti == 1.0)
+						myMulti = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Pain_Phase_PregnantPains", 1.0)
+					endIf
+				endIf
 			endIf
 		endIf
 	endIf
+	result *= myMulti
+	
 	if result < 0.05
 		return 0.05
 	else
 		return result
 	endif
 endFunction
+; Deprecated
 float function getRaceDamageScale(int DamageType, race RaceID)
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Mittelschmerz = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Mittelschmerz",1.0))
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Phase_CyclePains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Phase_CyclePains",1.0))
@@ -2263,14 +3224,15 @@ float function PMSChanceActorScale(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.PMS_ChanceScale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = PMSChanceRaceScale(abr)
 			endIf
 		endIf
 	endIf
+	
 	if result < 0.1
 		return 0.1
 	else
@@ -2294,143 +3256,6 @@ float function PMSChanceRaceScale(race RaceID)
 endfunction
 
 
-; Get the "BecomePregnant" Chance
-float function PregnancyChanceActorScale(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = PregnancyChanceRaceScale(abr)
-			endIf
-		endIf
-	endIf
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-float function PregnancyChanceRaceScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - PregnancyChanceRaceScale : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
-
-	float result = 1.0;
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0)
-	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_ChanceToBecomePregnantScale", 1.0)
-	endIf
-	
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-
-
-; Get Is canBecomePregnant is Enabled
-bool function ActorCanBecomePregnant(actor a)
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				Debug.Trace("[Beeing Female NG] - FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + RaceCanBecomePregnant(abr))
-				return RaceCanBecomePregnant(abr)
-			endIf
-		endIf
-	endIf
-	return false
-endfunction
-bool function RaceCanBecomePregnant(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceCanBecomePregnant : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
-
-	;WaitRaces()
-;	return StorageUtil.GetFloatValue(RaceID,"FW.AddOn.DisablePregnancy",0)==0
-	bool myResult = (StorageUtil.GetIntValue(RaceID, "FW.AddOn.DisablePregnancy", 0) == 0)
-	if(myResult)
-		myResult = (StorageUtil.GetIntValue(none, "FW.AddOn.Global_DisablePregnancy", 0) == 0)
-	endIf
-
-	return myResult
-endfunction
-
-
-; Get Max Baby count on multiple threshold
-float function ActorMaxBabse(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = RaceMaxBabse(abr)
-			endIf
-		endIf
-	endIf
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-float function RaceMaxBabse(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxBabse : Race = " + RaceID + ". Multiple_Threshold_Max_Babys = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0))
-
-	float result = 1.0;
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0)
-	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Multiple_Threshold_Max_Babys", 1.0)
-	endIf
-	
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-
-
-; Get the multiple threshold chance
-float function ActorMaxChance(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = RaceMaxChance(abr)
-			endIf
-		endIf
-	endIf
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-float function RaceMaxChance(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxChance : Race = " + RaceID + ". Multiple_Threshold_Chance = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0))
-
-	float result = 1.0;
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0)
-	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Multiple_Threshold_Chance", 1.0)
-	endIf
-	
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endfunction
-
-
 ; Get the Size Scaler
 ; Type Argument
 ; 0 = Belly Scaling
@@ -2441,11 +3266,43 @@ float function ActorSizeScaler(int Type, actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = RaceSizeScaler(Type, abr)
+		race abr = a.GetRace()
+
+		if Type < 2
+			if Type==0
+				result = StorageUtil.GetFloatValue(a, "FW.AddOn.Sizes_Belly_Max", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sizes_Belly_Max", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sizes_Belly_Max", 1.0)
+					endIf
+				endIf
+			else;if Type==1
+				result = StorageUtil.GetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sizes_Breasts_Max", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max", 1.0)
+					endIf
+				endIf
+			endIf
+		else
+			if Type==2
+				result = StorageUtil.GetFloatValue(a, "FW.AddOn.Sizes_Belly_Max_Multiple", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sizes_Belly_Max_Multiple", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sizes_Belly_Max_Multiple", 1.0)
+					endIf
+				endIf
+			else;if Type==3
+				result = StorageUtil.GetFloatValue(a, "FW.AddOn.Sizes_Breasts_Max_Multiple", 1.0)
+				if(result == 1.0)
+					result = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sizes_Breasts_Max_Multiple", 1.0)
+					if(result == 1.0)
+						result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sizes_Breasts_Max_Multiple", 1.0)
+					endIf
+				endIf
 			endIf
 		endIf
 	endIf
@@ -2455,6 +3312,7 @@ float function ActorSizeScaler(int Type, actor a)
 		return result
 	endif
 endfunction
+; Deprecated
 float function RaceSizeScaler(int Type, race RaceID)
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Belly_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Belly_Max",1.0))
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Breasts_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Breasts_Max",1.0))
@@ -2495,18 +3353,306 @@ float function RaceSizeScaler(int Type, race RaceID)
 endfunction
 
 
+; Get Preg1stBellyScale
+float Function ActorPreg1stBellyScale(actor a)
+	float myPreg1stBellyScale = -1
+	if a
+		myPreg1stBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg1stBellyScale", -1)
+		if(myPreg1stBellyScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg1stBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg1stBellyScale", -1)
+				if(myPreg1stBellyScale <= 0)
+					myPreg1stBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg1stBellyScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg1stBellyScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
+		return myPreg1stBellyScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(0, 0)
+	endIf
+endFunction
+
+
+; Get Preg2ndBellyScale
+float Function ActorPreg2ndBellyScale(actor a)
+	float myPreg2ndBellyScale = -1
+	if a
+		myPreg2ndBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg2ndBellyScale", -1)
+		if(myPreg2ndBellyScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg2ndBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg2ndBellyScale", -1)
+				if(myPreg2ndBellyScale <= 0)
+					myPreg2ndBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg2ndBellyScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg2ndBellyScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
+		return myPreg2ndBellyScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(0, 1)
+	endIf
+endFunction
+
+
+; Get Preg3rdBellyScale
+float Function ActorPreg3rdBellyScale(actor a)
+	float myPreg3rdBellyScale = -1
+	if a
+		myPreg3rdBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg3rdBellyScale", -1)
+		if(myPreg3rdBellyScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg3rdBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg3rdBellyScale", -1)
+				if(myPreg3rdBellyScale <= 0)
+					myPreg3rdBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg3rdBellyScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg3rdBellyScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
+		return myPreg3rdBellyScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(0, 2)
+	endIf
+endFunction
+
+
+; Get Preg1stBreastsScale
+float Function ActorPreg1stBreastsScale(actor a)
+	float myPreg1stBreastsScale = -1
+	if a
+		myPreg1stBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg1stBreastsScale", -1)
+		if(myPreg1stBreastsScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg1stBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg1stBreastsScale", -1)
+				if(myPreg1stBreastsScale <= 0)
+					myPreg1stBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg1stBreastsScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg1stBreastsScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
+		return myPreg1stBreastsScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(1, 0)
+	endIf
+endFunction
+
+
+; Get Preg2ndBreastsScale
+float Function ActorPreg2ndBreastsScale(actor a)
+	float myPreg2ndBreastsScale = -1
+	if a
+		myPreg2ndBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg2ndBreastsScale", -1)
+		if(myPreg2ndBreastsScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg2ndBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg2ndBreastsScale", -1)
+				if(myPreg2ndBreastsScale <= 0)
+					myPreg2ndBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg2ndBreastsScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg2ndBreastsScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
+		return myPreg2ndBreastsScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(1, 1)
+	endIf
+endFunction
+
+
+; Get Preg3rdBreastsScale
+float Function ActorPreg3rdBreastsScale(actor a)
+	float myPreg3rdBreastsScale = -1
+	if a
+		myPreg3rdBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Preg3rdBreastsScale", -1)
+		if(myPreg3rdBreastsScale <= 0)
+			race abr = a.GetRace()
+			if abr
+				myPreg3rdBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg3rdBreastsScale", -1)
+				if(myPreg3rdBreastsScale <= 0)
+					myPreg3rdBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg3rdBreastsScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myPreg3rdBreastsScale > 0
+		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
+		return myPreg3rdBreastsScale
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
+		return System.GetPhaseScale(1, 2)
+	endIf
+endFunction
+
+
+; Get MultipleBabySperm
+float Function ActorMultipleBabySperm(actor a)
+	float myMultipleBabySperm = -1
+	if a
+		myMultipleBabySperm = StorageUtil.GetFloatValue(a, "FW.AddOn.MultipleBabySperm", -1)
+		if(myMultipleBabySperm <= 0)
+			race abr = a.GetRace()
+			if abr
+				myMultipleBabySperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabySperm", -1)
+				if(myMultipleBabySperm <= 0)
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabySperm: Failed to get race specific MultipleBabySperm for actor " + a + ", thus loading Global_MultipleBabySperm...")
+					myMultipleBabySperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabySperm", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myMultipleBabySperm > 0
+		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
+		return myMultipleBabySperm
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
+		return -1
+	endIf
+endFunction
+
+
+; Get MultipleBabyChancePerSperm
+float Function ActorMultipleBabyChancePerSperm(actor a)
+	float myMultipleBabyChancePerSperm = -1
+	if a
+		myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(a, "FW.AddOn.MultipleBabyChancePerSperm", -1)
+		if(myMultipleBabyChancePerSperm <= 0)
+			race abr = a.GetRace()
+			if abr
+				myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabyChancePerSperm", -1)
+				if(myMultipleBabyChancePerSperm <= 0)
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabyChancePerSperm: Failed to get race specific MultipleBabyChancePerSperm for actor " + a + ", thus loading Global_MultipleBabyChancePerSperm...")
+					myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabyChancePerSperm", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myMultipleBabyChancePerSperm > 0
+		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
+		return myMultipleBabyChancePerSperm
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
+		return -1
+	endIf
+endFunction
+
+
+; Get BabyHealingScale
+float function ActorBabyHealingScale(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Baby_Healing_Scale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceBabyHealingScale(abr)
+			endIf
+		endIf
+	endIf
+	
+	if result < 0.3
+		return 0.3 ; return at least 30%
+	else
+		return result
+	endif
+endFunction
+float function RaceBabyHealingScale(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
+
+	float result = 1.0
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale", 1.0)
+	endIf
+	
+	if result < 0.3
+		return 0.3 ; return at least 30%
+	else
+		return result
+	endIf
+endFunction
+
+
+; Get BabyDamageScale
+float function ActorBabyDamageScale(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Baby_Damage_Scale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceBabyDamageScale(abr)
+			endIf
+		endIf
+	endIf
+	
+	if result < 0.3
+		return 0.3 ; return at least 30%
+	else
+		return result
+	endif
+endFunction
+float function RaceBabyDamageScale(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
+
+	float result = 1.0
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale", 1.0)
+	endIf
+	
+	if result < 0.3
+		return 0.3 ; return at least 30%
+	else
+		return result
+	endIf
+endFunction
+
+
+
+
+; Get SpermDurationScale
 float function ActorMaleSpermDurationScale(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Duration_MaleSperm", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = RaceMaleSpermDurationScale(abr)
 			endIf
 		endIf
 	endIf
+	
 	if result < 0.1
 		return 0.1
 	else
@@ -2529,71 +3675,21 @@ float function RaceMaleSpermDurationScale(race RaceID)
 	endif
 endFunction
 
-float function IrregulationChance(actor woman, int state_number)
-;	int i=0
-	float result = 1.0;
-	if(woman)
-		actorbase ab = woman.GetLeveledActorBase()
-		if(ab)
-			race RaceID = ab.GetRace()
-			if(RaceID)
-				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Irregulation_Chance_Scale", 1.0)
-			endIf
-		endIf
-		
-		if(result == 1.0)
-			result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Irregulation_Chance_Scale", 1.0)
-		endIf
-	endIf
 
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationChance : Race = " + RaceID + ". Irregulation_Chance_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Chance_Scale",1.0))
-
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endFunction
-
-float function IrregulationValue(actor woman, int state_number)
-;	int i=0
-	float result = 1.0;
-	if(woman)
-		actorbase ab = woman.GetLeveledActorBase()
-		if(ab)
-			race RaceID = ab.GetRace()
-			if(RaceID)
-				result = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.Irregulation_Value_Scale", 1.0)
-			endIf
-		endIf
-		
-		if(result == 1.0)
-			result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Irregulation_Value_Scale", 1.0)
-		endIf
-	endIf
-
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationValue : Race = " + RaceID + ". Irregulation_Value_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Value_Scale",1.0))
-
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endFunction
-
-
+; Get SpermAmountScale
 float function ActorSpermAmountScale(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Amount_Scale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = RaceSpermAmountScale(abr)
 			endIf
 		endIf
 	endIf
+	
 	if result < 0.1
 		return 0.1
 	else
@@ -2617,89 +3713,22 @@ float function RaceSpermAmountScale(race RaceID)
 endFunction
 
 
-float function ActorBabyHealingScale(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = RaceBabyHealingScale(abr)
-			endIf
-		endIf
-	endIf
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endFunction
-float function RaceBabyHealingScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
-
-	float result = 1.0
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0)
-	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Baby_Healing_Scale", 1.0)
-	endIf
-	
-	if result < 0.3
-		return 0.3 ; return at least 30%
-	else
-		return result
-	endIf
-endFunction
-
-float function ActorBabyDamageScale(actor a)
-	float result = 1.0
-	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
-	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				result = RaceBabyDamageScale(abr)
-			endIf
-		endIf
-	endIf
-	if result < 0.1
-		return 0.1
-	else
-		return result
-	endif
-endFunction
-float function RaceBabyDamageScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
-
-	float result = 1.0
-	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0)
-	if(result == 1.0)
-		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Baby_Damage_Scale", 1.0)
-	endIf
-	
-	if result < 0.3
-		return 0.3 ; return at least 30%
-	else
-		return result
-	endIf
-endFunction
-
-
+; Get MaleRecoveryScale
 float function ActorMaleRecoveryScale(actor a)
 	float result = 1.0
 	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
 	if a ;Tkc (Loverslab): optimization
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Male_Recovery_Scale", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
 			if abr
 				result = RaceMaleRecoveryScale(abr)
 			endIf
 		endIf
 	endIf
-	if result < 0.1
-		return 0.1
+	
+	if result < 0.3
+		return 0.3 ; return at least 30%
 	else
 		return result
 	endif
@@ -2721,81 +3750,16 @@ float function RaceMaleRecoveryScale(race RaceID)
 endFunction
 
 
-Faction SexLabForbiddenActors			; // FormID: 0x049068 in SexLab.esm
-
-Function RaceExcludeFromSLandBF(actor TargetActor, race RaceID)
-	if(TargetActor)
-		if(RaceID)
-			if(StorageUtil.GetIntValue(RaceID, "FW.AddOn.AllowUnrestrictedS", 0) == 0)
-				TargetActor.AddToFaction(BF_ForbiddenFaction)
-				if(Game.IsPluginInstalled("SexLab.esm"))
-					SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
-						
-					if(SexLabForbiddenActors)
-						TargetActor.AddToFaction(SexLabForbiddenActors)
-					else
-						Debug.Messagebox("ExcludeFromSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")
-					endIf
-				endIf
-			elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 0) == 0)
-				TargetActor.AddToFaction(BF_ForbiddenFaction)
-				if(Game.IsPluginInstalled("SexLab.esm"))
-					SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
-		
-					if(SexLabForbiddenActors)
-						TargetActor.AddToFaction(SexLabForbiddenActors)
-					else
-						Debug.Messagebox("ExcludeFromSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")
-					endIf
-				endIf
-			endIf
-		elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 0) == 0)
-			TargetActor.AddToFaction(BF_ForbiddenFaction)
-			if(Game.IsPluginInstalled("SexLab.esm"))
-				SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
-		
-				if(SexLabForbiddenActors)
-					TargetActor.AddToFaction(SexLabForbiddenActors)
-				else
-					Debug.Messagebox("ExcludeFromSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")
-				endIf
-			endIf
-		endIf
-	else
-		Debug.Messagebox("ExcludeFromSLandBF: Failed to get child actor. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")		
-	endIf
-endFunction
-
-Function AddToSLandBF(actor TargetActor)
-	if(TargetActor)
-		if(TargetActor.IsInFaction(BF_ForbiddenFaction))
-			TargetActor.RemoveFromFaction(BF_ForbiddenFaction)
-		endIf
-		if(Game.IsPluginInstalled("SexLab.esm"))
-			SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
-
-			if(SexLabForbiddenActors)
-				if(TargetActor.IsInFaction(SexLabForbiddenActors))
-					TargetActor.RemoveFromFaction(SexLabForbiddenActors)
-				endIf
-			else
-				Debug.Messagebox("AddToSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")
-			endIf
-		endIf
-	else
-		Debug.Messagebox("AddToSLandBF: Failed to get child actor. Please report to the BeeingFemaleSE_Opt mod page in LoversLab...")		
-	endIf
-endFunction
-
+; Get ChildRaceDeterminedByFather
 int Function ActorChildRaceDeterminedByFather(actor a)
 	int DefaultChildRaceDeterminedByFather = myBFA_ProbChildRaceDeterminedByFather.GetValue() as int
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildRaceDeterminedByFather: DefaultChildRaceDeterminedByFather = " + DefaultChildRaceDeterminedByFather)
 
 	int ChildRaceDeterminedByFather
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		ChildRaceDeterminedByFather = StorageUtil.GetIntValue(a, "FW.AddOn.ProbChildRaceDeterminedByFather", DefaultChildRaceDeterminedByFather)
+		if((ChildRaceDeterminedByFather == DefaultChildRaceDeterminedByFather) || (ChildRaceDeterminedByFather < 0))
+			race abr = a.GetRace()
 			if abr
 				ChildRaceDeterminedByFather = StorageUtil.GetIntValue(abr, "FW.AddOn.ProbChildRaceDeterminedByFather", -1)
 			endIf
@@ -2811,15 +3775,16 @@ int Function ActorChildRaceDeterminedByFather(actor a)
 endFunction
 
 
+; Get ChildSexDetermMale
 int Function ActorChildSexDetermMale(actor a)
 	int DefaultChildSexDetermMale = myBFA_ProbChildSexDetermMale.GetValue() as int
 ;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildSexDetermMale: DefaultChildSexDetermMale = " + DefaultChildSexDetermMale)
 	
 	int ChildSexDetermMale
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		ChildSexDetermMale = StorageUtil.GetIntValue(a, "FW.AddOn.ProbChildSexDetermMale", DefaultChildSexDetermMale)
+		if((ChildSexDetermMale == DefaultChildSexDetermMale) || (ChildSexDetermMale < 0))
+			race abr = a.GetRace()
 			if abr
 				ChildSexDetermMale = StorageUtil.GetIntValue(abr, "FW.AddOn.ProbChildSexDetermMale", -1)
 			endIf
@@ -2835,13 +3800,443 @@ int Function ActorChildSexDetermMale(actor a)
 endFunction
 
 
+; Get BabyHealingScale
+float function ActorBabyHealingScaleByFather(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceBabyHealingScaleByFather(abr)
+			endIf
+		endIf
+	endIf
+	
+	return result
+endFunction
+float function RaceBabyHealingScaleByFather(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
+
+	float result = 1.0
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace",1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Healing_Scale_by_FatherRace", 1.0)
+	endIf
+	
+	return result
+endFunction
+
+
+; Get BabyDamageScale
+float function ActorBabyDamageScaleByFather(actor a)
+	float result = 1.0
+	;if a && a.GetActorBase() && a.GetActorBase().GetRace()
+	if a ;Tkc (Loverslab): optimization
+		result = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace", 1.0)
+		if(result == 1.0)
+			race abr = a.GetRace()
+			if abr
+				result = RaceBabyDamageScaleByFather(abr)
+			endIf
+		endIf
+	endIf
+	
+	return result
+endFunction
+float function RaceBabyDamageScaleByFather(race RaceID)
+;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
+
+	float result = 1.0
+	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace",1.0)
+	if(result == 1.0)
+		result = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Modify_Baby_Damage_Scale_by_FatherRace", 1.0)
+	endIf
+	
+	return result
+endFunction
+
+
+
+
+; Get BabyActor
+ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gender)
+	ActorBase m;=none ;Tkc (Loverslab): optimization
+	string sGender = "BabyActor_Male"
+	if(Gender == 1)
+		sGender = "BabyActor_Female"
+	endif
+	
+	int c = StorageUtil.FormListCount(ParentActor, "FW.AddOn." + sGender)
+	if(c > 0)
+		int r = Utility.RandomInt(0, c - 1)
+		m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, r) as ActorBase
+		if m;/!=none/;
+			return m
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+			if(cfg.ShowDebugMessage)
+				Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+			endIf
+		endif
+		while(c > 0)
+			c -= 1
+			m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, c) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+				if(cfg.ShowDebugMessage)
+					Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+				endIf
+			endif
+		endWhile
+	else
+		c = StorageUtil.FormListCount(ParentRace, "FW.AddOn." + sGender)
+		if(c > 0)
+			int r = Utility.RandomInt(0, c - 1)
+			m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, r) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				if(cfg.ShowDebugMessage)
+					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+				endIf
+			endif
+			while(c > 0)
+				c -= 1
+				m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, c) as ActorBase
+				if m;/!=none/;
+					return m
+				else
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+					if(cfg.ShowDebugMessage)
+						Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+					endIf
+				endif
+			endWhile
+		else
+			c = StorageUtil.FormListCount(none, "FW.AddOn.Global_" + sGender)
+			if(c > 0)
+				int r = Utility.RandomInt(0, c - 1)
+				m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, r) as ActorBase
+				if m;/!=none/;
+					return m
+				else
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
+					if(cfg.ShowDebugMessage)
+						Debug.Messagebox("Baby model cannot be found...")
+					endIf
+				endif
+				while(c > 0)
+					c -= 1
+					m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, c) as ActorBase
+					if m;/!=none/;
+						return m
+					else
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
+						if(cfg.ShowDebugMessage)
+							Debug.Messagebox("Baby model cannot be found...")
+						endIf
+					endif
+				endWhile		
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby actor model cannot be found...")
+				if cfg.ShowDebugMessage
+					Debug.Messagebox("Baby actor model cannot be found...")
+				endIf
+			endIf
+		endIf
+	endif
+	
+	return none
+endFunction
+; Deprecated
+ActorBase function GetBabyActor(race ParentRace,int Gender)
+	ActorBase m;=none ;Tkc (Loverslab): optimization
+	string sGender="BabyActor_Male"
+	if Gender==1
+		sGender="BabyActor_Female"
+	endif
+	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
+	if c>0
+		int r=Utility.RandomInt(0,c - 1)
+		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
+		if m;/!=none/;
+			return m
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+			endIf
+		endif
+		while c>0
+			c-=1
+			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				if cfg.ShowDebugMessage
+					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+				endIf
+			endif
+		endWhile
+	else
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - Parent race " + ParentRace + " cannot be found...")
+		if cfg.ShowDebugMessage
+			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
+		endIf
+	endif
+	return none
+endFunction
+
+
+; Get PlayerBabyActor
+ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int Gender)
+	ActorBase m;=none ;Tkc (Loverslab): optimization
+	string sGender = "BabyActor_MalePlayer"
+	if(Gender == 1)
+		sGender = "BabyActor_FemalePlayer"
+	endif
+	
+	int c = StorageUtil.FormListCount(ParentActor, "FW.AddOn." + sGender)
+	if(c > 0)
+		int r = Utility.RandomInt(0, c - 1)
+		m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, r) as ActorBase
+		if m;/!=none/;
+			return m
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+			if(cfg.ShowDebugMessage)
+				Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+			endIf
+		endif
+		while(c > 0)
+			c -= 1
+			m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, c) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+				if(cfg.ShowDebugMessage)
+					Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+				endIf
+			endif
+		endWhile
+	else
+		c = StorageUtil.FormListCount(ParentRace, "FW.AddOn." + sGender)
+		if(c > 0)
+			int r = Utility.RandomInt(0, c - 1)
+			m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, r) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				if(cfg.ShowDebugMessage)
+					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+				endIf
+			endif
+			while(c > 0)
+				c -= 1
+				m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, c) as ActorBase
+				if m;/!=none/;
+					return m
+				else
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+					if(cfg.ShowDebugMessage)
+						Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+					endIf
+				endif
+			endWhile
+		else
+			c = StorageUtil.FormListCount(none, "FW.AddOn.Global_" + sGender)
+			if(c > 0)
+				int r = Utility.RandomInt(0, c - 1)
+				m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, r) as ActorBase
+				if m;/!=none/;
+					return m
+				else
+					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
+					if(cfg.ShowDebugMessage)
+						Debug.Messagebox("Baby model cannot be found...")
+					endIf
+				endif
+				while(c > 0)
+					c -= 1
+					m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, c) as ActorBase
+					if m;/!=none/;
+						return m
+					else
+						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
+						if(cfg.ShowDebugMessage)
+							Debug.Messagebox("Baby model cannot be found...")
+						endIf
+					endif
+				endWhile		
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby actor model cannot be found...")
+				if cfg.ShowDebugMessage
+					Debug.Messagebox("Baby actor model cannot be found...")
+				endIf
+			endIf
+		endIf
+	endif
+	
+	return none
+endFunction
+; Deprecated
+ActorBase function GetPlayerBabyActor(race ParentRace,int Gender)
+	ActorBase m;=none ;Tkc (Loverslab): optimization
+	string sGender="BabyActor_MalePlayer"
+	if Gender==1
+		sGender="BabyActor_FemalePlayer"
+	endif
+	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
+	if c>0
+		int r=Utility.RandomInt(0,c - 1)
+		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
+		if m;/!=none/;
+			return m
+		else
+			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+			endIf
+		endif
+		while c>0
+			c-=1
+			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
+			if m;/!=none/;
+				return m
+			else
+				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				if cfg.ShowDebugMessage
+					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+				endIf
+			endif
+		endWhile
+	else
+		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - Parent race " + ParentRace + " cannot be found...")
+		if cfg.ShowDebugMessage
+			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
+		endIf
+	endif
+	return none
+endFunction
+
+
+; Get RaceProbChildActorBorn
+int Function RaceProbChildActorBornNew(actor ParentActor, race ParentRace)
+	int myProbChildActorBorn = StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProbChildActorBorn", -1)
+	
+	if(myProbChildActorBorn > 0)
+		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the actor " + ParentActor)
+		return myProbChildActorBorn
+	else
+		myProbChildActorBorn = StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProbChildActorBorn", -1)
+		if(myProbChildActorBorn > 0)
+			Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + ParentRace)
+			return myProbChildActorBorn
+		else
+			myProbChildActorBorn = StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProbChildActorBorn", -1)
+			if(myProbChildActorBorn > 0)
+				Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for everything")
+				return myProbChildActorBorn
+			else
+				; must be positive
+				Debug.Trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + ParentRace)
+				return -1
+			endIf
+		endIf
+	endIf
+endFunction
+; Deprecated
+int Function RaceProbChildActorBorn(race RaceID)
+	int myProbChildActorBorn = StorageUtil.GetIntValue(RaceID, "FW.AddOn.ProbChildActorBorn", -1)
+	
+	if(myProbChildActorBorn > 0)
+		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
+		return myProbChildActorBorn
+	else	; must be positive
+		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
+		return -1
+	endIf
+endFunction
+
+
+; Get InitialScale
+float Function ActorInitialScale(actor a)
+	float myInitialScale = DefaultInitialScale
+	if a
+		myInitialScale = StorageUtil.GetFloatValue(a, "FW.AddOn.initialScale", DefaultInitialScale)
+		if(myInitialScale == DefaultInitialScale)
+			race abr = a.GetRace()
+			if abr
+				myInitialScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.initialScale", DefaultInitialScale)
+				if(myInitialScale == DefaultInitialScale)
+					myInitialScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_initialScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myInitialScale > 0
+		return myInitialScale
+	else	; must be positive
+		return DefaultInitialScale
+	endIf
+endFunction
+
+
+; Get FinalScale
+float Function ActorFinalScale(actor a)
+	float myFinalScale = DefaultFinalScale
+	if a
+		myFinalScale = StorageUtil.GetFloatValue(a, "FW.AddOn.finalScale", DefaultFinalScale)
+		if(myFinalScale == DefaultFinalScale)
+			race abr = a.GetRace()
+			if abr
+				myFinalScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.finalScale", DefaultFinalScale)
+				if(myFinalScale == DefaultFinalScale)
+					myFinalScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
+				endIf
+			endIf
+		endIf
+	endIf
+	
+	if myFinalScale > 0
+		return myFinalScale
+	else	; must be positive
+		return DefaultFinalScale
+	endIf
+endFunction
+; Deprecated
+float Function RaceFinalScale(race RaceID)
+	float myFinalScale = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.finalScale", -1)
+	if(myFinalScale <= 0)
+		myFinalScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
+	endIf
+	
+	if myFinalScale > 0
+		return myFinalScale
+	else	; must be positive
+		return DefaultFinalScale
+	endIf
+endFunction
+
+
+; Get MatureTimeScale
 float Function ActorMatureTimeScale(actor a)
-	float result
+	float result = 1.0
 	
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		if(StorageUtil.GetIntValue(a, "FW.AddOn.DisableMatureTime", 0) == 0)
+			result = StorageUtil.GetFloatValue(a, "FW.AddOn.MatureTimeScale", -1)
+		else
+			race abr = a.GetRace()
 			if abr
 				if(StorageUtil.GetIntValue(abr, "FW.AddOn.DisableMatureTime", 0) == 0)
 					result = StorageUtil.GetFloatValue(abr, "FW.AddOn.MatureTimeScale", -1)
@@ -2862,8 +4257,7 @@ float Function ActorMatureTimeScale(actor a)
 		return result
 	endIf
 endFunction
-
-
+; Deprecated
 float Function RaceMatureTimeScale(race RaceID)
 	float result
 	
@@ -2885,13 +4279,15 @@ float Function RaceMatureTimeScale(race RaceID)
 endFunction
 
 
+; Get CustomMatureTimeInHours
 float Function ActorCustomMatureTimeInHours(actor a)
 	float DefaultMatureTimeInHours = 24 * (BFOpt_MatureTimeInDays.GetValue())
 	float myCustomMatureTimeInHours
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		if(StorageUtil.GetIntValue(a, "FW.AddOn.DisableMatureTime", 0) == 0)
+			myCustomMatureTimeInHours = DefaultMatureTimeInHours * StorageUtil.GetFloatValue(a, "FW.AddOn.MatureTimeScale", -1)
+		else
+			race abr = a.GetRace()
 			if abr
 				if(StorageUtil.GetIntValue(abr, "FW.AddOn.DisableMatureTime", 0) == 0)
 					myCustomMatureTimeInHours = DefaultMatureTimeInHours * StorageUtil.GetFloatValue(abr, "FW.AddOn.MatureTimeScale", -1)
@@ -2913,15 +4309,16 @@ float Function ActorCustomMatureTimeInHours(actor a)
 endFunction
 
 
+; Get MatureStep
 int Function ActorMatureStep(actor a)
 	int myMatureStep = DefaultMatureStep
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
+		myMatureStep = StorageUtil.GetIntValue(a, "FW.AddOn.MatureStep", DefaultMatureStep)
+		if(myMatureStep == DefaultMatureStep)
+			race abr = a.GetRace()
 			if abr
-				myMatureStep = StorageUtil.GetIntValue(abr, "FW.AddOn.MatureStep", -1)
-				if(myMatureStep <= 0)
+				myMatureStep = StorageUtil.GetIntValue(abr, "FW.AddOn.MatureStep", DefaultMatureStep)
+				if(myMatureStep == DefaultMatureStep)
 					myMatureStep = StorageUtil.GetIntValue(none, "FW.AddOn.Global_MatureStep", -1)
 				endIf
 			endIf
@@ -2936,24 +4333,102 @@ int Function ActorMatureStep(actor a)
 endFunction
 
 
+; Get MatureScaleStep
 float Function ActorMatureScaleStep(actor a)
-	float MatureScaleStep = DefaultMatureScaleStep
+	float myInitialScale = DefaultInitialScale
+	float myFinalScale = DefaultFinalScale
+	int myMatureStep = DefaultMatureStep
+	
+	bool myInitScaleDeterminedByActor = false
+	bool myInitScaleDeterminedByRace = false
+
+	bool myFinalScaleDeterminedByActor = false
+	bool myFinalScaleDeterminedByRace = false
+	
 	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				MatureScaleStep = RaceMatureScaleStep(abr)
+		race abr = a.GetRace()
+		
+		myInitialScale = StorageUtil.GetFloatValue(a, "FW.AddOn.initialScale", DefaultInitialScale)
+		if(myInitialScale == DefaultInitialScale)
+			myInitialScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.initialScale", DefaultInitialScale)
+			if(myInitialScale == DefaultInitialScale)
+				myInitialScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_initialScale", -1)
+			else
+				myInitScaleDeterminedByRace = true
+			endIf
+		else
+			myInitScaleDeterminedByActor = true
+		endIf
+		if(myInitialScale <= 0)
+			myInitialScale = DefaultInitialScale
+		endIf
+
+
+		myFinalScale = StorageUtil.GetFloatValue(a, "FW.AddOn.finalScale", DefaultFinalScale)
+		if(myFinalScale == DefaultFinalScale)
+			myFinalScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.finalScale", DefaultFinalScale)
+			if(myFinalScale == DefaultFinalScale)
+				myFinalScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
+			else
+				myFinalScaleDeterminedByRace = true
+			endIf
+		else
+			myFinalScaleDeterminedByActor = true
+		endIf
+		if(myFinalScale <= 0)
+			myFinalScale = DefaultFinalScale
+		endIf
+		
+		
+		if(myFinalScale >= myInitialScale)
+		else
+			float oldInitialScale = myInitialScale
+			myInitialScale = myFinalScale
+			myFinalScale = oldInitialScale
+			
+			if(myInitScaleDeterminedByActor)
+				StorageUtil.SetFloatValue(a, "FW.AddOn.initialScale", myInitialScale)
+			else
+				if(myInitScaleDeterminedByRace)
+					StorageUtil.SetFloatValue(abr, "FW.AddOn.initialScale", myInitialScale)
+				else
+					StorageUtil.SetFloatValue(none, "FW.AddOn.Global_initialScale", myInitialScale)
+				endIf
+			endIf
+			
+			if(myFinalScaleDeterminedByActor)
+				StorageUtil.SetFloatValue(a, "FW.AddOn.finalScale", myFinalScale)
+			else
+				if(myFinalScaleDeterminedByRace)
+					StorageUtil.SetFloatValue(abr, "FW.AddOn.finalScale", myFinalScale)
+				else
+					StorageUtil.SetFloatValue(none, "FW.AddOn.Global_finalScale", myFinalScale)
+				endIf
 			endIf
 		endIf
+		
+		
+		myMatureStep = StorageUtil.GetIntValue(a, "FW.AddOn.MatureStep", DefaultMatureStep)
+		if(myMatureStep == DefaultMatureStep)
+			myMatureStep = StorageUtil.GetIntValue(abr, "FW.AddOn.MatureStep", DefaultMatureStep)
+			if(myMatureStep == DefaultMatureStep)
+				myMatureStep = StorageUtil.GetIntValue(none, "FW.AddOn.Global_MatureStep", -1)
+			endIf
+		endIf
+		if(myMatureStep < 0)
+			myMatureStep = DefaultMatureStep
+		endIf
 	endIf
-	
+
+
+	float MatureScaleStep = (myFinalScale - myInitialScale) / myMatureStep
 	if MatureScaleStep < 0	; must be positive
 		return DefaultMatureScaleStep
 	else
 		return MatureScaleStep
 	endIf
 endFunction
+; Deprecated
 float Function RaceMatureScaleStep(race RaceID)
 	float myInitialScale = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.initialScale", -1)
 	if(myInitialScale > 0)
@@ -2996,279 +4471,78 @@ float Function RaceMatureScaleStep(race RaceID)
 endFunction
 
 
-float Function ActorInitialScale(actor a)
-	float myInitialScale = DefaultInitialScale
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myInitialScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.initialScale", -1)
-				if(myInitialScale <= 0)
-					myInitialScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_initialScale", -1)
+; Get ExcludeFromSLandBF
+Faction SexLabForbiddenActors			; // FormID: 0x049068 in SexLab.esm
+Function RaceExcludeFromSLandBF(actor TargetActor, actor ParentActor)
+	bool bool_AddToForbidden = true
+	
+	if(TargetActor)
+		if(ParentActor)
+			if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowUnrestrictedS", 0) == 0)
+				race ParentRace = ParentActor.GetRace()
+				if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.AllowUnrestrictedS", 0) == 0)
+					if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 0) == 0)
+					else
+						bool_AddToForbidden = false
+					endIf
+				else
+					bool_AddToForbidden = false
 				endIf
+			else
+				bool_AddToForbidden = false
+			endIf
+		else
+			Debug.Messagebox("ExcludeFromSLandBF: Failed to find parent actor. Please report to the BeeingFemaleSE_Opt mod page...")		
+		endIf
+			
+		if(bool_AddToForbidden)
+			TargetActor.AddToFaction(BF_ForbiddenFaction)
+			if(Game.IsPluginInstalled("SexLab.esm"))
+				SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
+								
+				if(SexLabForbiddenActors)
+					TargetActor.AddToFaction(SexLabForbiddenActors)
+				else
+					Debug.Messagebox("ExcludeFromSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page...")
+				endIf
+			else
+				Debug.Messagebox("ExcludeFromSLandBF: SexLab is not installed...")		
 			endIf
 		endIf
-	endIf
-	
-	if myInitialScale > 0
-		return myInitialScale
-	else	; must be positive
-		return DefaultInitialScale
+	else
+		Debug.Messagebox("ExcludeFromSLandBF: Failed to get child actor. Please report to the BeeingFemaleSE_Opt mod page...")		
 	endIf
 endFunction
 
 
-float Function ActorFinalScale(actor a)
-	float myFinalScale = DefaultFinalScale
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myFinalScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.finalScale", -1)
-				if(myFinalScale <= 0)
-					myFinalScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
-				endIf
-			endIf
+; Add to SexLab and BeeingFemale faction
+Function AddToSLandBF(actor TargetActor)
+	if(TargetActor)
+		if(TargetActor.IsInFaction(BF_ForbiddenFaction))
+			Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is in BF_ForbiddenFaction. Removing...")
+			TargetActor.RemoveFromFaction(BF_ForbiddenFaction)
 		endIf
-	endIf
-	
-	if myFinalScale > 0
-		return myFinalScale
-	else	; must be positive
-		return DefaultFinalScale
-	endIf
-endFunction
+		if(Game.IsPluginInstalled("SexLab.esm"))
+			SexLabForbiddenActors = Game.GetFormFromFile(0x049068, "SexLab.esm") as Faction
 
-
-float Function RaceFinalScale(race RaceID)
-	float myFinalScale = StorageUtil.GetFloatValue(RaceID, "FW.AddOn.finalScale", -1)
-	if(myFinalScale <= 0)
-		myFinalScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_finalScale", -1)
-	endIf
-	
-	if myFinalScale > 0
-		return myFinalScale
-	else	; must be positive
-		return DefaultFinalScale
-	endIf
-endFunction
-
-
-float Function ActorPreg1stBellyScale(actor a)
-	float myPreg1stBellyScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg1stBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg1stBellyScale", -1)
-				if(myPreg1stBellyScale <= 0)
-					myPreg1stBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg1stBellyScale", -1)
+			if(SexLabForbiddenActors)
+				if(TargetActor.IsInFaction(SexLabForbiddenActors))
+					Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is in SexLabForbiddenActors faction. Removing...")
+					TargetActor.RemoveFromFaction(SexLabForbiddenActors)
+				else
+					Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is not in SexLabForbiddenActors faction.")
 				endIf
+			else
+				Debug.Messagebox("AddToSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page...")
 			endIf
+		else
+			Debug.Trace("AddToSLandBF: SexLab is not installed")
 		endIf
-	endIf
-	
-	if myPreg1stBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
-		return myPreg1stBellyScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(0, 0)
+	else
+		Debug.Messagebox("AddToSLandBF: Failed to get child actor. Please report to the BeeingFemaleSE_Opt mod page...")		
 	endIf
 endFunction
 
-
-float Function ActorPreg2ndBellyScale(actor a)
-	float myPreg2ndBellyScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg2ndBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg2ndBellyScale", -1)
-				if(myPreg2ndBellyScale <= 0)
-					myPreg2ndBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg2ndBellyScale", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myPreg2ndBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
-		return myPreg2ndBellyScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(0, 1)
-	endIf
-endFunction
-
-
-float Function ActorPreg3rdBellyScale(actor a)
-	float myPreg3rdBellyScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg3rdBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg3rdBellyScale", -1)
-				if(myPreg3rdBellyScale <= 0)
-					myPreg3rdBellyScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg3rdBellyScale", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myPreg3rdBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
-		return myPreg3rdBellyScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(0, 2)
-	endIf
-endFunction
-
-
-float Function ActorPreg1stBreastsScale(actor a)
-	float myPreg1stBreastsScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg1stBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg1stBreastsScale", -1)
-				if(myPreg1stBreastsScale <= 0)
-					myPreg1stBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg1stBreastsScale", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myPreg1stBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
-		return myPreg1stBreastsScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(1, 0)
-	endIf
-endFunction
-
-
-float Function ActorPreg2ndBreastsScale(actor a)
-	float myPreg2ndBreastsScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg2ndBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg2ndBreastsScale", -1)
-				if(myPreg2ndBreastsScale <= 0)
-					myPreg2ndBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg2ndBreastsScale", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myPreg2ndBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
-		return myPreg2ndBreastsScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(1, 1)
-	endIf
-endFunction
-
-
-float Function ActorPreg3rdBreastsScale(actor a)
-	float myPreg3rdBreastsScale = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myPreg3rdBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Preg3rdBreastsScale", -1)
-				if(myPreg3rdBreastsScale <= 0)
-					myPreg3rdBreastsScale = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Preg3rdBreastsScale", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myPreg3rdBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
-		return myPreg3rdBreastsScale
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
-		return System.GetPhaseScale(1, 2)
-	endIf
-endFunction
-
-
-float Function ActorMultipleBabySperm(actor a)
-	float myMultipleBabySperm = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myMultipleBabySperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabySperm", -1)
-				if(myMultipleBabySperm <= 0)
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabySperm: Failed to get race specific MultipleBabySperm for actor " + a + ", thus loading Global_MultipleBabySperm...")
-					myMultipleBabySperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabySperm", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myMultipleBabySperm > 0
-		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
-		return myMultipleBabySperm
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
-		return -1
-	endIf
-endFunction
-
-
-float Function ActorMultipleBabyChancePerSperm(actor a)
-	float myMultipleBabyChancePerSperm = -1
-	if a
-		actorbase ab = a.GetActorBase()
-		if ab
-			race abr = ab.GetRace()
-			if abr
-				myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabyChancePerSperm", -1)
-				if(myMultipleBabyChancePerSperm <= 0)
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabyChancePerSperm: Failed to get race specific MultipleBabyChancePerSperm for actor " + a + ", thus loading Global_MultipleBabyChancePerSperm...")
-					myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabyChancePerSperm", -1)
-				endIf
-			endIf
-		endIf
-	endIf
-	
-	if myMultipleBabyChancePerSperm > 0
-		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
-		return myMultipleBabyChancePerSperm
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
-		return -1
-	endIf
-endFunction
-
-
-int Function RaceProbChildActorBorn(race RaceID)
-	int myProbChildActorBorn = StorageUtil.GetIntValue(RaceID, "FW.AddOn.ProbChildActorBorn", -1)
-	
-	if(myProbChildActorBorn > 0)
-		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
-		return myProbChildActorBorn
-	else	; must be positive
-		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
-		return -1
-	endIf
-endFunction
 
 
 

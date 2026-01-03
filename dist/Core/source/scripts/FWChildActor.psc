@@ -726,15 +726,30 @@ function InitChild()
 		GivePerks()
 	endif
 
-	Race myChildRace = StorageUtil.GetFormValue(self, "FW.Child.Race" ) as race
-	Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: The race of the child " + self + " is " + myChildRace)
+	actor ParentActor = StorageUtil.GetFormValue(self, "FW.Child.ParentActor", none) as actor
+	if(ParentActor)
+	else
+		ParentActor = _Mother
+	endIf
+
+	Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
 	
-	if(StorageUtil.GetIntValue(myChildRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
+	bool bool_AllowPCDialogue = false
+	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
+		bool_AllowPCDialogue = true
+	else
+		if(StorageUtil.GetIntValue(ChildRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
+			bool_AllowPCDialogue = true
+		else
+			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
+				bool_AllowPCDialogue = true
+			endIf
+		endIf
+	endIf
+		
+	if(bool_AllowPCDialogue)
 		self.AllowPCDialogue(true)
 		Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: Child " + self + " can talk to player")
-	elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
-		self.AllowPCDialogue(true)
-		Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: Child " + self + " can talk to player, from global AddOn settings")
 	endIf
 
 	RefreshAI()
@@ -795,9 +810,16 @@ function UpdateSize()
 		if self.GetType() == 62
 			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : Type of " + self + " is kCharacter.")
 
-			race myChildRace = StorageUtil.GetFormValue(self, "FW.Child.Race" ) as race
-			float modifiedSizeDuration = _SizeDuration * Manager.RaceMatureTimeScale(myChildRace)
-			float modifiedFinalScale = Manager.RaceFinalScale(myChildRace)
+			actor ParentActor = StorageUtil.GetFormValue(self, "FW.Child.ParentActor", none) as actor
+			if(ParentActor)
+			else
+				ParentActor = _Mother
+			endIf
+
+			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
+	
+			float modifiedSizeDuration = _SizeDuration * Manager.ActorMatureTimeScale(ParentActor)
+			float modifiedFinalScale = Manager.ActorFinalScale(ParentActor)
 			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is " + modifiedSizeDuration)
 			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedFinalScale of " + self + " is " + modifiedFinalScale)
 			

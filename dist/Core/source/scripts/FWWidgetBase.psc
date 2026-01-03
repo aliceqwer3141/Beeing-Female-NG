@@ -44,6 +44,14 @@ float property UpdateDelay = 5.0 auto
 FWSystemConfig property cfg auto
 Actor Property PlayerRef Auto
 
+float DefaultWidgetFadeOutTime = 3.0
+float DefaultWidgetFlashShowTime = 0.01
+float DefaultWidgetNoFlashShowTime = 0.2
+
+float WidgetFadeOutTime
+float WidgetFlashShowTime
+float WidgetNoFlashShowTime
+
 string function DirFormat(string value)
 	if value=="Left"||value=="LEFT"
 		return "left"
@@ -229,8 +237,16 @@ endFunction
 Event BeeingFemaleEvent(string eventName, string strArg, float numArg, Form sender)
 	if eventName=="BeeingFemale" && strArg=="ResetWidgets"
 		UnregisterForUpdate()
+		
+		WidgetFadeOutTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", DefaultWidgetFadeOutTime)
+		if(WidgetFadeOutTime > 0.0)
+		else
+			WidgetFadeOutTime = DefaultWidgetFadeOutTime
+		endIf
+		
 		if(Ready)
-			FadeTo(0, 3.0)
+;			FadeTo(0, 3.0)
+			FadeTo(0, WidgetFadeOutTime)
 		endIf
 		_shown = false
 		iTime=0
@@ -250,10 +266,24 @@ function showWidget(bool Flash = false)
 		endif
 		Target = PlayerRef
 		if Flash;/==true/;
-			FadeTo(CFG_Alpha,0.01)
+			WidgetFlashShowTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime", DefaultWidgetFlashShowTime)
+			if(WidgetFlashShowTime > 0.0)
+			else
+				WidgetFlashShowTime = DefaultWidgetFlashShowTime
+			endIf
+		
+;			FadeTo(CFG_Alpha,0.01)
+			FadeTo(CFG_Alpha, WidgetFlashShowTime)
 			Flash()
 		else
-			FadeTo(CFG_Alpha, 0.2)
+			WidgetNoFlashShowTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime", DefaultWidgetNoFlashShowTime)
+			if(WidgetNoFlashShowTime > 0.0)
+			else
+				WidgetNoFlashShowTime = DefaultWidgetNoFlashShowTime
+			endIf
+		
+;			FadeTo(CFG_Alpha, 0.2)
+			FadeTo(CFG_Alpha, WidgetNoFlashShowTime)
 		endif
 		RegisterForUpdate(UpdateDelay)
 	elseif(Ready && Flash)
@@ -262,8 +292,15 @@ function showWidget(bool Flash = false)
 endFunction
 
 function showTimed(bool Flash = false)
+	WidgetFadeOutTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", DefaultWidgetFadeOutTime)
+	if(WidgetFadeOutTime > 0.0)
+	else
+		WidgetFadeOutTime = DefaultWidgetFadeOutTime
+	endIf
+
 	showWidget(Flash)
-	Utility.Wait(3)
+;	Utility.Wait(3)
+	Utility.Wait(WidgetFadeOutTime)
 	hideWidget()
 endFunction
 
@@ -276,10 +313,24 @@ function showTargetWidget(actor A, bool Flash = false)
 		endif
 		Target = A
 		if Flash;/==true/;
-			FadeTo(CFG_Alpha,0.01)
+			WidgetFlashShowTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime", DefaultWidgetFlashShowTime)
+			if(WidgetFlashShowTime > 0.0)
+			else
+				WidgetFlashShowTime = DefaultWidgetFlashShowTime
+			endIf
+
+;			FadeTo(CFG_Alpha,0.01)
+			FadeTo(CFG_Alpha, WidgetFlashShowTime)
 			Flash()
 		else
-			FadeTo(CFG_Alpha, 0.2)
+			WidgetNoFlashShowTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime", DefaultWidgetNoFlashShowTime)
+			if(WidgetNoFlashShowTime > 0.0)
+			else
+				WidgetNoFlashShowTime = DefaultWidgetNoFlashShowTime
+			endIf
+
+;			FadeTo(CFG_Alpha, 0.2)
+			FadeTo(CFG_Alpha, WidgetNoFlashShowTime)
 		endif
 		RegisterForUpdate(UpdateDelay)
 	elseif(Ready && Flash)
@@ -289,8 +340,15 @@ endFunction
 
 function showTargeTimed(actor A,bool Flash = false)
 	if CFG_Enabled
+		WidgetFadeOutTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", DefaultWidgetFadeOutTime)
+		if(WidgetFadeOutTime > 0.0)
+		else
+			WidgetFadeOutTime = DefaultWidgetFadeOutTime
+		endIf
+
 		showTargetWidget(a,Flash)
-		Utility.Wait(3)
+;		Utility.Wait(3)
+		Utility.Wait(WidgetFadeOutTime)
 		hideWidget()
 	endif
 endFunction
@@ -308,7 +366,14 @@ function hideWidget()
 		UnregisterForUpdate()
 	endif
 	if(Ready)
-		FadeTo(0, 3.0)
+		WidgetFadeOutTime = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", DefaultWidgetFadeOutTime)
+		if(WidgetFadeOutTime > 0.0)
+		else
+			WidgetFadeOutTime = DefaultWidgetFadeOutTime
+		endIf
+
+;		FadeTo(0, 3.0)
+		FadeTo(0, WidgetFadeOutTime)
 	endIf
 	_shown = false
 endFunction

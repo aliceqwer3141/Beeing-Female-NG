@@ -25,7 +25,16 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 ;	Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: akTarget = " + akTarget + ", and akCaster = " + akCaster)
 	TargetActor = akTarget
 	DayOfBirth = StorageUtil.GetFloatValue(TargetActor, "FW.Child.DOB", -1)
-	finalScale = BF_AddOnManager.ActorFinalScale(TargetActor)
+
+	actor Mother = StorageUtil.GetFormValue(TargetActor, "FW.Child.Mother", none) as actor
+	actor ParentActor = StorageUtil.GetFormValue(TargetActor, "FW.Child.ParentActor", none) as actor
+	if(ParentActor)
+	else
+		ParentActor = Mother
+	endIf
+	
+
+	finalScale = BF_AddOnManager.ActorFinalScale(ParentActor)
 
 	if(DayOfBirth == -1)
 		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: Started for the first time on actor: " + akTarget + " by caster: " + akCaster)
@@ -34,17 +43,17 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		StorageUtil.SetFloatValue(TargetActor, "FW.Child.DOB", DayOfBirth)
 		StorageUtil.SetIntValue(TargetActor, "FW.Child.IsCustomChildActor", 1)
 
-		MatureTimeInHours = BF_AddOnManager.ActorCustomMatureTimeInHours(TargetActor)
+		MatureTimeInHours = BF_AddOnManager.ActorCustomMatureTimeInHours(ParentActor)
 		if(MatureTimeInHours > 0)
-			MatureStep = BF_AddOnManager.ActorMatureStep(TargetActor)
+			MatureStep = BF_AddOnManager.ActorMatureStep(ParentActor)
 			MatureTimeStep = MatureTimeInHours / MatureStep
 
 			if MatureTimeStep < 1.0	; Must NOT be smaller than 1, else the frequent call of SetScale() in "FWDefaultCustomChildEffect" script may cause CTD!
 				MatureTimeStep = 1.0
 			endIf
 
-			ScaleStep = BF_AddOnManager.ActorMatureScaleStep(TargetActor)		
-			initialScale = BF_AddOnManager.ActorInitialScale(TargetActor)
+			ScaleStep = BF_AddOnManager.ActorMatureScaleStep(ParentActor)		
+			initialScale = BF_AddOnManager.ActorInitialScale(ParentActor)
 				
 			TargetActor.SetScale(initialScale)
 
@@ -63,18 +72,18 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: restarted for some reason on actor: " + akTarget + " by caster: " + akCaster)
 
 		CurrentAgeInHours = 24 * (GameDaysPassed.GetValue() - DayOfBirth)
-		MatureTimeInHours = BF_AddOnManager.ActorCustomMatureTimeInHours(TargetActor)
+		MatureTimeInHours = BF_AddOnManager.ActorCustomMatureTimeInHours(ParentActor)
 		if(CurrentAgeInHours < MatureTimeInHours)
 			if(MatureTimeInHours > 0)
-				MatureStep = BF_AddOnManager.ActorMatureStep(TargetActor)
+				MatureStep = BF_AddOnManager.ActorMatureStep(ParentActor)
 				MatureTimeStep = MatureTimeInHours / MatureStep
 
 				if MatureTimeStep < 1.0	; Must NOT be smaller than 1, else the frequent call of SetScale() in "FWDefaultCustomChildEffect" script may cause CTD!
 					MatureTimeStep = 1.0
 				endIf
 
-				ScaleStep = BF_AddOnManager.ActorMatureScaleStep(TargetActor)		
-				initialScale = BF_AddOnManager.ActorInitialScale(TargetActor)
+				ScaleStep = BF_AddOnManager.ActorMatureScaleStep(ParentActor)		
+				initialScale = BF_AddOnManager.ActorInitialScale(ParentActor)
 					
 		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureStep = " + MatureStep)
 		;		Debug.Trace("[Beeing Female NG] - FWDefaultCustomChildEffect: MatureTime = " + MatureTimeInHours + " hours")

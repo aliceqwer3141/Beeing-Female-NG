@@ -283,9 +283,10 @@ endEvent
 event OnUpdateGameTime()
 	float startTime = GameDaysPassed.GetValue()
 	float currentTime = GameDaysPassed.GetValue()
+	string ActorCurrentState = Self.GetState()
 	;if System.IsActorPregnantByChaurus(ActorRef) && (Self.GetState() != "PregnantChaurus_State")
 	if System.IsActorPregnantByChaurus(ActorRef) ;Tkc (Loverslab): optimization
-	 if (Self.GetState() == "PregnantChaurus_State")
+	 if (ActorCurrentState == "PregnantChaurus_State")
 	 else;if (Self.GetState() != "PregnantChaurus_State")
 		Controller.Pause(ActorRef,true)
 		;System.setObjective(21)	
@@ -293,17 +294,41 @@ event OnUpdateGameTime()
 	 endIf
 	endIf
 	
+
+	if System.IsActorPregnantByEstrusSpider(ActorRef)
+	 if (ActorCurrentState == "PregnantEstrusSpider_State")
+	 else
+		Controller.Pause(ActorRef,true)
+		GoToState("PregnantEstrusSpider_State")
+	 endIf
+	endIf
+	
+
+	if System.IsActorPregnantByEstrusDwemer(ActorRef)
+	 if (ActorCurrentState == "PregnantEstrusDwemer_State")
+	 else
+		Controller.Pause(ActorRef,true)
+		GoToState("PregnantEstrusDwemer_State")
+	 endIf
+	endIf
+	
+
 	GetStorageVariable()
 	
 	float stateDuration = System.getStateDuration(CurrentState, ActorRef)
 
-	If Self.GetState() == "PregnantChaurus_State" && (CurrentState == 2 || CurrentState == 8)
-		stateEnterTime = GameDaysPassed.GetValue() ;Hold Luteal or Replenish State at 0% complete whilst Chaurus Pregnant
-	EndIf
+	if((CurrentState == 2) || (CurrentState == 8))
+		If((ActorCurrentState == "PregnantChaurus_State") || (ActorCurrentState == "PregnantEstrusSpider_State") || (ActorCurrentState == "PregnantEstrusDwemer_State"))
+			stateEnterTime = GameDaysPassed.GetValue() ;Hold Luteal or Replenish State at 0% complete whilst Chaurus Pregnant
+		EndIf
+	endIf
+
+
 	if stateDuration > 0
 		CurrentStatePercent = ((currentTime - stateEnterTime) * 100) / stateDuration
 		StateDaysRemaining = stateDuration - (currentTime - stateEnterTime)
-		if currentTime >= stateEnterTime + stateDuration
+		;if currentTime >= stateEnterTime + stateDuration
+		if(StateDaysRemaining <= 0)
 			changeState(NextState)
 		endIf
 		Manager.onUpdateFunction(ActorRef,CurrentState,CurrentStatePercent)
@@ -311,10 +336,12 @@ event OnUpdateGameTime()
 		CurrentStatePercent=0.0
 		Manager.onUpdateFunction(ActorRef,CurrentState,0)
 	endIf
+
+	string ActorName = ActorRef.GetLeveledActorBase().GetName()
 	if IsPlayer
-		System.Message("OnUpdateGameTime "+ActorRef.GetLeveledActorBase().GetName()+": "+CurrentState+" at "+CurrentStatePercent+"% (Dur: "+stateDuration+")",System.MSG_Debug)
+		System.Message("OnUpdateGameTime " + ActorName + ": " + CurrentState + " at " + CurrentStatePercent + "% (Dur: " + stateDuration + ")", System.MSG_Debug)
 	else
-		System.Message("OnUpdateGameTime "+ActorRef.GetLeveledActorBase().GetName()+": "+CurrentState+" at "+CurrentStatePercent+"% (Dur: "+stateDuration+")",System.MSG_All)
+		System.Message("OnUpdateGameTime " + ActorName + ": " + CurrentState + " at " + CurrentStatePercent + "% (Dur: " + stateDuration + ")", System.MSG_All)
 	endIf
 	if currentState>=4 && currentState <20
 		SetBelly();
@@ -369,7 +396,7 @@ Event OnSpellCast(Form akSpell)
 			potion p = akSpell as potion
 			onPotionFunction(p)
 		endif
-		If BadSpellList && BadSpellList.Find(akSpell)>0 && currentState>=4 && currentState<20
+		If BadSpellList && BadSpellList.Find(akSpell)>=0 && currentState>=4 && currentState<20
 			If IsPlayer
 				System.Message( FWUtility.StringReplace( Contents.AlcoholNotGoodForYourBaby,"{0}",ActorRefBase.GetName()), System.MSG_Low)
 			Else
@@ -411,7 +438,8 @@ function InitState()
 	if currentState < 5
 		if currentState < 2
 			if currentState==0
-				UpdateDelay=4.0 ; Less activity - lower update rate
+				;UpdateDelay=4.0 ; Less activity - lower update rate
+				UpdateDelay = 1.0 ; To consider the addon option for impregnation at any period
 				StateName="Follicular_State"
 				ObjectiveID=0
 				nextState = 1
@@ -435,7 +463,8 @@ function InitState()
 					nextState = 0
 				endIf
 			else
-				UpdateDelay=3.0
+				;UpdateDelay=3.0
+				UpdateDelay = 1.0
 				StateName="PregnancyFirst_State"
 				ObjectiveID=4
 				nextState = 5
@@ -444,7 +473,8 @@ function InitState()
 	else
 		if currentState < 7
 			if currentState==5
-				UpdateDelay=3.0
+				;UpdateDelay=3.0
+				UpdateDelay = 1.0
 				StateName="PregnancySecond_State"
 				ObjectiveID=5
 				nextState = 6
@@ -531,7 +561,7 @@ function castStateSpell()
 	while i<=8
 		if currentState == i
 			if ActorRef.HasSpell(StatCycleID_List[i]) ;Tkc (Loverslab): optimization
-			else;if ActorRef.HasSpell(System.StatCycleID_List[i]) == false
+			else
 				ActorRef.AddSpell(StatCycleID_List[i],false)
 			endif
 		else
@@ -782,61 +812,89 @@ function AbortusPains()
 	endif
 	if abortus >0
 		float Abortus_DamageScale = System.getDamageScale(5, ActorRef)
-		
-		if abortus < 5
-			if abortus < 4
-				if abortus==2
-					if Utility.RandomInt(0,10)>6
-						System.Blur(Utility.RandomFloat(0.3,1.0), iModPainLow)
+
+		; Find the list of fathers
+		int my_num_men = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+		float my_Abortus_DamageScale = 0
+		float temp_Abortus_DamageScale = 0
+		actor a = none
+		race abr = none
+		while my_num_men > 0
+			my_num_men -= 1
+			a = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", my_num_men) As Actor)
+			if a
+				temp_Abortus_DamageScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1.0)
+				if(temp_Abortus_DamageScale == 1.0)
+					abr = a.GetRace()
+					if abr
+						temp_Abortus_DamageScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1.0)
+					endIf
+				endIf
+				
+				if(temp_Abortus_DamageScale > my_Abortus_DamageScale)
+					my_Abortus_DamageScale = temp_Abortus_DamageScale
+				endIf
+			endIf
+		endWhile
+		Abortus_DamageScale *= my_Abortus_DamageScale
+				
+		if(Abortus_DamageScale > 0)
+			if abortus < 5
+				if abortus < 4
+					if abortus==2
+						if Utility.RandomInt(0,10)>6
+							System.Blur(Utility.RandomFloat(0.3,1.0), iModPainLow)
+						endIf
+					else
+						if Utility.RandomInt(0,10)>3
+							System.Blur(Utility.RandomFloat(0.4,1.0), iModPainMiddle)
+							System.PlayPainSound(ActorRef)
+							System.DoDamage(ActorRef,3*Abortus_DamageScale,14)
+						endIf
 					endIf
 				else
-					if Utility.RandomInt(0,10)>3
-						System.Blur(Utility.RandomFloat(0.4,1.0), iModPainMiddle)
+					if Utility.RandomInt(0,10)>7
+						System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
 						System.PlayPainSound(ActorRef)
-						System.DoDamage(ActorRef,3*Abortus_DamageScale,14)
+						System.DoDamage(ActorRef,2*Abortus_DamageScale,14)
 					endIf
 				endIf
 			else
-				if Utility.RandomInt(0,10)>7
-					System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
+				if abortus==5
+					if Utility.RandomInt(0,10)>5
+						System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
+						System.PlayPainSound(ActorRef)
+						System.DoDamage(ActorRef,4*Abortus_DamageScale,14)
+					endIf
+				elseif abortus==6 && Utility.RandomInt(0,10)>4
+					if Utility.RandomInt(0,10)>7
+						System.Blur(Utility.RandomFloat(0.4,0.6), iModPainHigh)
+					else
+						System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
+					endif
 					System.PlayPainSound(ActorRef)
 					System.DoDamage(ActorRef,2*Abortus_DamageScale,14)
+					Utility.Wait(5)
 				endIf
-			endIf
-		else
-			if abortus==5
-				if Utility.RandomInt(0,10)>5
-					System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
-					System.PlayPainSound(ActorRef)
-					System.DoDamage(ActorRef,4*Abortus_DamageScale,14)
-				endIf
-			elseif abortus==6 && Utility.RandomInt(0,10)>4
-				if Utility.RandomInt(0,10)>7
-					System.Blur(Utility.RandomFloat(0.4,0.6), iModPainHigh)
-				else
-					System.Blur(Utility.RandomFloat(0.4,0.8), iModPainMiddle)
-				endif
-				System.PlayPainSound(ActorRef)
-				System.DoDamage(ActorRef,2*Abortus_DamageScale,14)
-				Utility.Wait(5)
-			endIf
-		endif
-		if Abortus_Fiber;/==true/;
-			System.ActorAddSpellOpt(ActorRef, FeverSpell, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
-		endIf
-		if Abortus_Infection;/==true/;
-			System.ActorAddSpellOpt(ActorRef, InfectionSpell, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
-		endIf
-		
-		if GlobalMenstruating.GetValue() As int; == 1
-			if Utility.RandomInt(1, 100) < 34
-				ActorRef.DispelSpell(Effect_VaginalBloodLow)
-				System.ActorAddSpellOpt(ActorRef,Effect_VaginalBloodHigh, false, true, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
-			else
-				ActorRef.DispelSpell(Effect_VaginalBloodHigh)	
-				System.ActorAddSpellOpt(ActorRef,Effect_VaginalBloodLow, false, true, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
 			endif
-		endif
+		
+			if Abortus_Fiber;/==true/;
+				System.ActorAddSpellOpt(ActorRef, FeverSpell, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+			endIf
+			if Abortus_Infection;/==true/;
+				System.ActorAddSpellOpt(ActorRef, InfectionSpell, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+			endIf
+		
+			if GlobalMenstruating.GetValue() As int; == 1
+				if Utility.RandomInt(1, 100) < 34
+					ActorRef.DispelSpell(Effect_VaginalBloodLow)
+					System.ActorAddSpellOpt(ActorRef,Effect_VaginalBloodHigh, false, true, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+				else
+					ActorRef.DispelSpell(Effect_VaginalBloodHigh)	
+					System.ActorAddSpellOpt(ActorRef,Effect_VaginalBloodLow, false, true, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+				endif
+			endif
+		endIf
 		
 		Utility.Wait(1)
 		checkAbortus()
@@ -845,68 +903,111 @@ endfunction
 
 
 function castAbortus(float Strength, bool AllowBleedOut = false)
-	if cfg.abortus ;Tkc (Loverslab): optimization
+	bool bool_exceptionalCase = false
+	if(System.IsActorPregnantByChaurus(ActorRef) || System.IsActorPregnantByEstrusSpider(ActorRef) || System.IsActorPregnantByEstrusDwemer(ActorRef))
+		bool_exceptionalCase = true
+	endIf
+
+	if((cfg.abortus) || bool_exceptionalCase) ;Tkc (Loverslab): optimization
 	else;if System.cfg.abortus==false
 		return
 	endif
-	if IsPlayer
-		FWUtility.LockPlayer()
-	endif
-	
-	bool bIsVaginalBleedingEmitter=false
-	System.Blur(1,AbortusImod)
-	Utility.Wait(1)
-	if AllowBleedOut
-		Debug.SendAnimationEvent(ActorRef, "IdleForceDefaultState")
-		Debug.SendAnimationEvent(ActorRef, "BleedOutStart")
-		Utility.Wait(2)
-		if ( ActorRef.WornHasKeyword(KwArmorCuirass) || ActorRef.WornHasKeyword(KwClothingBody) ) ;Tkc (Loverslab): optimization
-		else;if !( ActorRef.WornHasKeyword(KwArmorCuirass) || ActorRef.WornHasKeyword(KwClothingBody) )
-			; Actor is naked - start bleeding effect
-			FWUtility.EquipItem(ActorRef,VaginalBleeding)
-			bIsVaginalBleedingEmitter=true
-		endif
-	endif
-	
-	ActorRef.DispelSpell(Effect_VaginalBloodLow)
-	ActorRef.DispelSpell(Effect_VaginalBloodHigh)	
-	Effect_VaginalBloodBig.cast(ActorRef,ActorRef)
-	
-	int i = Utility.RandomInt(6,9)
+
 	float Abortus_DamageScale = System.getDamageScale(5, ActorRef)
-	while i > 0
-		i-=1
-		System.PlayPainSound(ActorRef)
-		System.DoDamage(ActorRef,Strength*Abortus_DamageScale,14)
-		Utility.Wait(1.5)
+
+	; Find the list of fathers
+	int my_num_men = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+	float my_Abortus_DamageScale = 0
+	float temp_Abortus_DamageScale = 0
+	actor a = none
+	race abr = none
+	while my_num_men > 0
+		my_num_men -= 1
+		a = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", my_num_men) As Actor)
+		if a
+			temp_Abortus_DamageScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1.0)
+			if(temp_Abortus_DamageScale == 1.0)
+				abr = a.GetRace()
+				if abr
+					temp_Abortus_DamageScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Pain_Abortus_by_FatherRace", 1.0)
+				endIf
+			endIf
+			
+			if(temp_Abortus_DamageScale > my_Abortus_DamageScale)
+				my_Abortus_DamageScale = temp_Abortus_DamageScale
+			endIf
+		endIf
 	endWhile
-	
-	if bIsVaginalBleedingEmitter;/==true/;
-		FWUtility.UnEquipItem(ActorRef, VaginalBleeding)
-		Utility.Wait(2)
-	endif
-	
-	if ActorRef == PlayerRef
-		System.Message( FWUtility.StringReplace( Contents.YouHaveLostYourChild,"{0}",ActorRef.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+	Abortus_DamageScale *= (Strength * my_Abortus_DamageScale)
+	if(Abortus_DamageScale > 0)
+		if IsPlayer
+			FWUtility.LockPlayer()
+		endif
+		
+		bool bIsVaginalBleedingEmitter=false
+		System.Blur(1,AbortusImod)
 		Utility.Wait(1)
+		if AllowBleedOut
+			Debug.SendAnimationEvent(ActorRef, "IdleForceDefaultState")
+			Debug.SendAnimationEvent(ActorRef, "BleedOutStart")
+			Utility.Wait(2)
+			if ( ActorRef.WornHasKeyword(KwArmorCuirass) || ActorRef.WornHasKeyword(KwClothingBody) ) ;Tkc (Loverslab): optimization
+			else;if !( ActorRef.WornHasKeyword(KwArmorCuirass) || ActorRef.WornHasKeyword(KwClothingBody) )
+				; Actor is naked - start bleeding effect
+				FWUtility.EquipItem(ActorRef,VaginalBleeding)
+				bIsVaginalBleedingEmitter=true
+			endif
+		endif
+		
+		ActorRef.DispelSpell(Effect_VaginalBloodLow)
+		ActorRef.DispelSpell(Effect_VaginalBloodHigh)	
+		Effect_VaginalBloodBig.cast(ActorRef,ActorRef)
+		
+		int i = Utility.RandomInt(6,9)
+		
+		while i > 0
+			i-=1
+			System.PlayPainSound(ActorRef)
+			;System.DoDamage(ActorRef,Strength*Abortus_DamageScale,14)
+			System.DoDamage(ActorRef, Abortus_DamageScale, 14)
+			Utility.Wait(1.5)
+		endWhile
+		
+		if bIsVaginalBleedingEmitter;/==true/;
+			FWUtility.UnEquipItem(ActorRef, VaginalBleeding)
+			Utility.Wait(2)
+		endif
+		
+		if ActorRef == PlayerRef
+			System.Message( FWUtility.StringReplace( Contents.YouHaveLostYourChild,"{0}",ActorRef.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+			Utility.Wait(1)
+		else
+			System.Message( FWUtility.StringReplace( Contents.NPCHasLostItsChild,"{0}",ActorRef.GetLeveledActorBase().GetName()), System.MSG_Immersive)
+		endif
+		
+		if AllowBleedOut
+			Debug.SendAnimationEvent(ActorRef, "BleedOutStop");
+		endif
+	
+		StorageUtil.SetIntValue(ActorRef,"FW.NumChilds",0)
+		StorageUtil.UnsetFloatValue(ActorRef,"FW.UnbornHealth")
+		StorageUtil.FormListClear(ActorRef,"FW.ChildFather")
+		StorageUtil.UnsetFloatValue(ActorRef,"FW.AbortusTime")
+		StorageUtil.UnsetIntValue(ActorRef,"FW.Abortus")
+		
+		Utility.Wait(1)
+		if IsPlayer
+			FWUtility.UnlockPlayer()
+		endif
 	else
-		System.Message( FWUtility.StringReplace( Contents.NPCHasLostItsChild,"{0}",ActorRef.GetLeveledActorBase().GetName()), System.MSG_Immersive)
-	endif
-	
-	if AllowBleedOut
-		Debug.SendAnimationEvent(ActorRef, "BleedOutStop");
-	endif
-	
-	StorageUtil.SetIntValue(ActorRef,"FW.NumChilds",0)
-	StorageUtil.UnsetFloatValue(ActorRef,"FW.UnbornHealth")
-	StorageUtil.FormListClear(ActorRef,"FW.ChildFather")
-	StorageUtil.UnsetFloatValue(ActorRef,"FW.AbortusTime")
-	StorageUtil.UnsetIntValue(ActorRef,"FW.Abortus")
-	
-	Utility.Wait(1)
-	if IsPlayer
-		FWUtility.UnlockPlayer()
-	endif
+		StorageUtil.SetIntValue(ActorRef,"FW.NumChilds",0)
+		StorageUtil.UnsetFloatValue(ActorRef,"FW.UnbornHealth")
+		StorageUtil.FormListClear(ActorRef,"FW.ChildFather")
+		StorageUtil.UnsetFloatValue(ActorRef,"FW.AbortusTime")
+		StorageUtil.UnsetIntValue(ActorRef,"FW.Abortus")
+
+		Utility.Wait(1)
+	endIf
 	changeState(8)
 endFunction
 
@@ -1219,10 +1320,11 @@ Function SetBelly(bool bForce=false)
 	;if (currentState<4 || currentState>=20 || System.IsActorPregnantByChaurus(ActorRef)) && bForce==false  ;-->Bane SetBellyTest
 	if bForce ;Tkc (Loverslab): optimization
 	else;if bForce==false
-		if (currentState<4 || currentState>=20 || System.IsActorPregnantByChaurus(ActorRef))
+		if (currentState<4 || currentState>=20 || System.IsActorPregnantByChaurus(ActorRef) || System.IsActorPregnantByEstrusSpider(ActorRef) || System.IsActorPregnantByEstrusDwemer(ActorRef))
 			return
 		endif
 	endif
+
 	If (cfg.VisualScaling > 0)
 		Int stateID = currentState
 		
@@ -1233,21 +1335,133 @@ Function SetBelly(bool bForce=false)
 		; pregnancy
 		if stateID > 3
 			if stateID < 7
+				; Find the list of fathers
+				int my_num_men = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+				float my_Preg1stBellyScale = 0
+				float temp_Preg1stBellyScale = 0
+				float my_Preg2ndBellyScale = 0
+				float temp_Preg2ndBellyScale = 0
+				float my_Preg3rdBellyScale = 0
+				float temp_Preg3rdBellyScale = 0
+
+				float my_Preg1stBreastsScale = 0
+				float temp_Preg1stBreastsScale = 0
+				float my_Preg2ndBreastsScale = 0
+				float temp_Preg2ndBreastsScale = 0
+				float my_Preg3rdBreastsScale = 0
+				float temp_Preg3rdBreastsScale = 0
+
+				actor a = none
+				race abr = none
+				while my_num_men > 0
+					my_num_men -= 1
+					a = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", my_num_men) As Actor)
+					if a
+						abr = a.GetRace()
+						
+						temp_Preg1stBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace", 0)
+						if(temp_Preg1stBellyScale == 0)
+							temp_Preg1stBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg1stBellyScale_by_FatherRace", 0)
+						endIf
+						
+						temp_Preg2ndBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace", 0)
+						if(temp_Preg2ndBellyScale == 0)
+							temp_Preg2ndBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg2ndBellyScale_by_FatherRace", 0)
+						endIf
+
+						temp_Preg3rdBellyScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace", 0)
+						if(temp_Preg3rdBellyScale == 0)
+							temp_Preg3rdBellyScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg3rdBellyScale_by_FatherRace", 0)
+						endIf
+
+						temp_Preg1stBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace", 0)
+						if(temp_Preg1stBreastsScale == 0)
+							temp_Preg1stBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg1stBreastsScale_by_FatherRace", 0)
+						endIf
+
+						temp_Preg2ndBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace", 0)
+						if(temp_Preg2ndBreastsScale == 0)
+							temp_Preg2ndBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg2ndBreastsScale_by_FatherRace", 0)
+						endIf
+
+						temp_Preg3rdBreastsScale = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace", 0)
+						if(temp_Preg3rdBreastsScale == 0)
+							temp_Preg3rdBreastsScale = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Preg3rdBreastsScale_by_FatherRace", 0)
+						endIf
+					endIf
+
+					if(temp_Preg1stBellyScale > my_Preg1stBellyScale)
+						my_Preg1stBellyScale = temp_Preg1stBellyScale
+					endIf
+					if(temp_Preg2ndBellyScale > my_Preg2ndBellyScale)
+						my_Preg2ndBellyScale = temp_Preg2ndBellyScale
+					endIf
+					if(temp_Preg3rdBellyScale > my_Preg3rdBellyScale)
+						my_Preg3rdBellyScale = temp_Preg3rdBellyScale
+					endIf
+					
+					if(temp_Preg1stBreastsScale > my_Preg1stBreastsScale)
+						my_Preg1stBreastsScale = temp_Preg1stBreastsScale
+					endIf
+					if(temp_Preg2ndBreastsScale > my_Preg2ndBreastsScale)
+						my_Preg2ndBreastsScale = temp_Preg2ndBreastsScale
+					endIf
+					if(temp_Preg3rdBreastsScale > my_Preg3rdBreastsScale)
+						my_Preg3rdBreastsScale = temp_Preg3rdBreastsScale
+					endIf
+				endWhile
+				
+				if(my_Preg1stBellyScale <= 0)
+					my_Preg1stBellyScale = Manager.ActorPreg1stBellyScale(ActorRef)
+				else
+					my_Preg1stBellyScale *= Manager.ActorPreg1stBellyScale(ActorRef)
+				endIf
+
+				if(my_Preg2ndBellyScale <= 0)
+					my_Preg2ndBellyScale = Manager.ActorPreg2ndBellyScale(ActorRef)
+				else
+					my_Preg2ndBellyScale *= Manager.ActorPreg2ndBellyScale(ActorRef)
+				endIf
+
+				if(my_Preg3rdBellyScale <= 0)
+					my_Preg3rdBellyScale = Manager.ActorPreg3rdBellyScale(ActorRef)
+				else
+					my_Preg3rdBellyScale *= Manager.ActorPreg3rdBellyScale(ActorRef)
+				endIf
+
+				if(my_Preg1stBreastsScale <= 0)
+					my_Preg1stBreastsScale = Manager.ActorPreg1stBreastsScale(ActorRef)
+				else
+					my_Preg1stBreastsScale *= Manager.ActorPreg1stBreastsScale(ActorRef)
+				endIf
+
+				if(my_Preg2ndBreastsScale <= 0)
+					my_Preg2ndBreastsScale = Manager.ActorPreg2ndBreastsScale(ActorRef)
+				else
+					my_Preg2ndBreastsScale *= Manager.ActorPreg2ndBreastsScale(ActorRef)
+				endIf
+
+				if(my_Preg3rdBreastsScale <= 0)
+					my_Preg3rdBreastsScale = Manager.ActorPreg3rdBreastsScale(ActorRef)
+				else
+					my_Preg3rdBreastsScale *= Manager.ActorPreg3rdBreastsScale(ActorRef)
+				endIf
+				
 				if stateID < 6
 					If stateID == 4
 						; Add scale value of current trimester
 ;						ScaleBelly = System.GetPhaseScale(0, 0) * (CurrentStatePercent / 100)
 ;						ScaleBreast = System.GetPhaseScale(1, 0) * (CurrentStatePercent / 100)
-						ScaleBelly = Manager.ActorPreg1stBellyScale(ActorRef) * (CurrentStatePercent / 100)
-						ScaleBreast = Manager.ActorPreg1stBreastsScale(ActorRef) * (CurrentStatePercent / 100)
+						ScaleBelly = my_Preg1stBellyScale * (CurrentStatePercent / 100)
+						ScaleBreast = my_Preg1stBreastsScale * (CurrentStatePercent / 100)
 
 						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 					Else;If stateID == 5
 ;						ScaleBelly = System.GetPhaseScale(0, 0) + (System.GetPhaseScale(0, 1) * (CurrentStatePercent / 100))
 ;						ScaleBreast = System.GetPhaseScale(1, 0) + (System.GetPhaseScale(1, 1) * (CurrentStatePercent / 100))
-						ScaleBelly = Manager.ActorPreg1stBellyScale(ActorRef) + (Manager.ActorPreg2ndBellyScale(ActorRef) * (CurrentStatePercent / 100))
-						ScaleBreast = Manager.ActorPreg1stBreastsScale(ActorRef) + (Manager.ActorPreg2ndBreastsScale(ActorRef) * (CurrentStatePercent / 100))
+						ScaleBelly = my_Preg1stBellyScale + (my_Preg2ndBellyScale * (CurrentStatePercent / 100))
+						ScaleBreast = my_Preg1stBreastsScale + (my_Preg2ndBreastsScale * (CurrentStatePercent / 100))
 
 						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
@@ -1255,8 +1469,8 @@ Function SetBelly(bool bForce=false)
 				Else;If stateID == 6
 ;					ScaleBelly = System.GetPhaseScale(0, 0) + System.GetPhaseScale(0, 1) + (System.GetPhaseScale(0, 2) * (CurrentStatePercent / 100))
 ;					ScaleBreast = System.GetPhaseScale(1, 0) + System.GetPhaseScale(1, 1) + (System.GetPhaseScale(1, 2) * (CurrentStatePercent / 100))
-					ScaleBelly = Manager.ActorPreg1stBellyScale(ActorRef) + Manager.ActorPreg2ndBellyScale(ActorRef) + (Manager.ActorPreg3rdBellyScale(ActorRef) * (CurrentStatePercent / 100))
-					ScaleBreast = Manager.ActorPreg1stBreastsScale(ActorRef) + Manager.ActorPreg2ndBreastsScale(ActorRef) + (Manager.ActorPreg3rdBreastsScale(ActorRef) * (CurrentStatePercent / 100))
+					ScaleBelly = my_Preg1stBellyScale + my_Preg2ndBellyScale + (my_Preg3rdBellyScale * (CurrentStatePercent / 100))
+					ScaleBreast = my_Preg1stBreastsScale + my_Preg2ndBreastsScale + (my_Preg3rdBreastsScale * (CurrentStatePercent / 100))
 
 					Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 					Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
@@ -1496,8 +1710,57 @@ state Follicular_State
 		endif
 	endFunction
 		
+	function onUpdateFunction()
+		actor a = none
+		race abr = none
+		int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+		int my_Impreg_Any = 0
+		float my_Impreg_Chance = 0
+		
+		bool bool_NotPregnant = true
+		while((c > 0) && bool_NotPregnant)
+			c -= 1
+			a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+			if a
+				my_Impreg_Any = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					abr = a.GetRace()
+					if abr
+						my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any > 0)
+								my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					endIf
+				else
+					my_Impreg_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+
+				if(my_Impreg_Any > 0)
+					; Check for Pregnancy
+					Float rnd = Utility.RandomFloat(0, 99)
+					if rnd < my_Impreg_Chance
+						; Actor is pregnant!
+						if Controller.MyActiveSpermImpregnationTimedForAnyPeriod(ActorRef);/==true/;
+							bool_NotPregnant = false
+							FWUtility.ActorRemoveSpell(ActorRef, Effect_Vorwehen)
+							Manager.RemoveCME(ActorRef, 0) ; Remove Follicular Effects
+							bHasPMS == false
+							changeState(4)
+						endif
+					endIf
+				endIf
+			endIf
+		endwhile
+	EndFunction
+		
 	function onExitState()
-		ActorRef.removeSpell(Effect_Vorwehen)
+		;ActorRef.removeSpell(Effect_Vorwehen)
+		FWUtility.ActorRemoveSpell(ActorRef, Effect_Vorwehen)
 		Manager.RemoveCME(ActorRef,0) ; Remove Follicular Effects
 		bHasPMS==false
 	endfunction
@@ -1524,17 +1787,87 @@ state Ovulation_State
 		else
 			System.ActorAddSpellOpt(ActorRef,Effect_Mittelschmerz, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
 		endif
-		if CurrentStatePercent >= 50
-			; Check for Pregnancy
-			int rnd = Utility.RandomInt(0,15)
-			if rnd<7
-				; Actor is pregnant!
-				if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
-					FWUtility.ActorRemoveSpell(ActorRef,Effect_Mittelschmerz)
-					changeState(4)
-				endif
+
+		actor a = none
+		race abr = none
+		int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+		int my_Impreg_Any = 0
+		float my_Impreg_Chance = 0
+		float my_Impreg_boost = 0
+
+		bool bool_NotPregnant = true
+		while((c > 0) && bool_NotPregnant)
+			c -= 1
+			a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+			if a
+				abr = a.GetRace()
+				
+				my_Impreg_boost = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+				if(my_Impreg_boost == 0)
+					my_Impreg_boost = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_boost == 0)
+						my_Impreg_boost = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+					endIf
+				endIf
+
+				my_Impreg_Any = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any > 0)
+							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+				else
+					my_Impreg_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+
+				if CurrentStatePercent >= 50
+					; Check for Pregnancy
+					int rnd = Utility.RandomInt(0, 15)
+					if rnd < (7 + my_Impreg_boost)
+						; Actor is pregnant!
+						if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
+							bool_NotPregnant = false
+							FWUtility.ActorRemoveSpell(ActorRef, Effect_Mittelschmerz)
+							Manager.removeCME(ActorRef, 1)
+							bHasPMS == false
+							changeState(4)
+						endif
+					endIf	
+				else
+					if(my_Impreg_Any > 0)								
+						; Check for Pregnancy
+						Float rnd = Utility.RandomFloat(0, 99)
+						if rnd < my_Impreg_Chance
+							; Actor is pregnant!
+							if Controller.MyActiveSpermImpregnationTimedForAnyPeriod(ActorRef);/==true/;
+								bool_NotPregnant = false
+								FWUtility.ActorRemoveSpell(ActorRef, Effect_Mittelschmerz)
+								Manager.removeCME(ActorRef, 1)
+								bHasPMS == false
+								changeState(4)
+							endIf
+						endIf
+					endIf
+				endIf
 			endIf
-		endif
+		endwhile
+
+		;if CurrentStatePercent >= 50
+			; Check for Pregnancy
+			;int rnd = Utility.RandomInt(0,15)
+			;if rnd<7
+				; Actor is pregnant!
+				;if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
+					;FWUtility.ActorRemoveSpell(ActorRef,Effect_Mittelschmerz)
+					;changeState(4)
+				;endif
+			;endIf
+		;endif
 	endfunction
 	
 	function onExitState()
@@ -1550,21 +1883,96 @@ endState
 ;--------------------------------------------------------------------------------
 state Luteal_State
 	function onUpdateFunction()
-		if CurrentStatePercent < 65
+		if(System.IsActorPregnantByChaurus(ActorRef) || System.IsActorPregnantByEstrusSpider(ActorRef) || System.IsActorPregnantByEstrusDwemer(ActorRef))
+		else
+			actor a = none
+			race abr = none
+			int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+			int my_Impreg_Any = 0
+			float my_Impreg_Chance = 0
+			float my_Impreg_boost = 0
+
+			bool bool_NotPregnant = true
+			while((c > 0) && bool_NotPregnant)
+				c -= 1
+				a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+				if a
+					abr = a.GetRace()
+					
+					my_Impreg_boost = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+					if(my_Impreg_boost == 0)
+						my_Impreg_boost = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Boost", 0)
+						if(my_Impreg_boost == 0)
+							my_Impreg_boost = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Boost", 0)
+						endIf
+					endIf
+
+					my_Impreg_Any = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any > 0)
+								my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+
+					if CurrentStatePercent < 65
+						; Check for Pregnancy
+						Float rnd = Utility.RandomFloat(0, 99)
+						float chance = System.LutealImpregnationTime(CurrentStatePercent)
+						if rnd < (chance + my_Impreg_boost)
+							if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
+								; Actor is pregnant!
+								bool_NotPregnant = false
+								Manager.RemoveCME(ActorRef,2) ; Lutheal Effects
+								Manager.removeCME(ActorRef,3) ; PMS Effects
+								bHasPMS=false
+								changeState(4)
+								return
+							endif
+						endIf
+					else
+						if(my_Impreg_Any > 0)
+							; Check for Pregnancy
+							Float rnd = Utility.RandomFloat(0, 99)
+							if rnd < my_Impreg_Chance
+								; Actor is pregnant!
+								if Controller.MyActiveSpermImpregnationTimedForAnyPeriod(ActorRef);/==true/;
+									bool_NotPregnant = false
+									Manager.RemoveCME(ActorRef,2) ; Lutheal Effects
+									Manager.removeCME(ActorRef,3) ; PMS Effects
+									bHasPMS=false
+									changeState(4)
+								endIf
+							endIf
+						endIf
+					endIf
+				endIf
+			endwhile
+		endIf
+	
+		;if CurrentStatePercent < 65
 			; Check for Pregnancy
 			; Simulate FH Hormones
-			Float rnd = Utility.RandomFloat(0,99)
-			float chance = System.LutealImpregnationTime(CurrentStatePercent)
+			;Float rnd = Utility.RandomFloat(0,99)
+			;float chance = System.LutealImpregnationTime(CurrentStatePercent)
 			;if chance > rnd
-			if rnd < chance
-				if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
+			;if rnd < chance
+				;if Controller.ActiveSpermImpregnation(ActorRef);/==true/;
 					; Actor is pregnant!
-					Manager.removeCME(ActorRef,3) ; PMS Effects
-					changeState(4)
-					return
-				endif
-			endIf
-		elseif CurrentStatePercent > 75
+					;Manager.removeCME(ActorRef,3) ; PMS Effects
+					;changeState(4)
+					;return
+				;endif
+			;endIf
+		;else
+		if CurrentStatePercent > 75
 			; Check for PMS
 			;if bHasPMS==false && System.Controller.canBecomePMS(ActorRef);/==true/;
 			if bHasPMS ;Tkc (Loverslab): optimization
@@ -1637,6 +2045,54 @@ state Menstruation_State
 	endfunction
 	
 	function onUpdateFunction()
+		actor a = none
+		race abr = none
+		int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+		int my_Impreg_Any = 0
+		float my_Impreg_Chance = 0
+
+		bool bool_NotPregnant = true
+		while((c > 0) && bool_NotPregnant)
+			c -= 1
+			a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+			if a
+				my_Impreg_Any = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					abr = a.GetRace()
+					if abr
+						my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any > 0)
+								my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					endIf
+				else
+					my_Impreg_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+
+				if(my_Impreg_Any > 0)	
+					; Check for Pregnancy
+					Float rnd = Utility.RandomFloat(0, 99)
+					if rnd < my_Impreg_Chance
+						; Actor is pregnant!
+						if Controller.MyActiveSpermImpregnationTimedForAnyPeriod(ActorRef);/==true/;
+							bool_NotPregnant = false
+							FWUtility.ActorRemoveSpell(ActorRef,Effect_MenstruationCramps)
+							ActorRef.DispelSpell(Effect_VaginalBloodLow)					
+							ActorRef.DispelSpell(Effect_VaginalBloodHigh)	
+							Manager.RemoveCME(ActorRef)
+							changeState(4)
+						endIf
+					endIf
+				endIf
+			endIf
+		endwhile
+
+
 		EquipNapkin()
 		Float fStateFlowRisk = CurrentStatePercent
 		If fStateFlowRisk > 50.0
@@ -1706,6 +2162,74 @@ state PregnancyFirst_State
 	endFunction
 	
 	function onUpdateFunction()
+		bool my_BabyNTR = cfg.AllowNTRbaby
+		if(my_BabyNTR)
+			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyFirst_State : Baby NTR is enabled!")
+
+			actor a = none
+			race abr = none
+			int my_baby_NTR = 0
+			float my_baby_NTR_Chance = 0
+			
+			int num_babies = 0
+			int num_babies_orig = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+
+			actor father_NTR_defense = none
+			race father_NTR_defense_race = none
+			int my_baby_NTR_defense = 0
+			float NTR_defense_chance = 0
+			
+			int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+			while(c > 0)
+				c -= 1
+				a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+				if a
+					my_baby_NTR = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_NTR_baby", -1)
+					if(my_baby_NTR <= 0)
+						abr = a.GetRace()
+					
+						my_baby_NTR = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_NTR_baby", -1)
+						if(my_baby_NTR > 0)
+							my_baby_NTR_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+						endIf
+					else
+						my_baby_NTR_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+					endIf
+					
+					if(my_baby_NTR > 0)
+						num_babies = num_babies_orig
+						while(num_babies > 0)
+							num_babies -= 1
+							
+							father_NTR_defense = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", num_babies) As Actor)
+							if(a == father_NTR_defense)
+							else
+								NTR_defense_chance = 0
+								my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense, "FW.AddOn.Allow_NTR_baby", -1)
+								if(my_baby_NTR_defense <= 0)
+									father_NTR_defense_race = father_NTR_defense.GetRace()
+									my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense_race, "FW.AddOn.Allow_NTR_baby", -1)
+									if(my_baby_NTR_defense > 0)
+										NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense_race, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+									endIf
+								else
+									NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+								endIf
+								
+								; Check for Pregnancy
+								Float rnd = Utility.RandomFloat(0, 99)
+								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
+									; Baby will be replaced!
+									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyFirst_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
+								endIf
+							endIf
+						endwhile
+					endIf
+				endIf
+			endwhile
+		endIf
+
 		checkAbortus()
 		float GT = GameDaysPassed.GetValue()
 		int HealAmount = Math.Floor( GT - LastBabyHealing)
@@ -1753,6 +2277,74 @@ state PregnancySecond_State
 	endFunction
 	
 	function onUpdateFunction()
+		bool my_BabyNTR = cfg.AllowNTRbaby
+		if(my_BabyNTR)
+			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancySecond_State : Baby NTR is enabled!")
+
+			actor a = none
+			race abr = none
+			int my_baby_NTR = 0
+			float my_baby_NTR_Chance = 0
+			
+			int num_babies = 0
+			int num_babies_orig = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+
+			actor father_NTR_defense = none
+			race father_NTR_defense_race = none
+			int my_baby_NTR_defense = 0
+			float NTR_defense_chance = 0
+			
+			int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+			while(c > 0)
+				c -= 1
+				a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+				if a
+					my_baby_NTR = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_NTR_baby", -1)
+					if(my_baby_NTR <= 0)
+						abr = a.GetRace()
+					
+						my_baby_NTR = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_NTR_baby", -1)
+						if(my_baby_NTR > 0)
+							my_baby_NTR_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+						endIf
+					else
+						my_baby_NTR_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+					endIf
+					
+					if(my_baby_NTR > 0)
+						num_babies = num_babies_orig
+						while(num_babies > 0)
+							num_babies -= 1
+							
+							father_NTR_defense = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", num_babies) As Actor)
+							if(a == father_NTR_defense)
+							else
+								NTR_defense_chance = 0
+								my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense, "FW.AddOn.Allow_NTR_baby", -1)
+								if(my_baby_NTR_defense <= 0)
+									father_NTR_defense_race = father_NTR_defense.GetRace()
+									my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense_race, "FW.AddOn.Allow_NTR_baby", -1)
+									if(my_baby_NTR_defense > 0)
+										NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense_race, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+									endIf
+								else
+									NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+								endIf
+								
+								; Check for Pregnancy
+								Float rnd = Utility.RandomFloat(0, 99)
+								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
+									; Baby will be replaced!
+									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancySecond_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
+								endIf
+							endIf
+						endwhile
+					endIf
+				endIf
+			endwhile
+		endIf
+
 		checkAbortus()
 		float GT = GameDaysPassed.GetValue()
 		int HealAmount = Math.Floor( GT - LastBabyHealing) * 3
@@ -1768,6 +2360,75 @@ endState
 ;--------------------------------------------------------------------------------
 state PregnancyThird_State
 	function onUpdateFunction()
+		bool my_BabyNTR = cfg.AllowNTRbaby
+		if(my_BabyNTR)
+			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyThird_State : Baby NTR is enabled!")
+
+			actor a = none
+			race abr = none
+			int my_baby_NTR = 0
+			float my_baby_NTR_Chance = 0
+			
+			int num_babies = 0
+			int num_babies_orig = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+
+			actor father_NTR_defense = none
+			race father_NTR_defense_race = none
+			int my_baby_NTR_defense = 0
+			float NTR_defense_chance = 0
+			
+			int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+			while(c > 0)
+				c -= 1
+				a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+				if a
+					my_baby_NTR = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_NTR_baby", -1)
+					if(my_baby_NTR <= 0)
+						abr = a.GetRace()
+					
+						my_baby_NTR = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_NTR_baby", -1)
+						if(my_baby_NTR > 0)
+							my_baby_NTR_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+						endIf
+					else
+						my_baby_NTR_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+					endIf
+					
+					if(my_baby_NTR > 0)
+						num_babies = num_babies_orig
+						while(num_babies > 0)
+							num_babies -= 1
+							
+							father_NTR_defense = (StorageUtil.FormListGet(ActorRef, "FW.ChildFather", num_babies) As Actor)
+							if(a == father_NTR_defense)
+							else
+								NTR_defense_chance = 0
+								my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense, "FW.AddOn.Allow_NTR_baby", -1)
+								if(my_baby_NTR_defense <= 0)
+									father_NTR_defense_race = father_NTR_defense.GetRace()
+									my_baby_NTR_defense = StorageUtil.GetIntValue(father_NTR_defense_race, "FW.AddOn.Allow_NTR_baby", -1)
+									if(my_baby_NTR_defense > 0)
+										NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense_race, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+									endIf
+								else
+									NTR_defense_chance = StorageUtil.GetFloatValue(father_NTR_defense, "FW.AddOn.Sperm_NTR_baby_Prob", 0)
+								endIf
+								
+								; Check for Pregnancy
+								Float rnd = Utility.RandomFloat(0, 99)
+								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
+									; Baby will be replaced!
+									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyThird_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
+								endIf
+							endIf
+						endwhile
+					endIf
+				endIf
+			endwhile
+		endIf
+
+
 		if CurrentStatePercent > 90
 			; Vorwehen
 			System.ActorAddSpellOpt(ActorRef,Effect_Vorwehen, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
@@ -1842,21 +2503,20 @@ endState
 ;--------------------------------------------------------------------------------
 
 Bool bWatersBroken
+Bool bAlreadyGaveBirth = false
 
 state LaborPains_State
 
 	function onEnterState()
 		bWatersBroken = false
+		bAlreadyGaveBirth = false
 		Manager.RemoveCME(ActorRef,7)
 		Manager.CastCME(ActorRef,8,cfg.PMSEffects)
-		if CurrentStatePercent >=50 && CurrentStatePercent<95 && ActorRef.HasSpell(Effect_Presswehen)==false
+		if CurrentStatePercent >=50 && ActorRef.HasSpell(Effect_Presswehen)==false
 			FWUtility.ActorRemoveSpell(ActorRef,Effect_Eroeffnungswehen)
 			System.ActorAddSpellOpt(ActorRef,Effect_Presswehen, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+			bAlreadyGaveBirth = true
 			Controller.GiveBirth(ActorRef)
-			return
-		elseif CurrentStatePercent>=95
-			System.InstantBornChilds(ActorRef)
-			changeState(8)
 			return
 		else;if CurrentStatePercent < 50 && !bWatersBroken
 		  if CurrentStatePercent < 50 ;Tkc (Loverslab): optimization
@@ -1888,14 +2548,11 @@ state LaborPains_State
 	
 	function onUpdateFunction()
 		;Debug.Trace(CurrentStatePercent+"% at Labor Pains for "+ActorRef.GetLeveledActorBase().GetName())
-		if CurrentStatePercent >=50 && CurrentStatePercent<95 && ActorRef.HasSpell(Effect_Presswehen)==false
+		if CurrentStatePercent >=50 && ActorRef.HasSpell(Effect_Presswehen)==false
 			FWUtility.ActorRemoveSpell(ActorRef,Effect_Eroeffnungswehen)
 			System.ActorAddSpellOpt(ActorRef,Effect_Presswehen, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+			bAlreadyGaveBirth = true
 			Controller.GiveBirth(ActorRef)
-			return
-		elseif CurrentStatePercent>=95
-			System.InstantBornChilds(ActorRef)
-			changeState(8)
 			return
 		else;if CurrentStatePercent<50 && ActorRef.HasSpell(System.Effect_Eroeffnungswehen)==false
 			if CurrentStatePercent<50 ;Tkc (Loverslab): optimization
@@ -1908,6 +2565,14 @@ state LaborPains_State
 	endFunction
 	
 	function onExitState()
+		if(bAlreadyGaveBirth)
+			bAlreadyGaveBirth = false
+		else
+			FWUtility.ActorRemoveSpell(ActorRef,Effect_Eroeffnungswehen)
+			System.ActorAddSpellOpt(ActorRef,Effect_Presswehen, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode
+			Controller.GiveBirth(ActorRef)
+		endIf
+
 		FWUtility.ActorRemoveSpell(ActorRef,Effect_Eroeffnungswehen)
 		FWUtility.ActorRemoveSpell(ActorRef,Effect_Presswehen)
 		Manager.RemoveCME(ActorRef,8)
@@ -1942,6 +2607,55 @@ state Replanish_State
 	endFunction
 	
 	function onUpdateFunction()
+		if(System.IsActorPregnantByChaurus(ActorRef) || System.IsActorPregnantByEstrusSpider(ActorRef) || System.IsActorPregnantByEstrusDwemer(ActorRef))
+		else
+			actor a = none
+			race abr = none
+			int c = StorageUtil.FormListCount(ActorRef, "FW.SpermName")
+			int my_Impreg_Any = 0
+			float my_Impreg_Chance = 0
+
+			bool bool_NotPregnant = true
+			while((c > 0) && bool_NotPregnant)
+				c -= 1
+				a = (StorageUtil.FormListGet(ActorRef, "FW.SpermName", c) As Actor)
+				if a
+					my_Impreg_Any = StorageUtil.GetIntValue(a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						abr = a.GetRace()
+						if abr
+							my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any <= 0)
+								my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+								if(my_Impreg_Any > 0)
+									my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+								endIf
+							else
+								my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+					endIf
+
+					if(my_Impreg_Any > 0)	
+						; Check for Pregnancy
+						Float rnd = Utility.RandomFloat(0, 99)
+						if rnd < my_Impreg_Chance
+							; Actor is pregnant!
+							if Controller.MyActiveSpermImpregnationTimedForAnyPeriod(ActorRef);/==true/;
+								bool_NotPregnant = false
+								FWUtility.ActorRemoveSpell(ActorRef, Effect_Nachwehen)
+								FWUtility.ActorRemoveSpell(ActorRef, FeverSpell)
+								FWUtility.ActorRemoveSpell(ActorRef, InfectionSpell)
+								changeState(4)
+							endIf
+						endIf
+					endIf
+				endIf
+			endwhile
+		endIf
+
 		if CurrentStatePercent >=4
 			FWUtility.ActorRemoveSpell(ActorRef,Effect_Nachwehen)
 		else
@@ -2028,6 +2742,112 @@ state PregnantChaurus_State
 		;No action if still Pregnant by Chaurus, otherwise resume BFStates
 		If System.IsActorPregnantByChaurus(ActorRef) ;Tkc (Loverslab): optimization
 		else;If !System.IsActorPregnantByChaurus(ActorRef)
+			ResetBelly()
+			Controller.Pause(ActorRef,false)
+			changeState(3)
+			Controller.ChangeState(ActorRef,3) ;Ensure Controller and FWAbilityBeeingFemale are in a consistent state
+		EndIf
+	EndFunction
+
+	; Bane --> On Update is now only needed by the player for triggering any Baby events via the parent.Onupdate() function
+	event OnUpdate()
+		if IsPlayer ;Tkc (Loverslab): added check because still was error here from female npc
+			parent.OnUpdate()
+			Self.RegisterForSingleUpdate(5)
+		endif
+	endEvent
+
+endState
+
+
+;--------------------------------------------------------------------------------
+; State - Pregnant by EstrusSpider
+;--------------------------------------------------------------------------------
+state PregnantEstrusSpider_State
+
+	Event OnBeginState()
+		if currentState > 3
+			if currentState < 6
+				if (currentState == 4)
+					castAbortus(3,true)
+				else;if (currentState == 5)
+					castAbortus(4,true)
+				endIf
+			else
+				if currentState < 9
+					if currentState < 8
+					;if (currentState == 6 || currentState == 7)
+						castAbortus(5,true)
+					endIf
+				else
+					changeState(2)
+				endIf
+			endIf
+		Else;if currentState != 2 && currentState != 8
+			if currentState == 2 ;Tkc (Loverslab): optimization
+			Else
+				changeState(2)
+			EndIf
+		EndIf
+	EndEvent
+
+	function OnUpdateFunction()
+		;No action if still Pregnant by EstrusSpider, otherwise resume BFStates
+		If System.IsActorPregnantByEstrusSpider(ActorRef) ;Tkc (Loverslab): optimization
+		else
+			ResetBelly()
+			Controller.Pause(ActorRef,false)
+			changeState(3)
+			Controller.ChangeState(ActorRef,3) ;Ensure Controller and FWAbilityBeeingFemale are in a consistent state
+		EndIf
+	EndFunction
+
+	; Bane --> On Update is now only needed by the player for triggering any Baby events via the parent.Onupdate() function
+	event OnUpdate()
+		if IsPlayer ;Tkc (Loverslab): added check because still was error here from female npc
+			parent.OnUpdate()
+			Self.RegisterForSingleUpdate(5)
+		endif
+	endEvent
+
+endState
+
+
+;--------------------------------------------------------------------------------
+; State - Pregnant by EstrusDwemer
+;--------------------------------------------------------------------------------
+state PregnantEstrusDwemer_State
+
+	Event OnBeginState()
+		if currentState > 3
+			if currentState < 6
+				if (currentState == 4)
+					castAbortus(3,true)
+				else;if (currentState == 5)
+					castAbortus(4,true)
+				endIf
+			else
+				if currentState < 9
+					if currentState < 8
+					;if (currentState == 6 || currentState == 7)
+						castAbortus(5,true)
+					endIf
+				else
+					changeState(2)
+				endIf
+			endIf
+		Else;if currentState != 2 && currentState != 8
+			if currentState == 2 ;Tkc (Loverslab): optimization
+			Else
+				changeState(2)
+			EndIf
+		EndIf
+	EndEvent
+
+	function OnUpdateFunction()
+		;No action if still Pregnant by EstrusDwemer, otherwise resume BFStates
+		If System.IsActorPregnantByEstrusDwemer(ActorRef) ;Tkc (Loverslab): optimization
+		else
 			ResetBelly()
 			Controller.Pause(ActorRef,false)
 			changeState(3)

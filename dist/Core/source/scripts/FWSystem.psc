@@ -184,6 +184,15 @@ FormList property ForbiddenRaces auto
 
 Spell Property _BF_DefaultCustomChildSpell Auto
 
+spell property EstrusSpiderBreeder = none Auto hidden
+bool property EstrusSpiderActive = false Auto hidden
+Faction property zzEstrusSpiderBreederFaction = none auto hidden
+
+spell property EstrusDwemerBreeder = none Auto hidden
+bool property EstrusDwemerActive = false Auto hidden
+Faction property zzEstrusDwemerBreederFaction = none auto hidden
+
+
 function ActorAddSpellOpt(actor a,Spell s, bool PlayerOnly = false, bool bIsCast = false, bool ShowMsg = true) ;Bane --> Edited to allow Spells to be cast in None Locations (Mostly Widerness)
 	;if s;/!=none/; && a;/!=none/;
 	if s ;Tkc (Loverslab): optimization
@@ -400,6 +409,36 @@ function CheckOtherMods()
 			Message(Content.EstrusCharusFound,MSG_Debug)
 		endif
 	endif
+
+
+	bool bEstrusSpiderWasActive = EstrusSpiderActive
+	EstrusSpiderBreeder = none
+	EstrusSpiderActive = false
+	if FWUtility.ModFile("EstrusSpider.esp")
+		EstrusSpiderBreeder = Game.GetFormFromFile(0x0004E255, "EstrusSpider.esp") as spell
+		zzEstrusSpiderBreederFaction = Game.GetFormFromFile(0x0004E258, "EstrusSpider.esp") as Faction
+		EstrusSpiderActive = true
+		if bEstrusSpiderWasActive
+		else
+			Message(Content.EstrusSpiderFound,MSG_Debug)
+		endif
+	endif
+	
+	
+	bool bEstrusDwemerWasActive = EstrusDwemerActive
+	EstrusDwemerBreeder = none
+	EstrusDwemerActive = false
+	if FWUtility.ModFile("EstrusDwemer.esp")
+		EstrusDwemerBreeder = Game.GetFormFromFile(0x0004E255, "EstrusDwemer.esp") as spell
+		zzEstrusDwemerBreederFaction = Game.GetFormFromFile(0x0004E258, "EstrusDwemer.esp") as Faction
+		EstrusDwemerActive = true
+		if bEstrusDwemerWasActive
+		else
+			Message(Content.EstrusDwemerFound,MSG_Debug)
+		endif
+	endif
+
+
 	;if FWUtility.ModFile("HearthFires.esm")
 		HearthFiresActive=true
 	;endif
@@ -485,8 +524,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		major = (StringUtil.SubString(v, 0, dot1)) as int
 		minor = (StringUtil.SubString(v, dot1 + 1, dot2 - dot1 - 1)) as int
 	endif
-	bool isVR = (major == 1 && minor == 4)
-	if (major < 1) || ((major == 1 && minor < 5) && !isVR)
+	if (major < 1) || (major == 1 && minor < 5)
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
 		;if bFirstRun;/==true/; || cfg.Messages<=1 ;Tkc (Loverslab): optimization: Commented condition because Progress.Set was also commented and will be doing nothing
@@ -504,7 +542,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		LoadState=6
 		Message(Content.Req_SKSE, MSG_Always, MSG_Box)
 		return
-	elseif !isVR && SKSE.GetScriptVersionRelease()<48
+	elseif SKSE.GetScriptVersionRelease()<48
 		ModEnabled.SetValueInt(0)
 		CloakingSpellEnabled.SetValueInt(0)
 		;if bFirstRun;/==true/; || cfg.Messages<=1 ;Tkc (Loverslab): optimization: Commented condition because Progress.Set was also commented and will be doing nothing
@@ -951,7 +989,8 @@ Event onBeeingFemaleCommand(string hookName, string argString, float argNum, for
 		elseif argString=="DamageBaby" && validateF>0
 			Controller.DamageBaby(a,argNum)
 		elseif argString=="HealBaby" && validateF>0
-			Controller.DamageBaby(a,argNum)
+;			Controller.DamageBaby(a,argNum)
+			Controller.HealBaby(a, argNum)
 		elseif argString=="CanBecomePregnant" && validateF>0
 			Controller.setCanBecomePregnant(a, argNum==1)
 		elseif argString=="CanBecomePMS" && validateF>0
@@ -1068,9 +1107,18 @@ bool function CheckIsLoreFriendlyMetting(actor w, actor m)
 	if cfg.ImpregnateLoreFriendly;/==true/; ;Tkc (Loverslab): optimization
 		if w.GetRace()==m.GetRace() ;Tkc (Loverslab): optimization
 		else;if w.GetRace()!=m.GetRace()
-			if CheckIsLoreFriendlyRequired(w) || CheckIsLoreFriendlyRequired(m)
-				return false
-			endif
+			int my_Impreg_Any = StorageUtil.GetIntValue(m, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+			if(my_Impreg_Any <= 0)		
+				my_Impreg_Any = StorageUtil.GetIntValue(m.GetRace(), "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)		
+					my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)		
+						if CheckIsLoreFriendlyRequired(w) || CheckIsLoreFriendlyRequired(m)
+							return false
+						endif
+					endIf
+				endIf
+			endIf
 		endif
 	endif
 	return true
@@ -1832,6 +1880,17 @@ bool function IsActorPregnantByChaurus(actor woman)
 	;return false
 endFunction
 
+
+bool function IsActorPregnantByEstrusSpider(actor woman)
+	return zzEstrusSpiderBreederFaction && woman.IsInFaction(zzEstrusSpiderBreederFaction)
+endFunction
+
+
+bool function IsActorPregnantByEstrusDwemer(actor woman)
+	return zzEstrusDwemerBreederFaction && woman.IsInFaction(zzEstrusDwemerBreederFaction)
+endFunction
+
+
 ; Get the time in days - how long the pill will work
 float function GetPillDuration(actor a)
 	return 4.0 * Manager.getActorContraceptionDuration(a) ; Every 2 days
@@ -1953,37 +2012,171 @@ endFunction
 ; Replanish As long the pregnacy takes
 float function getStateDuration(int Step, actor woman)
 	if Step >= 0
+		float my_Irregulation = StorageUtil.GetFloatValue(woman, "FW.Irregulation", 1.0)
+		
 		if Step < 4
 			if Step < 2
 				if Step == 0 ; Follicular phase
-					return cfg.FollicularDuration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					return cfg.FollicularDuration * Manager.getActorDurationScale(Step,woman) * my_Irregulation;
 				else;if Step == 1 ; Ovulation
-					return cfg.OvulationDuration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					return cfg.OvulationDuration * Manager.getActorDurationScale(Step,woman) * my_Irregulation;
 				endIf
 			else
 				if Step == 2 ; Luteal phase
-					return cfg.LutealDuration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					return cfg.LutealDuration * Manager.getActorDurationScale(Step,woman) * my_Irregulation;
 				else;if Step == 3 ; Menstruation
-					return cfg.MenstrualDuration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					return cfg.MenstrualDuration * Manager.getActorDurationScale(Step,woman) * my_Irregulation;
 				endIf
 			endIf
 		else
+			; Find the list of fathers
+			int my_num_men = StorageUtil.FormListCount(woman, "FW.ChildFather")
+			float my_Trimster1Duration_scaled_by_men = 0
+			float my_Trimster2Duration_scaled_by_men = 0
+			float my_Trimster3Duration_scaled_by_men = 0
+			float my_LaborPainsDuration_scaled_by_men = 0
+			float my_ReplanishDuration_scaled_by_men = 0
+
+			float temp_Trimster1Duration_scaled_by_men = 0
+			float temp_Trimster2Duration_scaled_by_men = 0
+			float temp_Trimster3Duration_scaled_by_men = 0
+			float temp_LaborPainsDuration_scaled_by_men = 0
+			float temp_ReplanishDuration_scaled_by_men = 0
+			actor a = none
+			race abr = none
+			int my_Trimster1_num_count = 0
+			int my_Trimster2_num_count = 0
+			int my_Trimster3_num_count = 0
+			int my_LaborPainsDuration_num_count = 0
+			int my_Replanish_num_count = 0
+			
+			while my_num_men > 0
+				my_num_men -= 1
+				a = (StorageUtil.FormListGet(woman, "FW.ChildFather", my_num_men) As Actor)
+				if a
+					abr = a.GetRace()
+					
+					temp_Trimster1Duration_scaled_by_men = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Trimester1_by_FatherRace", 0)
+					if(temp_Trimster1Duration_scaled_by_men == 0)		
+						temp_Trimster1Duration_scaled_by_men = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Trimester1_by_FatherRace", 0)
+						if(temp_Trimster1Duration_scaled_by_men > 0)
+							my_Trimster1Duration_scaled_by_men += temp_Trimster1Duration_scaled_by_men
+							my_Trimster1_num_count += 1
+						endIf
+					endIf
+
+					temp_Trimster2Duration_scaled_by_men = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Trimester2_by_FatherRace", 0)
+					if(temp_Trimster2Duration_scaled_by_men == 0)
+						temp_Trimster2Duration_scaled_by_men = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Trimester2_by_FatherRace", 0)
+						if(temp_Trimster2Duration_scaled_by_men > 0)
+							my_Trimster2Duration_scaled_by_men += temp_Trimster2Duration_scaled_by_men
+							my_Trimster2_num_count += 1
+						endIf
+					endIf
+
+					temp_Trimster3Duration_scaled_by_men = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Trimester3_by_FatherRace", 0)
+					if(temp_Trimster3Duration_scaled_by_men == 0)
+						temp_Trimster3Duration_scaled_by_men = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Trimester3_by_FatherRace", 0)
+						if(temp_Trimster3Duration_scaled_by_men > 0)
+							my_Trimster3Duration_scaled_by_men += temp_Trimster3Duration_scaled_by_men
+							my_Trimster3_num_count += 1
+						endIf
+					endIf
+
+					temp_LaborPainsDuration_scaled_by_men = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace", 0)
+					if(temp_LaborPainsDuration_scaled_by_men == 0)
+						temp_LaborPainsDuration_scaled_by_men = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_LaborPainsPeriod_by_FatherRace", 0)
+						if(temp_LaborPainsDuration_scaled_by_men > 0)
+							my_LaborPainsDuration_scaled_by_men += temp_LaborPainsDuration_scaled_by_men
+							my_LaborPainsDuration_num_count += 1
+						endIf
+					endIf
+
+					temp_ReplanishDuration_scaled_by_men = StorageUtil.GetFloatValue(a, "FW.AddOn.Modify_Recovery_by_FatherRace", 0)
+					if(temp_ReplanishDuration_scaled_by_men == 0)
+						temp_ReplanishDuration_scaled_by_men = StorageUtil.GetFloatValue(abr, "FW.AddOn.Modify_Recovery_by_FatherRace", 0)
+						if(temp_ReplanishDuration_scaled_by_men > 0)
+							my_ReplanishDuration_scaled_by_men += temp_ReplanishDuration_scaled_by_men
+							my_Replanish_num_count += 1
+						endIf
+					endIf					
+				endIf
+			endWhile
+			
+			if(my_Trimster1_num_count > 0)
+				my_Trimster1Duration_scaled_by_men /= my_Trimster1_num_count
+			else
+				my_Trimster1Duration_scaled_by_men = 1.0
+			endIf
+			
+			if(my_Trimster2_num_count > 0)
+				my_Trimster2Duration_scaled_by_men /= my_Trimster2_num_count
+			else
+				my_Trimster2Duration_scaled_by_men = 1.0
+			endIf
+
+			if(my_Trimster3_num_count > 0)
+				my_Trimster3Duration_scaled_by_men /= my_Trimster3_num_count
+			else
+				my_Trimster3Duration_scaled_by_men = 1.0
+			endIf
+
+			if(my_LaborPainsDuration_num_count > 0)
+				my_LaborPainsDuration_scaled_by_men /= my_LaborPainsDuration_num_count
+			else
+				my_Trimster3Duration_scaled_by_men = 1.0
+			endIf
+
+			if(my_Replanish_num_count > 0)
+				my_ReplanishDuration_scaled_by_men /= my_Replanish_num_count
+			else
+				my_ReplanishDuration_scaled_by_men = 1.0
+			endIf
+
+			float my_female_DurationScale = 1.0
 			if Step < 6
 				if Step == 4 ; 1. trimester 
-					return cfg.Trimster1Duration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					my_female_DurationScale = (Manager.getActorDurationScale(Step, woman)) * my_Trimster1Duration_scaled_by_men
+					if(my_female_DurationScale < 0.2)
+						my_female_DurationScale = 0.2
+					endIf
+					
+					return cfg.Trimster1Duration * my_female_DurationScale * my_Irregulation;
 				else;if Step == 5 ; 2. trimester 
-					return cfg.Trimster2Duration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+					my_female_DurationScale = (Manager.getActorDurationScale(Step, woman)) * my_Trimster2Duration_scaled_by_men
+					if(my_female_DurationScale < 0.2)
+						my_female_DurationScale = 0.2
+					endIf
+
+					return cfg.Trimster2Duration * my_female_DurationScale * my_Irregulation;
 				endIf
 			else
 				if Step < 8
 					if Step == 6 ; 3. trimester 
-						return cfg.Trimster3Duration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+						my_female_DurationScale = (Manager.getActorDurationScale(Step, woman)) * my_Trimster3Duration_scaled_by_men
+						if(my_female_DurationScale < 0.2)
+							my_female_DurationScale = 0.2
+						endIf
+
+						return cfg.Trimster3Duration * my_female_DurationScale * my_Irregulation;
 					else;if Step == 7 ; labor pains
-						return Manager.getActorDurationScaleLaborPains(woman)
+						my_female_DurationScale = (Manager.getActorDurationScaleLaborPains(woman)) * my_LaborPainsDuration_scaled_by_men
+						if(my_female_DurationScale < (2.0 / 24.0))
+							my_female_DurationScale = (2.0 / 24.0)
+						elseif my_female_DurationScale > 1.0
+							my_female_DurationScale = 1.0
+						endIf
+
+						return my_female_DurationScale
 					endIf
 				else
 					if Step == 8 ; replenish
-						return cfg.ReplanishDuration * Manager.getActorDurationScale(Step,woman) * StorageUtil.GetFloatValue(woman,"FW.Irregulation",1.0);
+						my_female_DurationScale = (Manager.getActorDurationScale(Step, woman)) * my_ReplanishDuration_scaled_by_men
+						if(my_female_DurationScale < 0.2)
+							my_female_DurationScale = 0.2
+						endIf
+
+						return cfg.ReplanishDuration * my_female_DurationScale * my_Irregulation;
 					else
 						return 0
 					endIf
@@ -2079,6 +2272,45 @@ bool function canBecomePregnant(actor woman)
 				chance *= Manager.PregnancyChanceActorScale(woman)
 
 				Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + "'s pregnancy chance is " + chance)
+
+
+				actor my_a = none
+				race my_abr = none
+				int my_c = StorageUtil.FormListCount(woman, "FW.SpermName")
+				int my_Impreg_Any = 0
+				float my_Impreg_Chance = 0
+				while my_c > 0
+					my_c -= 1
+					my_a = (StorageUtil.FormListGet(woman, "FW.SpermName", my_c) As Actor)
+					if my_a
+						my_Impreg_Any = StorageUtil.GetIntValue(my_a, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_abr = my_a.GetRace()
+							if my_abr
+								my_Impreg_Any = StorageUtil.GetIntValue(my_abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+								if(my_Impreg_Any <= 0)
+									my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+									if(my_Impreg_Any > 0)
+										my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)						
+									endIf
+								else
+									my_Impreg_Chance = StorageUtil.GetFloatValue(my_abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)						
+								endIf
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(my_a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)						
+						endIf
+
+						if(my_Impreg_Any > 0)
+							if(Utility.RandomFloat(0.0, 99.9) < (chance + my_Impreg_Chance))
+								Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
+
+								return true
+							endIf
+						endIf
+					endIf
+				endWhile
+
 
 				if(Utility.RandomFloat(0.0, 99.9) < chance)
 					Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
@@ -2238,7 +2470,7 @@ Function doDamage(actor A, float Percentage, int DamageType, float OptionalArgum
 EndFunction
 
 float function LutealImpregnationTime(float CurrentStatePercent)
-	float res = 120 - (CurrentStatePercent * 1.66667)
+	float res = 90 - (CurrentStatePercent * 1.66667)
 	if res<0.0
 		return 0.0
 	else
@@ -2463,11 +2695,31 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 	if Mother==PlayerRef || Father==PlayerRef
 		bIsPlayerChild = true
 	endif
+
+
+	; Decide who will determine the baby actor model
+	race ParentRace
+	Actor ParentActor
+	int myProbRandom = Utility.RandomInt(0, 99)
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	If(myProbRandom < myChildRaceDeterminedByFather)
+		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
+
+		ParentActor = Father
+	Else
+		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
+
+		ParentActor = Mother
+	EndIF
+	ParentRace = ParentActor.GetRace()
+
+
 ;	Int gender = Utility.RandomInt(0, 99)
 ;	if gender < 53
 	int gender = 0
 	
-	int myProbRandom = Utility.RandomInt(0, 99)
+	myProbRandom = Utility.RandomInt(0, 99)
 	int myChildSexDetermMale = Manager.ActorChildSexDetermMale(Father)
 	Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
 
@@ -2478,7 +2730,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
 		gender=1
 	endif
-	actorbase newChildBase = BabyItemList.getBabyActor(Mother, Father,gender)
+	actorbase newChildBase = BabyItemList.getBabyActorNew(Mother, Father, ParentActor, gender)
 	if newChildBase ;Tkc (Loverslab): optimization
 	else;if newChildBase==none
 		return none
@@ -2563,17 +2815,28 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		newChild.EnableAI(true)
 		newChild.EvaluatePackage()
 		
-		Race newChildRace = BabyItemList.LastRace
+		;Race newChildRace = BabyItemList.LastRace
 		
-		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
-		Manager.RaceExcludeFromSLandBF(newChild, newChildRace)
+		;Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
+		StorageUtil.SetFormValue(newChild, "FW.Child.ParentActor", ParentActor)
+		Manager.RaceExcludeFromSLandBF(newChild, ParentActor)
 		
-		if(StorageUtil.GetIntValue(newChildRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
+		bool bool_AllowPCDialogue = false
+		if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
+			bool_AllowPCDialogue = true
+		else
+			if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
+				bool_AllowPCDialogue = true
+			else
+				if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
+					bool_AllowPCDialogue = true
+				endIf
+			endIf
+		endIf
+		
+		if(bool_AllowPCDialogue)
 			newChild.AllowPCDialogue(true)
 			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
-		elseif(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
-			newChild.AllowPCDialogue(true)
-			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player, from global AddOn settings")
 		endIf
 		
 		FWChildActor fwchild = newChild as FWChildActor
@@ -2582,7 +2845,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 			StorageUtil.SetIntValue(fwchild, "FW.AddOn.StartGrowing", 1)
 			
 ;			fwchild.ChildRace = BabyItemList.LastRace
-			fwchild.ChildRace = newChildRace
+			fwchild.ChildRace = ParentRace
 		
 			; First thing for any FWChildren - set ActorValues to Start-up values
 			if gender==0
