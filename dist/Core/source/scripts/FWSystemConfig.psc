@@ -2267,7 +2267,7 @@ Event OnPageReset(string page)
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddSliderOptionST("SliderBreastScaleMax", "$FW_MENU_PREGNANCY_BreastsMaxScale", BreastsMaxScale, "{1}", optionFlag)
-		SetOptionFlagsST(optionFlag, True, "SliderBreastScaleMax")
+		SetOptionFlagsST(optionFlag, false, "SliderBreastScaleMax")
 		
 		optionFlag = OPTION_FLAG_DISABLED
 		If VisualScaling == 3
@@ -3499,19 +3499,19 @@ Event OnPageReset(string page)
 		endif
 
 		if bEstrusChaurus
-			AddTextOption("Estrus Chaurus", cTxt[4], OPTION_FLAG_DISABLED)
+			AddTextOption("Estrus Chaurus", cTxt[1], OPTION_FLAG_DISABLED)
 		else
 			AddTextOption("Estrus Chaurus", cTxt[3], OPTION_FLAG_DISABLED)
 		endIf
 
 		if bEstrusSpider
-			AddTextOption("Estrus Spider Addon", cTxt[4], OPTION_FLAG_DISABLED)
+			AddTextOption("Estrus Spider Addon", cTxt[1], OPTION_FLAG_DISABLED)
 		else
 			AddTextOption("Estrus Spider Addon", cTxt[3], OPTION_FLAG_DISABLED)
 		endIf
 
 		if bEstrusDwemer
-			AddTextOption("Estrus Dwemer Addon", cTxt[4], OPTION_FLAG_DISABLED)
+			AddTextOption("Estrus Dwemer Addon", cTxt[1], OPTION_FLAG_DISABLED)
 		else
 			AddTextOption("Estrus Dwemer Addon", cTxt[3], OPTION_FLAG_DISABLED)
 		endIf
@@ -6114,7 +6114,7 @@ state ToggleBreastScale
 				optionFlag = OPTION_FLAG_NONE
 			EndIf
 		endif
-		SetOptionFlagsST(optionFlag, True, "SliderBreastScaleMax")
+		SetOptionFlagsST(optionFlag, false, "SliderBreastScaleMax")
 	EndEvent
 	
 	Event OnDefaultST()
@@ -6144,7 +6144,7 @@ state ToggleBellyScale
 				optionFlag = OPTION_FLAG_NONE
 			EndIf
 		endif
-		SetOptionFlagsST(optionFlag, True, "SliderBellyScaleMax")
+		SetOptionFlagsST(optionFlag, false, "SliderBellyScaleMax")
 	EndEvent
 	
 	Event OnDefaultST()
@@ -6156,7 +6156,7 @@ state ToggleBellyScale
 				optionFlag = OPTION_FLAG_NONE
 			EndIf
 		endif
-		SetOptionFlagsST(optionFlag, True, "SliderBellyScaleMax")
+		SetOptionFlagsST(optionFlag, false, "SliderBellyScaleMax")
 	EndEvent
 	
 	Event OnHighlightST()
