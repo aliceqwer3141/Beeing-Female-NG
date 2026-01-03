@@ -616,13 +616,13 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 		endif
 	endIf
 
-	if(StorageUtil.SetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
+	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
 		b.SetProtected()
 	else
-		if(StorageUtil.SetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
+		if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
 			b.SetProtected()
 		else
-			if(StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
+			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
 				b.SetProtected()
 			endIf
 		endIf
@@ -734,13 +734,13 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 		endif
 	endIf
 
-	if(StorageUtil.SetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
+	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
 		b.SetProtected()
 	else
-		if(StorageUtil.SetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
+		if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
 			b.SetProtected()
 		else
-			if(StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
+			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
 				b.SetProtected()
 			endIf
 		endIf
@@ -866,13 +866,13 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 		endif
 	endIf
 
-	if(StorageUtil.SetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
+	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
 		b.SetProtected()
 	else
-		if(StorageUtil.SetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
+		if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
 			b.SetProtected()
 		else
-			if(StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
+			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
 				b.SetProtected()
 			endIf
 		endIf
