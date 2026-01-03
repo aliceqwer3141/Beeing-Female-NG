@@ -2260,12 +2260,14 @@ Event OnPageReset(string page)
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddSliderOptionST("SliderBellyScaleMax", "$FW_MENU_PREGNANCY_BellyMaxScale", BellyMaxScale, "{1}", optionFlag)
+		SetOptionFlagsST(optionFlag, True, "SliderBellyScaleMax")
 		
 		optionFlag = OPTION_FLAG_DISABLED
 		If (VisualScaling == 1  || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5) && BreastScale;/==true/;
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddSliderOptionST("SliderBreastScaleMax", "$FW_MENU_PREGNANCY_BreastsMaxScale", BreastsMaxScale, "{1}", optionFlag)
+		SetOptionFlagsST(optionFlag, True, "SliderBreastScaleMax")
 		
 		optionFlag = OPTION_FLAG_DISABLED
 		If VisualScaling == 3
@@ -6106,21 +6108,25 @@ state ToggleBreastScale
 	Event OnSelectST()
 		BreastScale = (! BreastScale)
 		SetToggleOptionValueST(BreastScale)
+		int optionFlag = OPTION_FLAG_DISABLED
 		if BreastScale;/==true/;
-			SetOptionFlagsST(OPTION_FLAG_NONE, True, "SliderBreastScaleMax")
-		else
-			SetOptionFlagsST(OPTION_FLAG_DISABLED, True, "SliderBreastScaleMax")
+			If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
+				optionFlag = OPTION_FLAG_NONE
+			EndIf
 		endif
+		SetOptionFlagsST(optionFlag, True, "SliderBreastScaleMax")
 	EndEvent
 	
 	Event OnDefaultST()
 		BreastScale = BreastScaleDef
 		SetToggleOptionValueST(BreastScale)
+		int optionFlag = OPTION_FLAG_DISABLED
 		if BreastScale;/==true/;
-			SetOptionFlagsST(OPTION_FLAG_NONE, True, "SliderBreastScaleMax")
-		else
-			SetOptionFlagsST(OPTION_FLAG_DISABLED, True, "SliderBreastScaleMax")
+			If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
+				optionFlag = OPTION_FLAG_NONE
+			EndIf
 		endif
+		SetOptionFlagsST(optionFlag, True, "SliderBreastScaleMax")
 	EndEvent
 	
 	Event OnHighlightST()
@@ -6132,21 +6138,25 @@ state ToggleBellyScale
 	Event OnSelectST()
 		BellyScale = (! BellyScale)
 		SetToggleOptionValueST(BellyScale)
+		int optionFlag = OPTION_FLAG_DISABLED
 		if BellyScale;/==true/;
-			SetOptionFlagsST(OPTION_FLAG_NONE, True, "SliderBellyScaleMax")
-		else
-			SetOptionFlagsST(OPTION_FLAG_DISABLED, True, "SliderBellyScaleMax")
+			If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
+				optionFlag = OPTION_FLAG_NONE
+			EndIf
 		endif
+		SetOptionFlagsST(optionFlag, True, "SliderBellyScaleMax")
 	EndEvent
 	
 	Event OnDefaultST()
 		BellyScale = BellyScaleDef
 		SetToggleOptionValueST(BellyScale)
+		int optionFlag = OPTION_FLAG_DISABLED
 		if BellyScale;/==true/;
-			SetOptionFlagsST(OPTION_FLAG_NONE, True, "SliderBellyScaleMax")
-		else
-			SetOptionFlagsST(OPTION_FLAG_DISABLED, True, "SliderBellyScaleMax")
+			If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
+				optionFlag = OPTION_FLAG_NONE
+			EndIf
 		endif
+		SetOptionFlagsST(optionFlag, True, "SliderBellyScaleMax")
 	EndEvent
 	
 	Event OnHighlightST()
