@@ -1855,6 +1855,31 @@ EndFunction
 
 Function SetVisualScalingOptions()
 	if Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+		If (VisualScalingOptions.Length != 6)
+			VisualScalingOptions = New String[6]
+		EndIf
+		If (VisualScalingHighlightTexts.Length != 6)
+			VisualScalingHighlightTexts = New String[6]
+		EndIf
+		
+		VisualScalingOptions[0] = "$FW_MENU_OPTIONS_None"
+		VisualScalingHighlightTexts[0] = "$FW_MENUTXT_OPTIONS_VisualScalingNone"
+		
+		VisualScalingOptions[1] = "$FW_MENU_OPTIONS_VisualScaleSkeleton"
+		VisualScalingHighlightTexts[1] = "$FW_MENUTXT_OPTIONS_VisualScalingSkel"
+		
+		VisualScalingOptions[2] = "$FW_MENU_OPTIONS_VisualScaleSkeletonNi"
+		VisualScalingHighlightTexts[2] = "$FW_MENUTXT_OPTIONS_VisualScalingSkelNi"
+		
+		VisualScalingOptions[3] = "$FW_MENU_OPTIONS_VisualScaleWeight"
+		VisualScalingHighlightTexts[3] = "$FW_MENUTXT_OPTIONS_VisualScalingWeight"
+
+		VisualScalingOptions[4] = "$FW_MENU_OPTIONS_VisualScaleSLIF"
+		VisualScalingHighlightTexts[4] = "$FW_MENUTXT_OPTIONS_VisualScalingSLIF"
+		
+		VisualScalingOptions[5] = "$FW_MENU_OPTIONS_VisualScaleBodyMorph"
+		VisualScalingHighlightTexts[5] = "$FW_MENUTXT_OPTIONS_VisualScalingBodyMorph"
+	else
 		If (VisualScalingOptions.Length != 5)
 			VisualScalingOptions = New String[5]
 		EndIf
@@ -1873,28 +1898,9 @@ Function SetVisualScalingOptions()
 		
 		VisualScalingOptions[3] = "$FW_MENU_OPTIONS_VisualScaleWeight"
 		VisualScalingHighlightTexts[3] = "$FW_MENUTXT_OPTIONS_VisualScalingWeight"
-
-		VisualScalingOptions[4] = InflateMorph
-		VisualScalingHighlightTexts[4] = "$FW_MENUTXT_OPTIONS_VisualScalingPregnancyBelly"
-	else
-		If (VisualScalingOptions.Length != 4)
-			VisualScalingOptions = New String[4]
-		EndIf
-		If (VisualScalingHighlightTexts.Length != 4)
-			VisualScalingHighlightTexts = New String[4]
-		EndIf
 		
-		VisualScalingOptions[0] = "$FW_MENU_OPTIONS_None"
-		VisualScalingHighlightTexts[0] = "$FW_MENUTXT_OPTIONS_VisualScalingNone"
-		
-		VisualScalingOptions[1] = "$FW_MENU_OPTIONS_VisualScaleSkeleton"
-		VisualScalingHighlightTexts[1] = "$FW_MENUTXT_OPTIONS_VisualScalingSkel"
-		
-		VisualScalingOptions[2] = "$FW_MENU_OPTIONS_VisualScaleSkeletonNi"
-		VisualScalingHighlightTexts[2] = "$FW_MENUTXT_OPTIONS_VisualScalingSkelNi"
-		
-		VisualScalingOptions[3] = "$FW_MENU_OPTIONS_VisualScaleWeight"
-		VisualScalingHighlightTexts[3] = "$FW_MENUTXT_OPTIONS_VisualScalingWeight"
+		VisualScalingOptions[4] = "$FW_MENU_OPTIONS_VisualScaleBodyMorph"
+		VisualScalingHighlightTexts[4] = "$FW_MENUTXT_OPTIONS_VisualScalingBodyMorph"
 	endIf
 EndFunction
 
@@ -2241,7 +2247,7 @@ Event OnPageReset(string page)
 		AddMenuOptionST("MenuScalingKind", "$FW_MENU_PREGNANCY_VisualScalingKind", VisualScalingKindOptions[VisualScalingKind])
 		
 		optionFlag = OPTION_FLAG_DISABLED
-		If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4
+		If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddEmptyOption()
@@ -2250,13 +2256,13 @@ Event OnPageReset(string page)
 		AddToggleOptionST("ToggleBreastScale","$FW_MENU_PREGNANCY_BreastScale", BreastScale, optionFlag)
 		
 		optionFlag = OPTION_FLAG_DISABLED
-		If (VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4) && BellyScale;/==true/;
+		If (VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5) && BellyScale;/==true/;
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddSliderOptionST("SliderBellyScaleMax", "$FW_MENU_PREGNANCY_BellyMaxScale", BellyMaxScale, "{1}", optionFlag)
 		
 		optionFlag = OPTION_FLAG_DISABLED
-		If (VisualScaling == 1  || VisualScaling == 2 || VisualScaling == 4) && BreastScale;/==true/;
+		If (VisualScaling == 1  || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5) && BreastScale;/==true/;
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		AddSliderOptionST("SliderBreastScaleMax", "$FW_MENU_PREGNANCY_BreastsMaxScale", BreastsMaxScale, "{1}", optionFlag)
@@ -4170,7 +4176,7 @@ State MenuVisualScaling
 		SetMenuOptionValueST(VisualScalingOptions[VisualScaling])
 		
 		int optionFlag = OPTION_FLAG_DISABLED
-		If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4
+		If VisualScaling == 1 || VisualScaling == 2 || VisualScaling == 4 || VisualScaling == 5
 			optionFlag = OPTION_FLAG_NONE
 		EndIf
 		SetOptionFlagsST(optionFlag, True, "ToggleBellyScale")
@@ -4245,7 +4251,7 @@ EndState
 State SliderBellyScaleMax
 	Event OnSliderOpenST()
 		SetSliderDialogStartValue(BellyMaxScale)
-		if VisualScaling == 4
+		if VisualScaling == 4 || VisualScaling == 5
 			BellyMaxScaleDef = 7.5
 			SetSliderDialogDefaultValue(BellyMaxScaleDef)
 			SetSliderDialogRange(0, 10)
@@ -4268,7 +4274,7 @@ State SliderBellyScaleMax
 	EndEvent
 	
 	Event OnDefaultST()
-		if VisualScaling == 4
+		if VisualScaling == 4 || VisualScaling == 5
 			BellyMaxScaleDef = 7.5
 		else
 			BellyMaxScaleDef = 4.2
@@ -4289,7 +4295,7 @@ EndState
 State SliderBreastScaleMax
 	Event OnSliderOpenST()
 		SetSliderDialogStartValue(BreastsMaxScale)
-		if VisualScaling == 4
+		if VisualScaling == 4 || VisualScaling == 5
 			BreastsMaxScaleDef = 10
 			SetSliderDialogDefaultValue(BreastsMaxScaleDef)
 			SetSliderDialogRange(0, 20)
@@ -4314,7 +4320,7 @@ State SliderBreastScaleMax
 	EndEvent
 	
 	Event OnDefaultST()
-		if VisualScaling == 4
+		if VisualScaling == 4 || VisualScaling == 5
 			BreastsMaxScaleDef = 10
 		else
 			BreastsMaxScaleDef = 0.4

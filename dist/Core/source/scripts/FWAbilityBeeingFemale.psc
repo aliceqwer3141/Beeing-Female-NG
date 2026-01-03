@@ -1144,6 +1144,37 @@ Function UpdateNodesSLIF(Float afAddedBellySize, Float afAddedBreastSize)
 	EndIf
 EndFunction
 
+Function UpdateBodyMorphs(Float afBellyScale, Float afBreastScale)
+	If ActorRef;/!=none/;
+		; BodyMorph
+		If cfg.BellyScale;/==true/;
+			NiOverride.SetBodyMorph(ActorRef, "PregnancyBelly", "BeeingFemale", afBellyScale)
+		Else
+			NiOverride.ClearBodyMorph(ActorRef, "PregnancyBelly", "BeeingFemale")
+		EndIf
+		
+		If cfg.BreastScale;/==true/;
+			NiOverride.SetBodyMorph(ActorRef, "BreastsSH", "BeeingFemale", afBreastScale)
+			NiOverride.SetBodyMorph(ActorRef, "BreastsNewSH", "BeeingFemale", afBreastScale)
+		Else
+			NiOverride.ClearBodyMorph(ActorRef, "BreastsSH", "BeeingFemale")
+			NiOverride.ClearBodyMorph(ActorRef, "BreastsNewSH", "BeeingFemale")
+		EndIf
+		
+		NiOverride.UpdateModelWeight(ActorRef)
+	EndIf
+EndFunction
+
+Function ClearBodyMorphs()
+	If ActorRef;/!=none/;
+		; BodyMorph
+		NiOverride.ClearBodyMorph(ActorRef, "PregnancyBelly", "BeeingFemale")
+		NiOverride.ClearBodyMorph(ActorRef, "BreastsSH", "BeeingFemale")
+		NiOverride.ClearBodyMorph(ActorRef, "BreastsNewSH", "BeeingFemale")
+		NiOverride.UpdateModelWeight(ActorRef)
+	EndIf
+EndFunction
+
 Function UpdateNodes2(Float afAddedBellySize, Float afAddedBreastSize)
 	If ActorRef;/!=none/;
 		If cfg.BellyScale;/==true/;
@@ -1257,8 +1288,10 @@ Function UpdateWeight(Float afAddedWeight)
 EndFunction
 
 Function ResetBelly()
-	if Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-		if cfg.VisualScaling == 4
+	if cfg.VisualScaling == 5
+		ClearBodyMorphs()
+	elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+		if cfg.VisualScaling == 4 ; SLIF
 			FillHerUpUpdateNotes(0, 0)
 		else
 			UpdateNodesSLIF(0, 0)
@@ -1272,13 +1305,17 @@ Function ResetBelly()
 			endIf
 		elseif lastTypeOfScaling == 3
 			UpdateWeight(0)
+		elseif lastTypeOfScaling == 5
+			ClearBodyMorphs()
 		endIf
 	endif
 EndFunction
 
 function TestScale(float Scale=1.0)
-	if Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-		if cfg.VisualScaling == 4
+	if cfg.VisualScaling == 5
+		UpdateBodyMorphs(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
+	elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+		if cfg.VisualScaling == 4 ; SLIF
 			FillHerUpUpdateNotes(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		else
 			UpdateNodesSLIF(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
@@ -1498,8 +1535,10 @@ Function SetBelly(bool bForce=false)
 		
 		; Race specific scaling
 		
-		if Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-			if cfg.VisualScaling == 4
+		if cfg.VisualScaling == 5
+			UpdateBodyMorphs(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
+		elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+			if cfg.VisualScaling == 4 ; SLIF
 				Debug.Trace("FWAbilityBeeingFemale - SetBelly - Current belly scale is " + ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				Debug.Trace("FWAbilityBeeingFemale - SetBelly - Current breast scale is " + ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				FillHerUpUpdateNotes(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
