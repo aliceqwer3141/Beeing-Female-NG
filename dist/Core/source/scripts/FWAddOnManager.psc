@@ -4494,6 +4494,14 @@ Function RaceExcludeFromSLandBF(actor TargetActor, actor ParentActor)
 		else
 			Debug.Messagebox("ExcludeFromSLandBF: Failed to find parent actor. Please report to the BeeingFemaleSE_Opt mod page...")		
 		endIf
+
+		; Force human children into forbidden, regardless of unrestricted settings.
+		race childRace = TargetActor.GetRace()
+		if childRace
+			if childRace.HasKeywordString("ActorTypeNPC")
+				bool_AddToForbidden = true
+			endif
+		endIf
 			
 		if(bool_AddToForbidden)
 			TargetActor.AddToFaction(BF_ForbiddenFaction)
