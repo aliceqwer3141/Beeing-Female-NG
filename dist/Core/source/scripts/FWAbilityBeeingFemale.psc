@@ -150,6 +150,7 @@ Event OnEffectStart(Actor target, Actor caster)
 	GetBaseMeasurements(True)
 	bInitSpell=true
 	System.RegisterFWCache(self)
+	InitValues()
 	;If IsPlayer ;Tkc (Loverslab): optimization. added in reworked player\npc\follower detection code above because it will reduce code by one check and it is only for player
 	;	Self.RegisterForSingleUpdate(5) ;Bane -> Only uaed by Player now
 	;EndIf
@@ -167,7 +168,6 @@ Event OnEffectStart(Actor target, Actor caster)
 	equipChild()
 	
 	CheckRandomSexPartner()
-	InitValues()
 	System.Message( FWUtility.StringReplace( Contents.BeeingFemaleCastedOn ,"{0}", ActorRef.GetLeveledActorBase().GetName() ), System.MSG_All)
 	getLastSeenNPCs()
 	System.Message("FWAbilityBeeingFemale::OnEffectStart("+ActorRef.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec", System.MSG_All, System.MSG_Trace)
@@ -227,6 +227,7 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 		ResetBelly()
 		onExitState()
 	endif
+	PO3_Events_AME.UnregisterForHitEventEx(self)
 	If ActorRef && ActorRef.HasSpell(BeeingFemaleSpell)
 		ActorRef.RemoveSpell(BeeingFemaleSpell)
 	EndIf
@@ -265,6 +266,7 @@ event BeeingFemale(string eventName, string strArg, float numArg, Form sender)
 				checkAbortus()
 			elseif strArg=="Update"
 				InitValues()
+				InitState()
 			elseif strArg=="Belly"
 				SetBelly(true)
 			elseif strArg=="Birth"
@@ -419,7 +421,6 @@ endFunction
 function InitValues()
 	Data.Update(ActorRef)
 	GetStorageVariable()
-	InitState()
 endFunction
 
 function GetStorageVariable()
