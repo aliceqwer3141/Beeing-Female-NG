@@ -53,7 +53,9 @@ dist/Core/skse/plugins
 - Labor pains duration can be tuned via `Global_Duration_09_LaborPains` in `dist/Core/BeeingFemale/AddOn/Global Settings.ini`.
 - Integrated fixes from BeeingFemaleSE Opt by aliceqwer3141 and Beeing Female SE 2.8.1 Patch V14d by Bane Master and Garkin.
 - Modified the SexLab add-on and added an OStim add-on.
-- Bathing in Skyrim addon targets Bathing in Skyrim Renewed instead of the original mod.
+- Bathing in Skyrim Renewed addon added.
+  Changelog:
+	https://github.com/crajjjj/Beeing-Female-NG/releases
 
 ## Notes
 
