@@ -59,13 +59,41 @@ dist/Core/skse/plugins
 
 - `xmake-requires.lock` is tracked to keep dependency versions stable.
 - Papyrus sources live in `dist/Core/Source/Scripts`.
+- SSEEDIT_locations is just for reference. Don't compile or import
+
+## For Modders
+
+## Add-on Framework
+
+Beeing Female NG ships an INI-driven add-on framework that lets external mods extend or override pregnancy/cycle behavior without editing core scripts. Add-ons are discovered from `dist/Core/BeeingFemale/AddOn/*.ini` and loaded at runtime.
+
+### Add-on Types
+
+- `misc`: scripted hooks (camera, birth effects, integrations like SexLab/OStim, Bathing in Skyrim).
+- `race`: per-race tuning (durations, scales, pregnancy chance, protected/PC dialogue, custom baby actors/items).
+- `actor`: per-actor overrides (same knobs as race, but scoped to a single actor).
+- `cme`: cycle magic effect lists for each stage (Always/Sometimes).
+
+### Capabilities
+
+- Global/default tunables for cycle timings, pregnancy chance, belly/breast scaling, pain, multiple births, and baby spawn pacing.
+- Per-race or per-actor overrides (pregnancy scales, duration multipliers, protected child flags, etc.).
+- Custom baby actor/item/armor selection for parent race/actor (with fallback behavior).
+- Integration hooks via misc add-ons (SexLab/OStim/Bathing in Skyrim).
+- Add-on event hooks: `OnGiveBirthStart/End`, `OnLaborPain`, `OnBabySpawn`, `OnMagicEffectApply`, camera start/stop.
+
+### Default Behaviors
+
+- Uses global defaults from `Global Settings.ini` (or internal defaults if not set).
+- If no custom baby actor is found, falls back to the parent actor base.
+- Pregnancy visuals are driven by trimester scales plus `BellyMaxScale` and respect the selected visual scaling mode.
+- Add-on lists refresh on game load when the AddOn directory hash changes or cached data is invalid.
 
 ## Integrations
 
 - OStim: optional integration via `dist/Core/source/scripts/BFA_Ostim.psc` that listens for OStim orgasm events and applies sperm/impregnation logic when a male and female pair have vaginal sex (supports OStim API 23+ with NG thread events when available).
 - SexLab: optional integration via `dist/Core/source/scripts/BFA_ssl.psc` and `dist/Core/source/scripts/BFA_AbilityEffectPMSSexHurt.psc` that hooks orgasm and stage events to apply sperm/impregnation logic and PMS sex-hurt effects; also uses the SexLab AnimatingFaction and optionally Devious Devices keywords when present. Recognises hentairim tags now and is more precise
 
-## For Modders
 
 ### Reading State and Sperm Info
 
