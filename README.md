@@ -148,7 +148,7 @@ Use a race add-on INI to customize pregnancy/cycle behavior per custom race.
 1) Copy `dist/Core/BeeingFemale/AddOn/CustomRace AddOn Example.ini` and rename it.
 2) In `[AddOn]`:
    - Set `name`, `description`, `author`, and `type=race`.
-   - Set `required=YourRacePlugin.esp` (optional but recommended).
+   - Set `required=YourRacePlugin.esp` (optional but recommended. Races for ActorTypeNPC should have "child" as part of the name).
    - Set `enabled=true` if you want it active by default (or enable it in MCM later).
 3) Set `races=N`, then add `[Race1]...[RaceN]` sections.
 4) In each `[RaceN]`, set `id=PluginName:FormID` (hex FormID without `0x`; commas allowed).
