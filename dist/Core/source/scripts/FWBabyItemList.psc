@@ -457,7 +457,7 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 			; Female
 			b = Manager.GetBabyActorNew(ParentActor, ParentRace, 1)
 		endIf
-
+		
 		if b
 		else
 			if(ParentActor == none)
@@ -490,20 +490,11 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 		endIf
 	endIf
 
-	race childRace = b.GetRace()
-	if childRace
-		string childRaceName = FWUtility.toLower(childRace.GetName())
-		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Child race " + childRace + " is not labeled as child; skipping spawn.")
-			if cfg.ShowDebugMessage
-				Debug.Messagebox("Child race is not labeled as child; skipping spawn.")
-			endIf
-			return none
-		endIf
-	endIf
-
 	return b
 endFunction
+
+
+
 ; Deprecated
 ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	if Mother == PlayerRef || Father == PlayerRef

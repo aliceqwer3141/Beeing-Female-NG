@@ -3859,6 +3859,25 @@ endFunction
 
 
 
+ActorBase function validateBabyCustomRace(ActorBase b)
+	if !b
+		return none
+	endif
+	Race childRace = b.GetRace()
+	if childRace
+		string childRaceName = FWUtility.toLower(childRace.GetName() + MiscUtil.GetRaceEditorID(childRace))
+		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
+			Debug.Trace("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Child race is not labeled as child; falling back to default.")
+			endIf
+			return none
+		else
+			return b
+		endIf
+	endIf
+	return none
+endFunction
 
 ; Get BabyActor
 ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gender)
@@ -3873,7 +3892,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 		int r = Utility.RandomInt(0, c - 1)
 		m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, r) as ActorBase
 		if m;/!=none/;
-			return m
+			return validateBabyCustomRace(m)
 		else
 			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 			if(cfg.ShowDebugMessage)
@@ -3884,7 +3903,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 			c -= 1
 			m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, c) as ActorBase
 			if m;/!=none/;
-				return m
+				return validateBabyCustomRace(m)
 			else
 				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 				if(cfg.ShowDebugMessage)
@@ -3898,7 +3917,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 			int r = Utility.RandomInt(0, c - 1)
 			m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, r) as ActorBase
 			if m;/!=none/;
-				return m
+				return validateBabyCustomRace(m)
 			else
 				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if(cfg.ShowDebugMessage)
@@ -3909,7 +3928,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 				c -= 1
 				m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, c) as ActorBase
 				if m;/!=none/;
-					return m
+					return validateBabyCustomRace(m)
 				else
 					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 					if(cfg.ShowDebugMessage)
@@ -3923,7 +3942,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 				int r = Utility.RandomInt(0, c - 1)
 				m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, r) as ActorBase
 				if m;/!=none/;
-					return m
+					return validateBabyCustomRace(m)
 				else
 					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
 					if(cfg.ShowDebugMessage)
@@ -3934,7 +3953,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 					c -= 1
 					m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, c) as ActorBase
 					if m;/!=none/;
-						return m
+						return validateBabyCustomRace(m)
 					else
 						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
 						if(cfg.ShowDebugMessage)
@@ -4007,7 +4026,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 		int r = Utility.RandomInt(0, c - 1)
 		m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, r) as ActorBase
 		if m;/!=none/;
-			return m
+			return validateBabyCustomRace(m)
 		else
 			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 			if(cfg.ShowDebugMessage)
@@ -4018,7 +4037,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 			c -= 1
 			m = StorageUtil.FormListGet(ParentActor, "FW.AddOn." + sGender, c) as ActorBase
 			if m;/!=none/;
-				return m
+				return validateBabyCustomRace(m)
 			else
 				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 				if(cfg.ShowDebugMessage)
@@ -4032,7 +4051,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 			int r = Utility.RandomInt(0, c - 1)
 			m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, r) as ActorBase
 			if m;/!=none/;
-				return m
+				return validateBabyCustomRace(m)
 			else
 				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if(cfg.ShowDebugMessage)
@@ -4043,7 +4062,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 				c -= 1
 				m = StorageUtil.FormListGet(ParentRace, "FW.AddOn." + sGender, c) as ActorBase
 				if m;/!=none/;
-					return m
+					return validateBabyCustomRace(m)
 				else
 					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 					if(cfg.ShowDebugMessage)
@@ -4057,7 +4076,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 				int r = Utility.RandomInt(0, c - 1)
 				m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, r) as ActorBase
 				if m;/!=none/;
-					return m
+					return validateBabyCustomRace(m)
 				else
 					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
 					if(cfg.ShowDebugMessage)
@@ -4068,7 +4087,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 					c -= 1
 					m = StorageUtil.FormListGet(none, "FW.AddOn.Global_" + sGender, c) as ActorBase
 					if m;/!=none/;
-						return m
+						return validateBabyCustomRace(m)
 					else
 						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
 						if(cfg.ShowDebugMessage)

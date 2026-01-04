@@ -50,7 +50,7 @@
 				<group name="Addons" type="SelectAny"> 
 					<plugins order="Explicit"> 
 						<plugin name="BeeingFemale_RS_ChildActors"> 
-							<description>Addon for BeeingFemale, which adds RSkyrimChildren child actors</description>
+							<description>Addons for BeeingFemale, which adds RSkyrimChildren child actors</description>
                             <image path="Fomod_resources\fw.jpg" />
                             <files> 
                                 <folder source="Addon\BFARSC" destination="" priority="0" /> 
@@ -64,10 +64,10 @@
 												<fileDependency file="RSkyrimChildren.esm" state="Active"/> 
 											</dependencies>
 											<type name="Recommended"/>
-										</pattern> 
-									</patterns> 
-								</dependencyType> 
-							</typeDescriptor> 
+										</pattern>
+									</patterns>
+								</dependencyType>
+							</typeDescriptor>
 						</plugin>
 					</plugins> 
 				</group> 
@@ -84,7 +84,7 @@
 				<group name="Addons" type="SelectAny">
 					<plugins order="Explicit">
                         <plugin name="BFACreatureChildActors"> 
-							<description>Addon for BeeingFemale, which adds creature child actors</description>
+							<description>Addons for BeeingFemale, which adds creature child actors</description>
                             <image path="Fomod_resources\fw.jpg" />
                             <files> 
                                 <folder source="Addon\BFACCA" destination="" priority="0" /> 
