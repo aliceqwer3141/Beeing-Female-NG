@@ -6,7 +6,7 @@
         <folder source="Core" destination="" /> 
     </requiredInstallFiles> 
     <installSteps order="Explicit"> 
-        <installStep name="Integrations">
+        <installStep name="Step 1">
             <optionalFileGroups order="Explicit">
                 <group name="Animation System" type="SelectExactlyOne"> 
                     <plugins order="Explicit"> 
@@ -32,7 +32,7 @@
                 <group name="SPID" type="SelectAny"> 
                     <plugins order="Explicit"> 
                         <plugin name="SPID item distribution"> 
-                            <description>Use SPID item distribution list for BF objects. Recommended.</description>
+                            <description>Use SPID item distribution list for BeeingFemale objects. Recommended.</description>
                             <image path="Fomod_resources\fw.jpg" />
                             <files> 
                                 <folder source="Patches\SPID" destination="" priority="0" /> 
@@ -45,35 +45,35 @@
                 </group>
             </optionalFileGroups> 
         </installStep>
-        <installStep name="Addons">
-			<optionalFileGroups order="Explicit"> 
-				<group name="Addons" type="SelectAny"> 
-					<plugins order="Explicit"> 
-						<plugin name="BeeingFemale_RS_ChildActors"> 
-							<description>Addons for BeeingFemale, which adds RSkyrimChildren child actors</description>
+        <installStep name="Step 2">
+			<optionalFileGroups order="Explicit">
+				<group name="Addons" type="SelectAny">
+					<plugins order="Explicit">
+						<plugin name="BeeingFemale_RS_ChildActors">
+							<description>Addon for BeeingFemale, which adds RSkyrimChildren child actors</description>
                             <image path="Fomod_resources\fw.jpg" />
-                            <files> 
+                            <files>
                                 <folder source="Addon\BFARSC" destination="" priority="0" /> 
-                            </files> 
-							<typeDescriptor> 
-								<dependencyType> 
-									<defaultType name="Recommended"/> 
+                            </files>
+							<typeDescriptor>
+								<dependencyType>
+									<defaultType name="Optional"/>
 									<patterns>
 										<pattern>
 											<dependencies operator="And">
 												<fileDependency file="RSkyrimChildren.esm" state="Active"/> 
 											</dependencies>
-											<type name="Recommended"/>
+											<type name="Optional"/>
 										</pattern>
 									</patterns>
 								</dependencyType>
 							</typeDescriptor>
 						</plugin>
 					</plugins> 
-				</group> 
+				</group>
 			</optionalFileGroups> 
 		</installStep>
-        <installStep name="Sexlab/Ostim Explicit Addons">
+        <installStep name="Step 3">
 			<visible>
 				<dependencies operator="Or"> 
 						<fileDependency file="SexLab.esm" state="Active"/>
@@ -81,24 +81,24 @@
 				</dependencies>
 			</visible> 
 			<optionalFileGroups order="Explicit"> 
-				<group name="Addons" type="SelectAny">
+				<group name="Sexlab/Ostim Explicit Addons" type="SelectAny">
 					<plugins order="Explicit">
                         <plugin name="BFACreatureChildActors"> 
-							<description>Addons for BeeingFemale, which adds creature child actors</description>
+							<description>Addon for BeeingFemale, which adds creature child actors</description>
                             <image path="Fomod_resources\fw.jpg" />
                             <files> 
                                 <folder source="Addon\BFACCA" destination="" priority="0" /> 
                             </files> 
 							<typeDescriptor> 
 								<dependencyType> 
-									<defaultType name="Recommended"/> 
+									<defaultType name="Optional"/> 
 									<patterns> 
 										<pattern> 
 											<dependencies operator="Or">
 												<fileDependency file="SexLab.esm" state="Active"/>
                                                 <fileDependency file="OStim.esp" state="Active"/> 
 											</dependencies>
-											<type name="Recommended"/>
+											<type name="Optional"/>
 										</pattern> 
 									</patterns> 
 								</dependencyType> 
@@ -112,14 +112,14 @@
                             </files> 
 							<typeDescriptor> 
 								<dependencyType> 
-									<defaultType name="Recommended"/> 
+									<defaultType name="Optional"/> 
 									<patterns> 
 										<pattern> 
 											<dependencies operator="Or">
 												<fileDependency file="SexLab.esm" state="Active"/>
                                                 <fileDependency file="OStim.esp" state="Active"/> 
 											</dependencies>
-											<type name="Recommended"/>
+											<type name="Optional"/>
 										</pattern> 
 									</patterns> 
 								</dependencyType> 
@@ -131,5 +131,3 @@
 		</installStep>
     </installSteps> 
 </config>
-
-
