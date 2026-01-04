@@ -490,6 +490,18 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 		endIf
 	endIf
 
+	race childRace = b.GetRace()
+	if childRace
+		string childRaceName = FWUtility.toLower(childRace.GetName())
+		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
+			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Child race " + childRace + " is not labeled as child; skipping spawn.")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Child race is not labeled as child; skipping spawn.")
+			endIf
+			return none
+		endIf
+	endIf
+
 	return b
 endFunction
 ; Deprecated
@@ -625,6 +637,18 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
 				b.SetProtected()
 			endIf
+		endIf
+	endIf
+
+	race childRace = b.GetRace()
+	if childRace
+		string childRaceName = FWUtility.toLower(childRace.GetName())
+		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
+			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child race " + childRace + " is not labeled as child; skipping spawn.")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Child race is not labeled as child; skipping spawn.")
+			endIf
+			return none
 		endIf
 	endIf
 
