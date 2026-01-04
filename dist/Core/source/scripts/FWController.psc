@@ -965,13 +965,6 @@ function GiveBirth(actor Mother)
 		Mother.SetVehicle(none)
 		Utility.Wait(3)
 	endIf
-	if Mother==PlayerRef
-		FWUtility.LockPlayer()
-		Manager.StartCamera()
-	else
-		Mother.SetDontMove(true)
-	endIf
-	
 	Form[] dropedItems
 	if(cfg.PlayAnimations)
 		dropedItems = System.StripActor(Mother)
@@ -981,6 +974,13 @@ function GiveBirth(actor Mother)
 			DamageScale -= 0.1
 		endIf
 	endif
+	
+	if Mother==PlayerRef
+		FWUtility.LockPlayer()
+		Manager.StartCamera()
+	else
+		Mother.SetDontMove(true)
+	endIf
 	
 	ObjectReference MaraShrine = Game.FindClosestReferenceOfTypeFromRef(MaraShrineObject, Mother, 300);
 	if MaraShrine;/!=none/;
