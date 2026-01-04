@@ -67,7 +67,7 @@ dist/Core/skse/plugins
 
 ## Add-on Framework
 
-Beeing Female NG ships an INI-driven add-on framework that lets external mods extend or override pregnancy/cycle behavior without editing core scripts. Add-ons are discovered from `dist/Core/BeeingFemale/AddOn/*.ini` and loaded at runtime.
+Beeing Female NG ships an INI-driven add-on framework that lets external mods extend or override pregnancy/cycle behavior without editing core scripts. Add-ons are discovered from `dist/Core/BeeingFemale/AddOn/*.ini` and loaded at runtime. Example folders in `dist/Core/BeeingFemale/AddOn` have detailed explanation on parameters. Use them as templates.
 
 ### Add-on Types
 
