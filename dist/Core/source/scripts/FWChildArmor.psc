@@ -128,7 +128,7 @@ endProperty
 
 bool property IsMale hidden
 	bool function get()
-		return iSex==1
+		return iSex==0
 	endFunction
 	function Set(bool value)
 		if value;/==true/;
@@ -228,6 +228,18 @@ Event OnLoad()
 		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
 	endif
 	dob = storedDob
+	if System && System.Manager
+		Actor parentActor = _Mother
+		if parentActor == none
+			parentActor = _Father
+		endif
+		if parentActor != none
+			float matureHours = System.Manager.ActorCustomMatureTimeInHours(parentActor)
+			if matureHours > 0.0
+				SizeDuration = matureHours / 24.0
+			endif
+		endif
+	endif
 	if _Mother != none && _Mother == PlayerRef
 		RegisterForSingleUpdateGameTime(8)
 	endif
@@ -296,18 +308,17 @@ Event OnUpdateGameTime()
 			RegisterForSingleUpdateGameTime(5)
 			return
 		endif
+		System.Message("Baby grows up.", System.MSG_Debug, System.MSG_Note)
 		System.SpawnChildActor(m, f)
 		cleanItem()
 		return
 	endif
 
-	int updateCount = StorageUtil.GetIntValue(self, "FW.Child.UpdateCount", 0) + 1
-	StorageUtil.SetIntValue(self, "FW.Child.UpdateCount", updateCount)
-	int maxUpdates = (SizeDuration as int) / 5 + 2
-	if updateCount >= maxUpdates
-		UnregisterForUpdateGameTime()
-		return
+	if System
+		float remainingDays = SizeDuration - Age
+		System.Message("Baby is growing. " + (remainingDays as int) + " days remaining.", System.MSG_Debug, System.MSG_Note)
 	endif
+
 	RegisterForSingleUpdateGameTime(8)
 EndEvent
 
@@ -322,7 +333,6 @@ function Delete()
 	StorageUtil.UnsetStringValue(self, "FW.Child.Name")
 	StorageUtil.UnsetIntValue(self, "FW.Child.Flag")
 	StorageUtil.UnsetIntValue(self, "FW.Child.GrownToActor")
-	StorageUtil.UnsetIntValue(self, "FW.Child.UpdateCount")
 endFunction
 
 string Function GetLastName()
