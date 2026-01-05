@@ -226,8 +226,8 @@ Event OnLoad()
 		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
 	endif
 	dob = storedDob
-	if _Mother == PlayerRef && _Mother.GetLeveledActorBase().GetSex() == 1
-		RegisterForSingleUpdateGameTime(5)
+	if _Mother != none
+		RegisterForSingleUpdateGameTime(12)
 	endif
 	;Debug.Trace("FWChildArmor::OnLoad() Complete")
 EndEvent
@@ -256,14 +256,20 @@ endFunction
 	;endif
 	;UpdateSize()
 ;endEvent
-
+Function cleanItem()
+	if _Mother != none
+		_Mother.UnequipItem(self.GetBaseObject())
+		_Mother.RemoveItem(self, 1, true)
+	endif
+	StorageUtil.FormListRemove(none,"FW.Babys", self)
+	Delete()
+	UnregisterForUpdateGameTime()
+	self.Disable()
+	parent.Delete()
+EndFunction
 Event OnUpdateGameTime()
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
 	if StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1
-		return
-	endif
-	if _Mother != PlayerRef || _Mother.GetLeveledActorBase().GetSex() != 1
-		UnregisterForUpdateGameTime()
 		return
 	endif
 
@@ -276,20 +282,35 @@ Event OnUpdateGameTime()
 		if f == none
 			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
 		endif
-		if m != PlayerRef || m.GetLeveledActorBase().GetSex() != 1
-			RegisterForSingleUpdateGameTime(5)
+		if m == none
+			cleanItem()
 			return
 		endif
-		if System == none || m == none
-			RegisterForSingleUpdateGameTime(5)
+		if m.IsDead()
+			cleanItem()
+			return
+		endif
+		if m.GetItemCount(self.GetBaseObject()) < 1
+			cleanItem()
 			return
 		endif
 		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
-		System.SpawnChildActor(m, f)
-		m.UnequipItem(self.GetBaseObject())
-		m.RemoveItem(self, 1, true)
-		StorageUtil.FormListRemove(none,"FW.Babys", self)
-		Delete()
+		if m == PlayerRef && m.GetLeveledActorBase().GetSex() == 1
+			if System == none
+				RegisterForSingleUpdateGameTime(5)
+				return
+			endif
+			System.SpawnChildActor(m, f)
+		endif
+		cleanItem()
+		return
+	endif
+
+	int updateCount = StorageUtil.GetIntValue(self, "FW.Child.UpdateCount", 0) + 1
+	StorageUtil.SetIntValue(self, "FW.Child.UpdateCount", updateCount)
+	int maxUpdates = (SizeDuration as int) / 5 + 2
+	if updateCount >= maxUpdates
+		UnregisterForUpdateGameTime()
 		return
 	endif
 
@@ -307,6 +328,7 @@ function Delete()
 	StorageUtil.UnsetStringValue(self, "FW.Child.Name")
 	StorageUtil.UnsetIntValue(self, "FW.Child.Flag")
 	StorageUtil.UnsetIntValue(self, "FW.Child.GrownToActor")
+	StorageUtil.UnsetIntValue(self, "FW.Child.UpdateCount")
 endFunction
 
 string Function GetLastName()

@@ -2552,6 +2552,10 @@ function SpawnChild(Actor Mother, Actor Father)
 	 endif
 	endif
 	form Baby = none
+	bool fatherIsCreature = false
+	if Father;/!=none/; ;Tkc (Loverslab): optimization
+		fatherIsCreature = Father.GetRace().HasKeyword(ActorTypeCreature)
+	endif
 	
 	if Mother == PlayerRef || Father == PlayerRef
 		; Player Spawn
@@ -2564,7 +2568,11 @@ function SpawnChild(Actor Mother, Actor Father)
 				endIf
 			else
 				if cfg.BabySpawn == 2
-					Baby = SpawnChildItem(Mother, Father)
+					if fatherIsCreature
+						Baby = SpawnChildActor(Mother, Father)
+					else
+						Baby = SpawnChildItem(Mother, Father)
+					endif
 				elseif cfg.BabySpawn == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
 					Mother.AddItem(BabyGem)
 				endif
@@ -2581,7 +2589,11 @@ function SpawnChild(Actor Mother, Actor Father)
 				endIf
 			else
 				if cfg.BabySpawnNPC == 2
-					Baby = SpawnChildItem(Mother, Father)
+					if fatherIsCreature
+						return
+					else
+						Baby = SpawnChildItem(Mother, Father)
+					endif
 				elseif cfg.BabySpawnNPC == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
 					Mother.AddItem(BabyGem)
 				endif
