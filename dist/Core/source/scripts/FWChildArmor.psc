@@ -19,6 +19,7 @@ FormList property ItemListSupprised auto
 FWTextContents property Content auto
 Actor Property PlayerRef Auto
 GlobalVariable Property GameDaysPassed Auto
+FWSystem property System auto
 
 actor User
 
@@ -219,7 +220,15 @@ Event OnLoad()
 	elseif _Mother
 		HairColor = _Mother.GetLeveledActorBase().GetHairColor()
 	endif
-	;OnUpdateGameTime()
+	float storedDob = StorageUtil.GetFloatValue(self,"FW.Child.DOB",0)
+	if storedDob <= 0.0
+		storedDob = GameDaysPassed.GetValue()
+		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
+	endif
+	dob = storedDob
+	if _Mother == PlayerRef && _Mother.GetLeveledActorBase().GetSex() == 1
+		RegisterForSingleUpdateGameTime(5)
+	endif
 	;Debug.Trace("FWChildArmor::OnLoad() Complete")
 EndEvent
 
@@ -248,6 +257,45 @@ endFunction
 	;UpdateSize()
 ;endEvent
 
+Event OnUpdateGameTime()
+	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
+	if StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1
+		return
+	endif
+	if _Mother != PlayerRef || _Mother.GetLeveledActorBase().GetSex() != 1
+		UnregisterForUpdateGameTime()
+		return
+	endif
+
+	if Age >= SizeDuration
+		Actor m = _Mother
+		Actor f = _Father
+		if m == none
+			m = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
+		endif
+		if f == none
+			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
+		endif
+		if m != PlayerRef || m.GetLeveledActorBase().GetSex() != 1
+			RegisterForSingleUpdateGameTime(5)
+			return
+		endif
+		if System == none || m == none
+			RegisterForSingleUpdateGameTime(5)
+			return
+		endif
+		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
+		System.SpawnChildActor(m, f)
+		m.UnequipItem(self.GetBaseObject())
+		m.RemoveItem(self, 1, true)
+		StorageUtil.FormListRemove(none,"FW.Babys", self)
+		Delete()
+		return
+	endif
+
+	RegisterForSingleUpdateGameTime(5)
+EndEvent
+
 ;function UpdateSize()
 	
 ;endFunction
@@ -258,6 +306,7 @@ function Delete()
 	StorageUtil.UnsetFormValue(self, "FW.Child.Mother")
 	StorageUtil.UnsetStringValue(self, "FW.Child.Name")
 	StorageUtil.UnsetIntValue(self, "FW.Child.Flag")
+	StorageUtil.UnsetIntValue(self, "FW.Child.GrownToActor")
 endFunction
 
 string Function GetLastName()
