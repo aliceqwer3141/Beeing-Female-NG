@@ -67,7 +67,9 @@ bool property UseFathersLastName hidden
 		if value;/==true/;
 			StorageUtil.SetIntValue(self, "FW.Child.Flag", Math.LogicalOr(xflag,32) )
 		else
-			StorageUtil.SetIntValue(self, "FW.Child.Flag", Math.LogicalXor(xflag,32) )
+			if (Math.LogicalAnd(xflag,32) == 32)
+				StorageUtil.SetIntValue(self, "FW.Child.Flag", Math.LogicalXor(xflag,32) )
+			endif
 		endif
 		if Name ;Tkc (Loverslab): optimization
 		else;if Name==""
@@ -387,19 +389,19 @@ Event OnEquipped(Actor akActor)
 	   StorageUtil.GetStringValue(self,"FW.Child.Name","")==""
 		; Name wasn't set or an error happend
 		int xflag = StorageUtil.GetIntValue(self, "FW.Child.Flag", -1)
-		if xflag==-1
-			;Object was never init
-			FWSystem.ChildItemSetup(self)
-		else
-			if Math.LogicalAnd(xflag,4) == 0
-				; Male name
-				Name=FWSystem.getRandomChildName(0)
-			elseif (Math.LogicalAnd(xflag,4) == 0)
-				; Female name
-				Name=FWSystem.getRandomChildName(1)
+			if xflag==-1
+				;Object was never init
+				FWSystem.ChildItemSetup(self)
+			else
+				if Math.LogicalAnd(xflag,4) == 0
+					; Male name
+					Name=FWSystem.getRandomChildName(0)
+				elseif (Math.LogicalAnd(xflag,4) == 4)
+					; Female name
+					Name=FWSystem.getRandomChildName(1)
+				endif
 			endif
 		endif
-	endif
 endEvent
 
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Very little changed..

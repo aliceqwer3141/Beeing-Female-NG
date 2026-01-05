@@ -375,7 +375,7 @@ endProperty
 
 bool property IsMale hidden
 	bool function get()
-		return iSex==1
+		return iSex==0
 	endFunction
 	function Set(bool value)
 		if value==true
