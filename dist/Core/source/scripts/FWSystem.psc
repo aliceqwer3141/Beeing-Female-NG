@@ -2543,13 +2543,10 @@ function SpawnChild(Actor Mother, Actor Father)
 	int BabysForTheActor = StorageUtil.GetIntValue(Mother,"FW.NumBabys",0)
 	StorageUtil.SetIntValue(Mother,"FW.NumBabys",BabysForTheActor + 1)
 	;if Mother!=PlayerRef && cfg.NPCBornChild==false
-	if Mother==PlayerRef ;Tkc (Loverslab): optimization
-	else;if Mother!=PlayerRef
-	 if cfg.NPCBornChild
-	 else;cfg.NPCBornChild==false
+	bool isPlayerInvolved = (Mother == PlayerRef || Father == PlayerRef)
+	if !isPlayerInvolved && !cfg.NPCBornChild
 		; NPCs don't spawn babys
 		return
-	 endif
 	endif
 	form Baby = none
 	bool fatherIsCreature = false
@@ -2557,47 +2554,40 @@ function SpawnChild(Actor Mother, Actor Father)
 		fatherIsCreature = Father.GetRace().HasKeyword(ActorTypeCreature)
 	endif
 	
-	if Mother == PlayerRef || Father == PlayerRef
+	int spawnSetting = cfg.BabySpawnNPC
+	if isPlayerInvolved
 		; Player Spawn
-		if cfg.BabySpawn >= 0
-			if cfg.BabySpawn < 2
-				if cfg.BabySpawn == 0
-					return;
-				else;if cfg.BabySpawn == 1 ; && (Mother == PlayerRef || Father==PlayerRef) ; Only when the player is involved there will spawn actors
-					Baby = SpawnChildActor(Mother, Father)
-				endIf
-			else
-				if cfg.BabySpawn == 2
+		spawnSetting = cfg.BabySpawn
+	else
+		; Npc Spawn
+		spawnSetting = cfg.BabySpawnNPC
+	endif
+
+	if spawnSetting >= 0
+		if spawnSetting < 2
+			if spawnSetting == 0
+				return;
+			else;if spawnSetting == 1 ; && (Mother == PlayerRef || Father==PlayerRef) ; Only when the player is involved there will spawn actors
+				Baby = SpawnChildActor(Mother, Father)
+			endIf
+		else
+			if spawnSetting == 2
+				if isPlayerInvolved
 					if fatherIsCreature
 						Baby = SpawnChildActor(Mother, Father)
 					else
 						Baby = SpawnChildItem(Mother, Father)
 					endif
-				elseif cfg.BabySpawn == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
-					Mother.AddItem(BabyGem)
-				endif
-			endIf
-		endIf
-	else
-		; Npc Spawn
-		if cfg.BabySpawnNPC >= 0
-			if cfg.BabySpawnNPC < 2
-				if cfg.BabySpawnNPC == 0
-					return;
-				else;if cfg.BabySpawnNPC == 1 ; && (Mother == PlayerRef || Father==PlayerRef) ; Only when the player is involved there will spawn actors
-					Baby = SpawnChildActor(Mother, Father)
-				endIf
-			else
-				if cfg.BabySpawnNPC == 2
+				else
 					if fatherIsCreature
 						return
 					else
 						Baby = SpawnChildItem(Mother, Father)
 					endif
-				elseif cfg.BabySpawnNPC == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
-					Mother.AddItem(BabyGem)
 				endif
-			endIf
+			elseif spawnSetting == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
+				Mother.AddItem(BabyGem)
+			endif
 		endIf
 	endif
 	
