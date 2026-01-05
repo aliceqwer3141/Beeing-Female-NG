@@ -1549,6 +1549,7 @@ function ChangeState(actor female, int state_number)
 	else
 		SendModEvent("BeeingFemale","Update", female.GetFormID())
 	endIf
+	UpdateParentFaction(female)
 endFunction
 
 function setIrregulation(actor female,int state_number)
@@ -1588,6 +1589,7 @@ function ChangeStateTimed(actor female, float Time, int state_number)
 	else
 		SendModEvent("BeeingFemale","Update", female.GetFormID())
 	endIf
+	UpdateParentFaction(female)
 endFunction
 
 
@@ -2773,27 +2775,20 @@ endFunction
 ; Updates the BeeingFemale faction for the given actor
 function UpdateParentFaction(actor ParentActor)
 	System.Trace("FWController.UpdateParentFaction", ParentActor)
-	;if ! ParentActor || ! System.ParentFaction
-	;	return
-	;endif
-	;if ParentActor.GetLeveledActorBase().GetSex()==0 && System.IsValidateMaleActor(ParentActor)<0
-	;	return
-	;elseif ParentActor.GetLeveledActorBase().GetSex()==1 && System.IsValidateFemaleActor(ParentActor)<0
-	;	return
-	;endif
-	;:float xtime=StorageUtil.GetFloatValue(ParentActor,"FW.LastBornChildTime",0)
-	;float GT = GameDaysPassed.GetValue()
-	;if GT - xtime <=0 || xtime==0 ; No parent
-	;	ParentActor.SetFactionRank(System.ParentFaction, 0)
-	;elseif GT - xtime <=1 ; Parent since less 1 day
-	;	ParentActor.SetFactionRank(System.ParentFaction, 1)
-	;elseif GT - xtime <=2 ; Parent since less 2 Days
-	;	ParentActor.SetFactionRank(System.ParentFaction, 2)
-	;elseif GT - xtime <=7 ; Parent since less 7 Days
-	;	ParentActor.SetFactionRank(System.ParentFaction, 3)
-	;else ; is parent
-	;	ParentActor.SetFactionRank(System.ParentFaction, 4)
-	;endif
+	if ParentActor == none || System == none || System.ParentFaction == none
+		return
+	endif
+	if (StorageUtil.FormListFind(none,"FW.SavedNPCs",ParentActor) < 0)
+		return
+	endif
+	int stateID = StorageUtil.GetIntValue(ParentActor, "FW.CurrentState", 0)
+	if stateID == 8
+		ParentActor.SetFactionRank(System.ParentFaction, -1)
+	elseif stateID >= 0
+		ParentActor.SetFactionRank(System.ParentFaction, stateID)
+	else
+		ParentActor.SetFactionRank(System.ParentFaction, -2)
+	endif
 endFunction
 
 ; Returns the calculated chance to become pregnant when the given womand has sex right now

@@ -43,6 +43,20 @@
                         </plugin>
                     </plugins> 
                 </group>
+                <group name="P.A.I.A Expansion" type="SelectAny"> 
+                    <plugins order="Explicit"> 
+                        <plugin name="P.A.I.A Expansion (Pregnancy and Inflation animations)"> 
+                            <description>Patches P.A.I.A Expansion to support BeeingFemale factions</description>
+                            <image path="Fomod_resources\fw.jpg" />
+                            <files> 
+                                <folder source="Patches\PAIAExpansion\meshes" destination="meshes" priority="0" /> 
+                            </files>
+                            <typeDescriptor> 
+                                <type name="Optional"/> 
+                            </typeDescriptor> 
+                        </plugin>
+                    </plugins> 
+                </group>
             </optionalFileGroups> 
         </installStep>
         <installStep name="Step 2">

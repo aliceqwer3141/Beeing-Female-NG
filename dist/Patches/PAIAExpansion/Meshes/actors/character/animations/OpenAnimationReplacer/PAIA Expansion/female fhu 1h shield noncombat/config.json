@@ -1,0 +1,93 @@
+{
+    "name": "female fhu 1h shield noncombat",
+    "description": "1h shield noncombat",
+    "priority": 91047708,
+    "overrideAnimationsFolder": "female fhu 1h shield noncombat",
+    "conditions": [
+        {
+            "condition": "IsFemale",
+            "requiredVersion": "1.0.0.0"
+        },
+        {
+            "condition": "IsEquippedType",
+            "requiredVersion": "1.0.0.0",
+            "Type": {
+                "value": 11.0
+            },
+            "Left hand": true
+        },
+        {
+            "condition": "HasKeyword",
+            "requiredVersion": "1.0.0.0",
+            "Keyword": {
+                "editorID": "ActorNPC"
+            }
+        },
+        {
+            "condition": "OR",
+            "requiredVersion": "1.0.0.0",
+            "Conditions": [
+                {
+                    "condition": "FactionRank",
+                    "requiredVersion": "1.0.0.0",
+                    "Faction": {
+                        "pluginName": "Fertility Mode 3 Fixes and Updates.esp",
+                        "formID": "862"
+                    },
+                    "Comparison": ">=",
+                    "Numeric value": {
+                        "value": 40.0
+                    }
+                },
+                {
+                    "condition": "FactionRank",
+                    "requiredVersion": "1.0.0.0",
+                    "Faction": {
+                        "pluginName": "HentaiPregnancy.esm",
+                        "formID": "12085"
+                    },
+                    "Comparison": ">=",
+                    "Numeric value": {
+                        "value": 2.0
+                    }
+                },
+                {
+                    "condition": "FactionRank",
+                    "requiredVersion": "1.0.0.0",
+                    "Faction": {
+                        "pluginName": "sr_FillHerUp.esp",
+                        "formID": "A991"
+                    },
+                    "Comparison": ">=",
+                    "Numeric value": {
+                        "value": 40.0
+                    }
+                },
+                {
+                    "condition": "FactionRank",
+                    "requiredVersion": "1.0.0.0",
+                    "Faction": {
+                        "pluginName": "Sgo4 Integration Fork.esp",
+                        "formID": "8E425"
+                    },
+                    "Comparison": ">=",
+                    "Numeric value": {
+                        "value": 40.0
+                    }
+                },
+                {
+                    "condition": "FactionRank",
+                    "requiredVersion": "1.0.0.0",
+                    "Faction": {
+                        "pluginName": "BeeingFemale.esm",
+                        "formID": "8448"
+                    },
+                    "Comparison": ">=",
+                    "Numeric value": {
+                        "value": 5.0
+                    }
+                }
+            ]
+        }
+    ]
+}

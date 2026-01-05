@@ -55,6 +55,7 @@ dist/Core/skse/plugins
 - Modified the SexLab add-on and added an OStim add-on.
 - Bathing in Skyrim Renewed addon added.
 - ChildItems grow to kids if growth is enabled after growthtime. (for player as mother only)
+- Parent faction repurposed for tracked female actor state tracking
 
   Changelog:
 	https://github.com/crajjjj/Beeing-Female-NG/releases
@@ -119,6 +120,34 @@ while sa > 0
 endwhile
 ```
 
+### ParentFaction Pregnancy Ranks
+
+Tracked actors (those in `FW.SavedNPCs`) get their `ParentFaction` rank updated when their state changes. You can read this rank to drive animations or other external logic.
+
+- Rank is set to the actor's current `FW.CurrentState` value.
+- Recovery (`FW.CurrentState` = `8`) is mapped to `-1` in the faction rank.
+- If no valid state is present, rank is set to `-2`.
+
+Rank (as read from `ParentFaction`) - Description - State ID:
+
+- `-1` - Replenish (recovery) - `8`
+- `0` - Follicular - `0`
+- `1` - Ovulation - `1`
+- `2` - Luteal - `2`
+- `3` - Menstruation - `3`
+- `4` - 1st Trimester - `4`
+- `5` - 2nd Trimester - `5`
+- `6` - 3rd Trimester - `6`
+- `7` - Labor Pains - `7`
+
+
+Papyrus example:
+
+```papyrus
+Faction ParentFaction = Game.GetFormFromFile(0x008448, "BeeingFemale.esm") as Faction
+int state = ParentFaction.GetFactionRank(SomeActor)
+```
+
 ### Papyrus ModEvents
 
 Beeing Female NG listens for a few mod events you can emit from your own Papyrus scripts.
@@ -172,6 +201,7 @@ Abortus trigger example (requires a pregnant actor and abortus enabled in config
 FemaleActor.SendModEvent("BeeingFemale", "DamageBaby", 999)
 FemaleActor.SendModEvent("BeeingFemale", "CheckAbortus")
 ```
+
 
 ### Custom Race Add-ons
 
