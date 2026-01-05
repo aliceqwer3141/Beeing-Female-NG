@@ -54,6 +54,8 @@ dist/Core/skse/plugins
 - Integrated fixes from BeeingFemaleSE Opt by aliceqwer3141 and Beeing Female SE 2.8.1 Patch V14d by Bane Master and Garkin.
 - Modified the SexLab add-on and added an OStim add-on.
 - Bathing in Skyrim Renewed addon added.
+- ChildItems grow to kids if growth is enabled after growthtime. (for player as mother only)
+
   Changelog:
 	https://github.com/crajjjj/Beeing-Female-NG/releases
 

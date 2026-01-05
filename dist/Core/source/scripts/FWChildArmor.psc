@@ -228,8 +228,8 @@ Event OnLoad()
 		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
 	endif
 	dob = storedDob
-	if _Mother != none
-		RegisterForSingleUpdateGameTime(12)
+	if _Mother != none && _Mother == PlayerRef
+		RegisterForSingleUpdateGameTime(8)
 	endif
 	;Debug.Trace("FWChildArmor::OnLoad() Complete")
 EndEvent
@@ -269,7 +269,10 @@ Function cleanItem()
 	self.Disable()
 	parent.Delete()
 EndFunction
+
 Event OnUpdateGameTime()
+	;only for mother player
+
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
 	if StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1
 		return
@@ -284,26 +287,16 @@ Event OnUpdateGameTime()
 		if f == none
 			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
 		endif
-		if m == none
-			cleanItem()
-			return
-		endif
-		if m.IsDead()
-			cleanItem()
-			return
-		endif
-		if m.GetItemCount(self.GetBaseObject()) < 1
+		if m == none || m.IsDead()
 			cleanItem()
 			return
 		endif
 		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
-		if m == PlayerRef && m.GetLeveledActorBase().GetSex() == 1
-			if System == none
-				RegisterForSingleUpdateGameTime(5)
-				return
-			endif
-			System.SpawnChildActor(m, f)
+		if System == none
+			RegisterForSingleUpdateGameTime(5)
+			return
 		endif
+		System.SpawnChildActor(m, f)
 		cleanItem()
 		return
 	endif
@@ -315,8 +308,7 @@ Event OnUpdateGameTime()
 		UnregisterForUpdateGameTime()
 		return
 	endif
-
-	RegisterForSingleUpdateGameTime(5)
+	RegisterForSingleUpdateGameTime(8)
 EndEvent
 
 ;function UpdateSize()
