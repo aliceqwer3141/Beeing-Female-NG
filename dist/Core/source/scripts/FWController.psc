@@ -2783,7 +2783,7 @@ function UpdateParentFaction(actor ParentActor)
 	if ParentActor == none || System == none || System.ParentFaction == none
 		return
 	endif
-	if (StorageUtil.FormListFind(none,"FW.SavedNPCs",ParentActor) < 0)
+	if ParentActor != PlayerRef && (StorageUtil.FormListFind(none,"FW.SavedNPCs",ParentActor) < 0)
 		return
 	endif
 	int stateID = StorageUtil.GetIntValue(ParentActor, "FW.CurrentState", 0)

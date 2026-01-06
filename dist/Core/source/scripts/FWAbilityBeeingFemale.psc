@@ -227,7 +227,6 @@ Event OnEffectFinish(Actor akTarget, Actor akCaster)
 		ResetBelly()
 		onExitState()
 	endif
-	PO3_Events_AME.UnregisterForHitEventEx(self)
 	If ActorRef && ActorRef.HasSpell(BeeingFemaleSpell)
 		ActorRef.RemoveSpell(BeeingFemaleSpell)
 	EndIf
@@ -355,6 +354,26 @@ event OnUpdateGameTime()
 			System.Player=self
 			System.PlayerMale=none
 		endif
+		float SizeDuration
+		if System && System.Manager
+			float matureHours = System.Manager.ActorCustomMatureTimeInHours(PlayerRef)
+			if matureHours > 0.0
+				SizeDuration = (matureHours / 24.0) / 5.0
+			endif
+		endif
+		
+		;find a childitem and grow/spawn child if Mother is player and time comes
+		int childCount = StorageUtil.FormListCount(none,"FW.Babys")
+		while childCount > 0
+			childCount -= 1
+			FWChildArmor child = StorageUtil.FormListGet(none,"FW.Babys", childCount) as FWChildArmor
+			if child
+				Actor mother = StorageUtil.GetFormValue(child, "FW.Child.Mother", none) as Actor
+				if mother == PlayerRef
+					child.ProcessBabyItemTransitionToChild(PlayerRef, SizeDuration)
+				endif
+			endif
+		endwhile
 		GlobalPlayerState.SetValue(currentState)
 		GlobalPlayerStatePercent.SetValue(CurrentStatePercent)
 	endif

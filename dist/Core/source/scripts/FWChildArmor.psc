@@ -204,7 +204,7 @@ Function SetName(string newName)
 EndFunction
 
 Event OnLoad()
-	;Debug.Trace("FWChildArmor::OnLoad()")
+	Debug.Trace("FWChildArmor::OnLoad()")
 	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Debug.Trace("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	int flag = StorageUtil.GetIntValue(self, "FW.Child.Flag", 0)
@@ -236,14 +236,10 @@ Event OnLoad()
 		if parentActor != none
 			float matureHours = System.Manager.ActorCustomMatureTimeInHours(parentActor)
 			if matureHours > 0.0
-				SizeDuration = matureHours / 24.0
+				SizeDuration = (matureHours / 24.0) / 5.0
 			endif
 		endif
 	endif
-	if _Mother != none && _Mother == PlayerRef
-		RegisterForSingleUpdateGameTime(8)
-	endif
-	;Debug.Trace("FWChildArmor::OnLoad() Complete")
 EndEvent
 
 function SetParent(actor Mother, actor Father)
@@ -282,45 +278,31 @@ Function cleanItem()
 	parent.Delete()
 EndFunction
 
-Event OnUpdateGameTime()
-	;only for mother player
-
+Function ProcessBabyItemTransitionToChild(Actor mother, float sizeDuration)
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
-	if StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1
+	If (!mother || !System || StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1)
 		return
-	endif
+	EndIf
 
-	if Age >= SizeDuration
-		Actor m = _Mother
+	; if System
+	; 	System.Message("FWChildArmor: Update tick (Age=" + Age + ", SizeDuration=" + SizeDuration + ")", System.MSG_Debug, System.MSG_Trace)
+	; endif
+	if Age >= sizeDuration
 		Actor f = _Father
-		if m == none
-			m = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
-		endif
 		if f == none
 			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
 		endif
-		if m == none || m.IsDead()
-			cleanItem()
-			return
-		endif
-		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
-		if System == none
-			RegisterForSingleUpdateGameTime(5)
-			return
-		endif
-		System.Message("Baby grows up.", System.MSG_Debug, System.MSG_Note)
-		System.SpawnChildActor(m, f)
+		System.Message("Baby grew.", System.MSG_Debug, System.MSG_Note)
+		System.SpawnChildActor(mother, f)
 		cleanItem()
+		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
 		return
 	endif
 
-	if System
-		float remainingDays = SizeDuration - Age
-		System.Message("Baby is growing. " + (remainingDays as int) + " days remaining.", System.MSG_Debug, System.MSG_Note)
-	endif
+	float remainingDays = SizeDuration - Age
+	System.Message("Baby is growing. " + (remainingDays as int) + " days remaining.", System.MSG_Debug, System.MSG_Note)
 
-	RegisterForSingleUpdateGameTime(8)
-EndEvent
+EndFunction
 
 ;function UpdateSize()
 	
