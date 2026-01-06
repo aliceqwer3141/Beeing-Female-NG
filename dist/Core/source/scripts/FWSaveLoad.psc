@@ -421,6 +421,7 @@ function __Update_Old(actor Woman)
 		; Save the new Data to Storage
 		StorageUtil.SetFloatValue(Woman,"FW.StateEnterTime",StateEnterTime)
 		StorageUtil.SetintValue(Woman,"FW.CurrentState",CurrentState)
+		Controller.UpdateParentFaction(Woman)
 		if bIsPregnant== false
 			StorageUtil.SetintValue(Woman,"FW.NumChilds",0)
 			StorageUtil.SetFloatValue(Woman,"FW.UnbornHealth",0.0)

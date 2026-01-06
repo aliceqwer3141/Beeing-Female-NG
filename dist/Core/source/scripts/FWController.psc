@@ -859,6 +859,7 @@ function UnimpregnateState(actor Mother, int Menstrual_Cycle_State)
 	else
 		StorageUtil.SetFloatValue(Mother,"FW.StateEnterTime", GameDaysPassed.GetValue());
 		StorageUtil.SetIntValue(Mother,"FW.CurrentState", xMenstrual_Cycle_State)
+		UpdateParentFaction(Mother)
 		int flag=0
 		if System.canBecomePregnant(Mother)
 			flag+=1
@@ -1125,6 +1126,7 @@ function GiveBirth(actor Mother)
 	;changeState(Mother,8)
 	StorageUtil.SetIntValue(Mother,"FW.CurrentState",8)
 	StorageUtil.SetFloatValue(Mother,"FW.StateEnterTime", GameDaysPassed.GetValue())
+	UpdateParentFaction(Mother)
 	
 	SendModEvent("BeeingFemale","Update", Mother.GetFormID())
 	
