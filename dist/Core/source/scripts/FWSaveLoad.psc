@@ -108,7 +108,7 @@ function Update(actor Woman)
 		endIf
 		UpdatePerDay(Woman)
 	endif
-	System.Message("FWSaveLoad::Update("+Woman.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec", System.MSG_Debug, System.MSG_Trace)
+	FW_log.WriteLog("FWSaveLoad::Update("+Woman.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec")
 endFunction
 
 function UpdatePerDay(actor Woman)

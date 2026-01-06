@@ -111,11 +111,6 @@ bool function FixSexLab()
 	return true
 endFunction
 
-function Trace(string s)
-	;System.Trace(s)
-	Debug.Trace(s)
-endFunction
-
 Event OnSexLabOrgasm(string hookName, string argString, float argNum, form sender)
 	;Trace("BFA_ssl::onSexLabOrgasm("+hookName+", "+argString+", "+argNum+", "+sender.GetName()+")")
 	;Trace("[SexLabOrgasmEvent]")
@@ -429,9 +424,5 @@ Form[] function OnStripActor(Actor ActorRef)
 		return SexLab.StripActor(ActorRef)
 	endif
 endFunction
-
-Function log(String msg, int lvl = 0)
-		Debug.Trace("[Beeing Female NG]: " + msg)
-EndFunction
 
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Added Sexlab pain sound when Sexlab is active(for example for giving birth)

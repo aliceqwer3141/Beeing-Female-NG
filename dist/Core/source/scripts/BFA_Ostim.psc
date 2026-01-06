@@ -103,17 +103,6 @@ bool function IsActive()
 	return bOstim
 endFunction
 
-
-function Trace(string s)
-	Debug.Trace(s)
-endFunction
-
-Function log(String msg, int lvl = 0)
-	Debug.Trace("[Beeing Female NG]: " + msg)
-EndFunction
-
-
-
 Function processPair(Actor female, Actor Male)
 	If !Female || !Male
 		return

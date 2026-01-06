@@ -1,6 +1,7 @@
 Scriptname FWSystem extends Quest  
 import FWUtility
 import FWVersion
+import FW_log
 
 ;--------------------------------------------------------------------------------
 ; Quest Objectives / Beeing Female States
@@ -1377,18 +1378,22 @@ Bool Function Message(string akMessage, int aiPriority = 1, int aiType = 0)
 		If aiType==MSG_Box && (bMessageEnabledAfterNewGameStarted;/==true/;||aiPriority==MSG_ALWAYS) ; Messagebox only when not in cobat ;Tkc (Loverslab): optimization
 			;Tkc (Loverslab): optimization
 			if PlayerRef.GetCombatState(); !=0
-				Debug.Notification(akMessage)
+				FW_log.Notification(akMessage)
+				;Debug.Notification(akMessage)
 			else;PlayerRef.GetCombatState()==0
-				Debug.MessageBox(akMessage)
+				FW_log.MessageBox(akMessage)
+				;Debug.MessageBox(akMessage)
 			endif
 		Elseif aiType == MSG_Note && (bMessageEnabledAfterNewGameStarted;/==true/;||aiPriority==MSG_ALWAYS) ;Tkc (Loverslab): optimization
 			Debug.Notification(akMessage)
 		elseif aiType == MSG_Trace
-			Debug.Trace(akMessage)
+			FW_log.WriteLog(akMessage)
+			;Debug.Trace(akMessage)
 		else
 			if bMessageEnabledAfterNewGameStarted ;Tkc (Loverslab): optimization
 			else;bMessageEnabledAfterNewGameStarted==false
-				Debug.Trace("BeeingFemale Message: "+akMessage)
+				FW_log.WriteLog(akMessage)
+				;Debug.Trace("BeeingFemale Message: "+akMessage)
 			EndIf
 		EndIf
 		Return True

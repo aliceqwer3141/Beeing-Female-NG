@@ -285,6 +285,7 @@ event OnUpdateGameTime()
 	float startTime = GameDaysPassed.GetValue()
 	float currentTime = GameDaysPassed.GetValue()
 	string ActorCurrentState = Self.GetState()
+	;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime start - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState)
 	;if System.IsActorPregnantByChaurus(ActorRef) && (Self.GetState() != "PregnantChaurus_State")
 	if System.IsActorPregnantByChaurus(ActorRef) ;Tkc (Loverslab): optimization
 	 if (ActorCurrentState == "PregnantChaurus_State")
@@ -350,27 +351,36 @@ event OnUpdateGameTime()
 	endif
 	if IsPlayer
 		if System.Player ;Tkc (Loverslab): optimization
+			;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player already set for " + ActorRef.GetLeveledActorBase().GetName())
 		else;if System.Player==none
+			;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player was none, setting to self for " + ActorRef.GetLeveledActorBase().GetName())
 			System.Player=self
 			System.PlayerMale=none
 		endif
 		float SizeDuration
-		if System && System.Manager
-			float matureHours = System.Manager.ActorCustomMatureTimeInHours(PlayerRef)
-			if matureHours > 0.0
-				SizeDuration = (matureHours / 24.0) / 5.0
-			endif
+		float matureHours = System.Manager.ActorCustomMatureTimeInHours(PlayerRef)
+		if matureHours > 0.0
+			SizeDuration = (matureHours / 24.0) / 5.0
 		endif
+		
 		
 		;find a childitem and grow/spawn child if Mother is player and time comes
 		int childCount = StorageUtil.FormListCount(none,"FW.Babys")
+		FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - childCount: " + childCount)
+
 		while childCount > 0
 			childCount -= 1
 			FWChildArmor child = StorageUtil.FormListGet(none,"FW.Babys", childCount) as FWChildArmor
 			if child
 				Actor mother = StorageUtil.GetFormValue(child, "FW.Child.Mother", none) as Actor
-				if mother == PlayerRef
-					child.ProcessBabyItemTransitionToChild(PlayerRef, SizeDuration)
+				if mother
+					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - childCount: " + childCount)
+					if mother == PlayerRef
+						FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - child found: " + child.GetName())
+						child.ProcessBabyItemTransitionToChild(System, PlayerRef, SizeDuration)
+					endif
+				else
+					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - mother not found for  " + child.GetName())
 				endif
 			endif
 		endwhile
@@ -390,7 +400,8 @@ event OnUpdateGameTime()
 	 endif
 	endif
 	OnUpdateFunction()
-	System.Message("FWAbilityBeeingFemale::OnUpdateGameTime("+ActorRef.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec", System.MSG_All, System.MSG_Trace)
+	FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime("+ActorRef.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec")
+	;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime end - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState + " percent=" + CurrentStatePercent)
 	Utility.WaitMenuMode(1)
 	If ActorRef.HasMagicEffect(_BFAbilityEffectBeeingFemale)
 		Self.RegisterForSingleUpdateGameTime(oldUpdateDelay)

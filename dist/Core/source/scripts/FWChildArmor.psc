@@ -1,5 +1,6 @@
 ﻿Scriptname FWChildArmor extends ObjectReference
 import Armor
+import FW_log
 
 spell property BabyCry auto
 spell property BabyFear auto
@@ -19,7 +20,6 @@ FormList property ItemListSupprised auto
 FWTextContents property Content auto
 Actor Property PlayerRef Auto
 GlobalVariable Property GameDaysPassed Auto
-FWSystem property System auto
 
 actor User
 
@@ -113,6 +113,8 @@ string property Name hidden
 	endFunction
 endProperty
 
+bool bInitFromStorage = false
+
 bool property IsFemale hidden
 	bool function get()
 		return iSex==1
@@ -203,8 +205,17 @@ Function SetName(string newName)
 	Name = newName
 EndFunction
 
+;this likely is not called - duplicated  onequip to be safe
 Event OnLoad()
-	Debug.Trace("FWChildArmor::OnLoad()")
+	WriteLog("FWChildArmor::OnLoad()")
+	InitFromStorage()
+EndEvent
+
+Function InitFromStorage()
+	if bInitFromStorage || StorageUtil.GetIntValue(self, "FW.Child.InitDone", 0) == 1
+		return
+	endif
+	WriteLog("FWChildArmor::InitFromStorage")
 	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Debug.Trace("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	int flag = StorageUtil.GetIntValue(self, "FW.Child.Flag", 0)
@@ -228,19 +239,10 @@ Event OnLoad()
 		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
 	endif
 	dob = storedDob
-	if System && System.Manager
-		Actor parentActor = _Mother
-		if parentActor == none
-			parentActor = _Father
-		endif
-		if parentActor != none
-			float matureHours = System.Manager.ActorCustomMatureTimeInHours(parentActor)
-			if matureHours > 0.0
-				SizeDuration = (matureHours / 24.0) / 5.0
-			endif
-		endif
-	endif
-EndEvent
+
+	bInitFromStorage = true
+	StorageUtil.SetIntValue(self, "FW.Child.InitDone", 1)
+EndFunction
 
 function SetParent(actor Mother, actor Father)
 	StorageUtil.SetFormValue(self,"FW.Child.Father",Father)
@@ -266,41 +268,43 @@ endFunction
 	;endif
 	;UpdateSize()
 ;endEvent
-Function cleanItem()
+Function discardItem()
+	StorageUtil.FormListRemove(none,"FW.Babys", self)
+	Delete()
+	self.Disable(true)
+	parent.Delete()
+EndFunction
+
+Function unequipItem()
 	if _Mother != none
 		_Mother.UnequipItem(self.GetBaseObject())
 		_Mother.RemoveItem(self, 1, true)
 	endif
-	StorageUtil.FormListRemove(none,"FW.Babys", self)
-	Delete()
-	UnregisterForUpdateGameTime()
-	self.Disable()
-	parent.Delete()
 EndFunction
 
-Function ProcessBabyItemTransitionToChild(Actor mother, float sizeDuration)
+Function ProcessBabyItemTransitionToChild(FWSystem sys, Actor mother, float sizeDuration)
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
-	If (!mother || !System || StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1)
+	If (!mother || !sys || StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1)
+		FW_log.WriteLog("FWChildArmor: ProcessBabyItemTransitionToChild skipped")
 		return
 	EndIf
 
-	; if System
-	; 	System.Message("FWChildArmor: Update tick (Age=" + Age + ", SizeDuration=" + SizeDuration + ")", System.MSG_Debug, System.MSG_Trace)
-	; endif
+	FW_log.WriteLog("FWChildArmor: Update tick (Age=" + Age + ", SizeDuration=" + sizeDuration + ")")
 	if Age >= sizeDuration
 		Actor f = _Father
 		if f == none
 			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
 		endif
-		System.Message("Baby grew.", System.MSG_Debug, System.MSG_Note)
-		System.SpawnChildActor(mother, f)
-		cleanItem()
+		FW_log.WriteLog("FWChildArmor: Baby transitioned to child")
+		sys.SpawnChildActor(mother, f)
+		unequipItem()
+		discardItem()
 		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
 		return
 	endif
 
 	float remainingDays = SizeDuration - Age
-	System.Message("Baby is growing. " + (remainingDays as int) + " days remaining.", System.MSG_Debug, System.MSG_Note)
+	FW_log.WriteLog("FWChildArmor: Baby is growing. " + (remainingDays as int) + " days remaining.")
 
 EndFunction
 
@@ -315,6 +319,7 @@ function Delete()
 	StorageUtil.UnsetStringValue(self, "FW.Child.Name")
 	StorageUtil.UnsetIntValue(self, "FW.Child.Flag")
 	StorageUtil.UnsetIntValue(self, "FW.Child.GrownToActor")
+	StorageUtil.FormListRemove(none, "FW.Babys", self)
 endFunction
 
 string Function GetLastName()
@@ -359,10 +364,11 @@ endFunction
 
 ; Event received when this object is equipped by an actor
 Event OnEquipped(Actor akActor)
+	InitFromStorage()
 	;Debug.Notification("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Debug.Trace("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Utility.Wait(3)
-	;Debug.Trace("FWChildArmor::OnEquipped("+akActor.GetLeveledActorBase().GetName()+")")
+	FW_log.WriteLog("FWChildArmor::OnEquipped("+akActor.GetLeveledActorBase().GetName()+")")
 	;Debug.Trace("Baby Name1: "+_xName)
 	;Debug.Trace("Baby Name2: "+StorageUtil.GetStringValue(self,"FW.Child.Name","none"))
 	;Debug.Trace("Baby Name3: "+GetDisplayName())
@@ -385,7 +391,14 @@ Event OnEquipped(Actor akActor)
 					Name=FWSystem.getRandomChildName(1)
 				endif
 			endif
-		endif
+	endif
+endEvent
+
+Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
+	if akNewContainer == none
+		FW_log.WriteLog("FWChildArmor::OnContainerChanged - dropped, cleaning tracking")
+		discardItem()
+	endif
 endEvent
 
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Very little changed..

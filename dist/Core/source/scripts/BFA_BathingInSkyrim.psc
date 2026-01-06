@@ -36,27 +36,27 @@ event OnUpdate()
 ;		endif
 ;	endwhile
 
-	Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - checking whether Bathing in Skyrim is installed...")
+	FW_log.WriteLog("BFA_BathingInSkyrim - checking whether Bathing in Skyrim is installed...")
 	string modName = FWUtility.ModFile("Bathing in Skyrim - Main")
 	if modName != ""
-		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - Bathing in Skyrim is installed. Its plugin name is " + modName)
+		FW_log.WriteLog("BFA_BathingInSkyrim - BFA_BathingInSkyrim - Bathing in Skyrim is installed. Its plugin name is " + modName)
 		sBathingEffect = Game.GetFormFromFile(0x28a3b, modName) as MagicEffect
 		sBathingEffectSoap = Game.GetFormFromFile(0x228ff, modName) as MagicEffect
 		sBathingEffectSoapAnim = sBathingEffectSoap
 		bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none))
-		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
+		FW_log.WriteLog("BFA_BathingInSkyrim - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
 		TryRegisterCount=0
 		return
 	else
-		Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - checking whether Bathing in Skyrim - Renewed is installed...")
+		FW_log.WriteLog("BFA_BathingInSkyrim - BFA_BathingInSkyrim - checking whether Bathing in Skyrim - Renewed is installed...")
 		modName = FWUtility.ModFile("Bathing in Skyrim")
 		if modName != ""
-			Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - Bathing in Skyrim - Renewed is installed. Its plugin name is " + modName)
+			FW_log.WriteLog("BFA_BathingInSkyrim - BFA_BathingInSkyrim - Bathing in Skyrim - Renewed is installed. Its plugin name is " + modName)
 			sBathingEffect = Game.GetFormFromFile(0x00002C, modName) as MagicEffect
 			sBathingEffectSoap = Game.GetFormFromFile(0x00002A, modName) as MagicEffect
 			sBathingEffectSoapAnim = Game.GetFormFromFile(0x00002B, modName) as MagicEffect
 			bIsInstalled = ((sBathingEffect != none) && (sBathingEffectSoap != none) && (sBathingEffectSoapAnim != none))
-			Debug.Trace("[Beeing Female NG] - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
+			FW_log.WriteLog("BFA_BathingInSkyrim - BFA_BathingInSkyrim - bIsInstalled is " + bIsInstalled)
 			TryRegisterCount=0
 			return
 		endif
