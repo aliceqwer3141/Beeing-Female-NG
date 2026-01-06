@@ -216,16 +216,6 @@ Function InitFromStorage(Actor akActor)
 		WriteLog("FWChildArmor::InitFromStorage skipped - already done")
 		return
 	endif
-	if akActor && StorageUtil.GetFormValue(self, "FW.Child.Mother", none) == none
-		StorageUtil.SetFormValue(self, "FW.Child.Mother", akActor)
-		_Mother = akActor
-		FW_log.WriteLog("FWChildArmor::InitFromStorage - set missing mother from equipper " + akActor)
-	endif
-	if StorageUtil.FormListHas(none, "FW.Babys", self) == false
-		StorageUtil.FormListAdd(none, "FW.Babys", self)
-		FW_log.WriteLog("FWChildArmor::InitFromStorage - added to FW.Babys")
-	endif
-
 	;WriteLog("FWChildArmor::InitFromStorage")
 	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;FW_log.WriteLog("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
@@ -238,8 +228,6 @@ Function InitFromStorage(Actor akActor)
 	endif
 	name = StorageUtil.GetStringValue(self,"FW.Child.Name","")
 	WriteLog("FWChildArmor::InitFromStorage name" + name)
-	_Father = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
-	_Mother = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
 	if Math.LogicalAnd(flag,2)==2 && _Father
 		HairColor = _Father.GetLeveledActorBase().GetHairColor()
 		WriteLog("FWChildArmor::InitFromStorage father name" + _Father.GetLeveledActorBase().GetName())
@@ -254,6 +242,12 @@ Function InitFromStorage(Actor akActor)
 		WriteLog("FWChildArmor::InitFromStorage FW.Child.DOB" + storedDob)
 	endif
 	dob = storedDob
+	if akActor && akActor == PlayerRef
+		;playerref values
+		StorageUtil.SetFormValue(PlayerRef, "FW.ChildArmor.Mother", akActor)
+		StorageUtil.SetFormValue(PlayerRef, "FW.ChildArmor.Father", _Father)
+		StorageUtil.SetFloatValue(PlayerRef, "FW.ChildArmor.dob", dob)
+	endif
 
 	bInitFromStorage = true
 	StorageUtil.SetIntValue(self, "FW.Child.InitDone", 1)
@@ -268,22 +262,6 @@ function SetParent(actor Mother, actor Father)
 	_Mother=Mother
 endFunction
 
-;Event OnUpdateGameTime()
-	;StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",Utility.GetCurrentGameTime())
-	;Function CreateEnchantment(float maxCharge, MagicEffect[] effects, float[] magnitudes, int[] areas, int[] durations)
-	;if(GetEnchantment()==none)
-	;	MagicEffect[] encm = new MagicEffect[1]
-	;	float[] encf = new float[1]
-	;	int[] enci1 = new int[1]
-	;	int[] enci2 = new int[1]
-	;	encm[0] = Game.GetFormFromFile(0x183B, "BeeingFemaleBasicAddOn.esp")
-	;	encf[0] = 1.0
-	;	enci1[0]= 0.0
-	;	enci2[0]= 0.0
-	;	CreateEnchantment(1, encm, encf, enci1, enci2)
-	;endif
-	;UpdateSize()
-;endEvent
 Function discardItem()
 	StorageUtil.FormListRemove(none,"FW.Babys", self)
 	Delete()
@@ -296,32 +274,6 @@ Function unequipItem()
 		_Mother.UnequipItem(self.GetBaseObject())
 		_Mother.RemoveItem(self, 1, true)
 	endif
-EndFunction
-
-Function ProcessBabyItemTransitionToChild(FWSystem sys, Actor mother, float sizeDuration)
-	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
-	If (!mother || !sys || StorageUtil.GetIntValue(self, "FW.Child.GrownToActor", 0) == 1)
-		FW_log.WriteLog("FWChildArmor: ProcessBabyItemTransitionToChild skipped")
-		return
-	EndIf
-
-	FW_log.WriteLog("FWChildArmor: Update tick (Age=" + Age + ", SizeDuration=" + sizeDuration + ")")
-	if Age >= sizeDuration
-		Actor f = _Father
-		if f == none
-			f = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
-		endif
-		FW_log.WriteLog("FWChildArmor: Baby transitioned to child")
-		sys.SpawnChildActor(mother, f)
-		unequipItem()
-		discardItem()
-		StorageUtil.SetIntValue(self, "FW.Child.GrownToActor", 1)
-		return
-	endif
-
-	float remainingDays = SizeDuration - Age
-	FW_log.WriteLog("FWChildArmor: Baby is growing. " + (remainingDays as int) + " days remaining.")
-
 EndFunction
 
 ;function UpdateSize()
@@ -380,7 +332,6 @@ endFunction
 
 ; Event received when this object is equipped by an actor
 Event OnEquipped(Actor akActor)
-	InitFromStorage(akActor)
 	
 	;Debug.Notification("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;FW_log.WriteLog("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
@@ -409,11 +360,13 @@ Event OnEquipped(Actor akActor)
 				endif
 			endif
 	endif
+	InitFromStorage(akActor)
 endEvent
 
 Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
 	if akNewContainer == none
 		FW_log.WriteLog("FWChildArmor::OnContainerChanged - dropped, cleaning tracking")
+		StorageUtil.FormListRemove(none, "FW.PlayerBabyArmor", self)
 		discardItem()
 	endif
 endEvent

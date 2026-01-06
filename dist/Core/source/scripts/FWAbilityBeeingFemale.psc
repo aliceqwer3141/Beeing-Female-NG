@@ -349,6 +349,7 @@ event OnUpdateGameTime()
 		SetBelly();
 		AbortusPains()
 	endif
+
 	if IsPlayer
 		if System.Player ;Tkc (Loverslab): optimization
 			;FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player already set for " + ActorRef.GetLeveledActorBase().GetName())
@@ -364,33 +365,37 @@ event OnUpdateGameTime()
 		endif
 		
 		
-		;find a childitem and grow/spawn child if Mother is player and time comes
-		int childCount = StorageUtil.FormListCount(none,"FW.Babys")
-		FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - childCount: " + childCount)
+		;find a player child item and grow/spawn child if time comes
+		int babyitemCount = StorageUtil.FormListCount(none,"FW.Babys")
+		FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player babyitemCount: " + babyitemCount)
+		
+		float dob = StorageUtil.GetFloatValue(PlayerRef,"FW.ChildArmor.dob",0)
+		Actor f = StorageUtil.GetFormValue(PlayerRef,"FW.ChildArmor.Father",none) as Actor
+		Actor m = StorageUtil.GetFormValue(PlayerRef,"FW.ChildArmor.Mother",none) as Actor
 
-		while childCount > 0
-			childCount -= 1
-			Form entry = StorageUtil.FormListGet(none,"FW.Babys", childCount)
-			FWChildArmor child = entry as FWChildArmor
-			if child
-				Actor mother = StorageUtil.GetFormValue(child, "FW.Child.Mother", none) as Actor
-				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - child name: " +  child.GetName())
-				if mother
-					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - mother found for: "+ child.GetName() + "-" + mother.GetLeveledActorBase().GetName())
-					if mother == PlayerRef
-						FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player child found: " + child.GetName())
-						child.ProcessBabyItemTransitionToChild(System, PlayerRef, SizeDuration)
-					endif
-				else
-					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - mother not found for  " + child.GetName())
+		while babyitemCount > 0
+			babyitemCount -= 1
+			Form formarm = StorageUtil.FormListGet(none,"FW.Babys", babyitemCount)
+			If (formarm)
+				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - form entry in FW.Babys" + formarm.GetName())
+			EndIf
+			Armor childArmor = formarm  as Armor
+			If (childArmor)
+				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - armor entry in FW.Babys" + childArmor.GetName())
+			EndIf
+			FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - dob: " + formarm.GetName() + dob)
+			
+			if childArmor && PlayerRef.IsEquipped(childArmor)
+				if m && m == PlayerRef
+					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player child: " + childArmor.GetName())
+					ProcessBabyItemTransitionToChild(f,m,SizeDuration,childArmor,dob)
 				endif
-			else
-				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - non-armor entry: " + entry.GetName() + ":" + entry.GetFormID())
 			endif
 		endwhile
 		GlobalPlayerState.SetValue(currentState)
 		GlobalPlayerStatePercent.SetValue(CurrentStatePercent)
 	endif
+
 	;if !IsPlayer && currentState<4 && ActorRef.Is3DLoaded()
 	if IsPlayer ;Tkc (Loverslab): optimization
 	else;if !IsPlayer
@@ -411,6 +416,29 @@ event OnUpdateGameTime()
 		Self.RegisterForSingleUpdateGameTime(oldUpdateDelay)
 	EndIf
 endEvent
+
+Function ProcessBabyItemTransitionToChild(Actor mother,Actor father, float sizeDuration, Armor arm, float dob)
+	if dob == 0.0
+		FW_log.WriteLog("FWChildArmor: ProcessBabyItemTransitionToChild: DOB is 0")
+		return
+	endif
+	if !mother
+		FW_log.WriteLog("FWChildArmor: ProcessBabyItemTransitionToChild: no mother")
+		return
+	endif
+	Float age = GameDaysPassed.GetValue() - dob
+	FW_log.WriteLog("FWChildArmor: Update tick (Age=" + age + ", SizeDuration=" + sizeDuration + ")")
+	if age >= sizeDuration
+		FW_log.WriteLog("FWChildArmor: Baby transitioned to child")
+		System.SpawnChildActor(mother, father)
+		mother.UnequipItem(arm)
+		mother.RemoveItem(arm, 1, true)
+		return
+	endif
+
+	float remainingDays = SizeDuration - Age
+	FW_log.WriteLog("FWChildArmor: Baby is growing. " + (remainingDays as int) + " days remaining.")
+EndFunction
 
 bool OnHitIsBusy
 Event OnImpact(ObjectReference akAggressor, Form akSource, Projectile akProjectile, bool abPowerAttack, bool abSneakAttack, bool abBashAttack, bool abHitBlocked)
