@@ -11,7 +11,7 @@ function execute()
 		return
 	endif
 
-	Debug.Trace("FWOvulationItem - Changing state of " + ActorRef + " to Luteal_State where the impregnation change is maximum.")
+	FW_log.WriteLog("FWOvulationItem - Changing state of " + ActorRef + " to Luteal_State where the impregnation change is maximum.")
 	ActorRef.SendModEvent("BeeingFemale", "ChangeState", 2)
 endfunction
 

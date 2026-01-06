@@ -31,14 +31,14 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyItem: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	FW_log.WriteLog("FWBabyItemList - getBabyItem: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 	Else
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 	EndIF
@@ -157,13 +157,13 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 	
 	; No forced Baby found - Use default methode to get the babys race
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyItem - Father race cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyItem - Father race cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father race cannot be found...")
 		endIf
 	endIf
 	
-	Debug.Trace("BeeingFemale - FWBabyItemList - getBabyItem - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyItem - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -175,7 +175,7 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyItem - BabyItem cannot be found and thus reverting to FallBack_MaleBabyItem...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyItem - BabyItem cannot be found and thus reverting to FallBack_MaleBabyItem...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyItem cannot be found and thus reverting to FallBack_MaleBabyItem...")
 			endIf
@@ -187,7 +187,7 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyItem - BabyItem cannot be found and thus reverting to FallBack_FemaleBabyItem...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyItem - BabyItem cannot be found and thus reverting to FallBack_FemaleBabyItem...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyItem cannot be found and thus reverting to FallBack_FemaleBabyItem...")
 			endIf
@@ -206,14 +206,14 @@ Armor function getBabyArmor(actor Mother, actor Father, int sex)
 
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyArmor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	FW_log.WriteLog("FWBabyItemList - getBabyArmor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 	Else
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 	EndIF
@@ -332,13 +332,13 @@ Armor function getBabyArmor(actor Mother, actor Father, int sex)
 	
 	; No forced Baby found - Use default methode to get the babys race
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyArmor - Father race cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyArmor - Father race cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father race cannot be found...")
 		endIf
 	endIf
 
-	Debug.Trace("BeeingFemale - FWBabyItemList - getBabyArmor - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyArmor - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -350,7 +350,7 @@ Armor function getBabyArmor(actor Mother, actor Father, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyArmor - BabyArmor cannot be found and thus reverting to FallBack_MaleBabyArmor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyArmor - BabyArmor cannot be found and thus reverting to FallBack_MaleBabyArmor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyArmor cannot be found and thus reverting to FallBack_MaleBabyArmor...")
 			endIf
@@ -362,7 +362,7 @@ Armor function getBabyArmor(actor Mother, actor Father, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyArmor - BabyArmor cannot be found and thus reverting to FallBack_FemaleBabyArmor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyArmor - BabyArmor cannot be found and thus reverting to FallBack_FemaleBabyArmor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyArmor cannot be found and thus reverting to FallBack_FemaleBabyArmor...")
 			endIf
@@ -383,13 +383,13 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 	ActorBase b
 	
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father cannot be found...")
 		endIf
 	endIf
 	
-	Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -411,12 +411,12 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 	endIf
 	
 	if(bool_MixWithCopyActorBase)
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - MixWithCopyActorBase is turned on!")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - MixWithCopyActorBase is turned on!")
 		int myProbChildActor = Manager.RaceProbChildActorBornNew(ParentActor, ParentRace)
 		
 		int myProbChildActorRandom = Utility.RandomInt(0, 99)
 		if(myProbChildActorRandom < myProbChildActor)
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
 
 			if(sex == 0)
 				; Male
@@ -429,14 +429,14 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 			if b
 			else
 				if(ParentActor == none)
-					Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					endIf
 						
 					b = Mother.GetLeveledActorBase()
 				else
-					Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					endIf
@@ -445,7 +445,7 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 				endIf
 			endif
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
 
 			b = ParentActor.GetLeveledActorBase()
 		endIf
@@ -461,14 +461,14 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 		if b
 		else
 			if(ParentActor == none)
-				Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				endIf
 						
 				b = Mother.GetLeveledActorBase()
 			else
-				Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				endIf
@@ -508,14 +508,14 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	FW_log.WriteLog("FWBabyItemList - getBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 	Else
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 	EndIF
@@ -524,13 +524,13 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	ActorBase b
 	
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father cannot be found...")
 		endIf
 	endIf
 	
-	Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -552,12 +552,12 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	endIf
 	
 	if(bool_MixWithCopyActorBase)
-		Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - MixWithCopyActorBase is turned on!")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - MixWithCopyActorBase is turned on!")
 		int myProbChildActor = Manager.RaceProbChildActorBornNew(ParentActor, ParentRace)
 		
 		int myProbChildActorRandom = Utility.RandomInt(0, 99)
 		if(myProbChildActorRandom < myProbChildActor)
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
 
 			if(sex == 0)
 				; Male
@@ -570,14 +570,14 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 			if b
 			else
 				if(ParentActor == none)
-					Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					endIf
 						
 					b = Mother.GetLeveledActorBase()
 				else
-					Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					endIf
@@ -586,7 +586,7 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 				endIf
 			endif
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
 
 			b = ParentActor.GetLeveledActorBase()
 		endIf
@@ -602,14 +602,14 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 		if b
 		else
 			if(ParentActor == none)
-				Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				endIf
 						
 				b = Mother.GetLeveledActorBase()
 			else
-				Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				endIf
@@ -635,7 +635,7 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	if childRace
 		string childRaceName = FWUtility.toLower(childRace.GetName())
 		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child race " + childRace + " is not labeled as child; skipping spawn.")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child race " + childRace + " is not labeled as child; skipping spawn.")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("Child race is not labeled as child; skipping spawn.")
 			endIf
@@ -654,13 +654,13 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 	ActorBase b
 	
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Father cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Father cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father cannot be found...")
 		endIf
 	endIf
 	
-	Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -682,12 +682,12 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 	endIf
 	
 	if(bool_MixWithCopyActorBase)
-		Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - MixWithCopyActorBase is turned on!")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - MixWithCopyActorBase is turned on!")
 		int myProbChildActor = Manager.RaceProbChildActorBornNew(ParentActor, ParentRace)
 		
 		int myProbChildActorRandom = Utility.RandomInt(0, 99)
 		if(myProbChildActorRandom < myProbChildActor)
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
 
 			if(sex == 0)
 				; Male
@@ -700,14 +700,14 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 			if b
 			else
 				if(ParentActor == none)
-					Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					endIf
 						
 					b = Mother.GetLeveledActorBase()
 				else
-					Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					endIf
@@ -716,7 +716,7 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 				endIf
 			endif
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
 
 			b = ParentActor.GetLeveledActorBase()
 		endIf
@@ -732,14 +732,14 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 		if b
 		else
 			if(ParentActor == none)
-				Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				endIf
 						
 				b = Mother.GetLeveledActorBase()
 			else
-				Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				endIf
@@ -770,14 +770,14 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+		FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 
 		ParentActor = Father
 	Else
-		Debug.Trace("[Beeing Female NG] - FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 
 		ParentActor = Mother
 	EndIF
@@ -786,13 +786,13 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 	ActorBase b
 	
 	if Father == none
-		Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Father cannot be found...")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Father cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Father cannot be found...")
 		endIf
 	endIf
 	
-	Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child Parent Race: " + ParentRace)
+	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child Parent Race: " + ParentRace)
 	if cfg.ShowDebugMessage
 		Debug.Messagebox("Child Parent Race: " + ParentRace)
 	endIf
@@ -814,12 +814,12 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 	endIf
 	
 	if(bool_MixWithCopyActorBase)
-		Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - MixWithCopyActorBase is turned on!")
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - MixWithCopyActorBase is turned on!")
 		int myProbChildActor = Manager.RaceProbChildActorBornNew(ParentActor, ParentRace)
 		
 		int myProbChildActorRandom = Utility.RandomInt(0, 99)
 		if(myProbChildActorRandom < myProbChildActor)
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
 
 			if(sex == 0)
 				; Male
@@ -832,14 +832,14 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 			if b
 			else
 				if(ParentActor == none)
-					Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 					endIf
 						
 					b = Mother.GetLeveledActorBase()
 				else
-					Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					if cfg.ShowDebugMessage
 						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 					endIf
@@ -848,7 +848,7 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 				endIf
 			endif
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
 
 			b = ParentActor.GetLeveledActorBase()
 		endIf
@@ -864,14 +864,14 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 		if b
 		else
 			if(ParentActor == none)
-				Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
 				endIf
 						
 				b = Mother.GetLeveledActorBase()
 			else
-				Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
+				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
 				endIf
@@ -911,7 +911,7 @@ ActorBase function getBabyActorByRace(race RaceID, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActorByRace - BabyActor cannot be found and thus reverting to FallBack_MaleBabyActor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActorByRace - BabyActor cannot be found and thus reverting to FallBack_MaleBabyActor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyActor cannot be found and thus reverting to FallBack_MaleBabyActor...")
 			endIf
@@ -923,7 +923,7 @@ ActorBase function getBabyActorByRace(race RaceID, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getBabyActorByRace - BabyActor cannot be found and thus reverting to FallBack_FemaleBabyActor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActorByRace - BabyActor cannot be found and thus reverting to FallBack_FemaleBabyActor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("BabyActor cannot be found and thus reverting to FallBack_FemaleBabyActor...")
 			endIf
@@ -940,7 +940,7 @@ ActorBase function getPlayerBabyActorByRace(race RaceID, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActorByRace - PlayerBabyActor cannot be found and thus reverting to FallBack_MalePlayerBabyActor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActorByRace - PlayerBabyActor cannot be found and thus reverting to FallBack_MalePlayerBabyActor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("PlayerBabyActor cannot be found and thus reverting to FallBack_MalePlayerBabyActor...")
 			endIf
@@ -952,7 +952,7 @@ ActorBase function getPlayerBabyActorByRace(race RaceID, int sex)
 		if b!=none
 			return b
 		else
-			Debug.Trace("BeeingFemale - FWBabyItemList - getPlayerBabyActorByRace - PlayerBabyActor cannot be found and thus reverting to FallBack_FemalePlayerBabyActor...")
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActorByRace - PlayerBabyActor cannot be found and thus reverting to FallBack_FemalePlayerBabyActor...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("PlayerBabyActor cannot be found and thus reverting to FallBack_FemalePlayerBabyActor...")
 			endIf

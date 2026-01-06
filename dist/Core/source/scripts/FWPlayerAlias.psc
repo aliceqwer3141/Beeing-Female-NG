@@ -169,7 +169,7 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 	;If sName == ""
 	;	sName = akTarget.GetLeveledActorBase().GetName()
 	;EndIf
-	;Debug.Trace("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
+	;FW_log.WriteLog("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
 	;Debug.Notification("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
 	If akTarget.Is3DLoaded() ;Tkc (Loverslab): optimization
 	else;If !akTarget.Is3DLoaded() ;In my tests BeeingFemale effects fail to get applied if the character is not 3D Loaded
@@ -179,7 +179,7 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 		If akTarget.HasSpell(BeeingFemaleSpell)
 			if akTarget.HasMagicEffect(BeeingFemaleSpell.GetNthEffectMagicEffect(0))
 			else;if !akTarget.HasMagicEffect(BeeingFemaleSpell.GetNthEffectMagicEffect(0))
-				;Debug.Trace("BF: " + sName + " has Female Spell but not the Effect - removed")
+				;FW_log.WriteLog("BF: " + sName + " has Female Spell but not the Effect - removed")
 				akTarget.RemoveSpell(BeeingFemaleSpell)
 				;Utility.WaitMenuMode(0.5)
 			endif
@@ -188,7 +188,7 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 		if akTarget.HasSpell(BeeingMaleSpell)
 			if akTarget.HasMagicEffect(BeeingMaleSpell.GetNthEffectMagicEffect(0))
 			else;if !akTarget.HasMagicEffect(BeeingMaleSpell.GetNthEffectMagicEffect(0))
-				;Debug.Trace("BF: " + sName + " has Male Spell but not the Effect - removed")
+				;FW_log.WriteLog("BF: " + sName + " has Male Spell but not the Effect - removed")
 				akTarget.RemoveSpell(BeeingMaleSpell)
 				;Utility.WaitMenuMode(0.5)
 			endif
@@ -199,7 +199,7 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 			If System.IsValidateMaleActor(akTarget) > 0;(akTarget.GetLeveledActorBase().GetSex() == 0)
 				if akTarget.HasSpell(BeeingMaleSpell) ;Tkc (Loverslab): optimization
 				else;if akTarget.HasSpell(BeeingMaleSpell)==false
-					;Debug.Trace("BF: "+ sName + " is male - Add BeeingMaleSpell")
+					;FW_log.WriteLog("BF: "+ sName + " is male - Add BeeingMaleSpell")
 					akTarget.AddSpell(BeeingMaleSpell)
 				endif
 			ElseIf (akTarget.GetLeveledActorBase().IsUnique())
@@ -207,14 +207,14 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 				if akTarget.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
 				else
 				if System.IsValidateFemaleActor(akTarget) > 0
-					;Debug.Trace("BF: " + sName + " is female unique - Add BeeingFemaleSpell")
+					;FW_log.WriteLog("BF: " + sName + " is female unique - Add BeeingFemaleSpell")
 					akTarget.AddSpell(BeeingFemaleSpell)
 				endif
 				endif
 			ElseIf BeeingNUFemaleSpell
 				if akTarget.HasSpell(BeeingNUFemaleSpell)
 				else;if akTarget.HasSpell(BeeingNUFemaleSpell)==false 
-					;Debug.Trace("BF: " + sName + " is female non-unique - Add BeeingNUFemaleSpell")
+					;FW_log.WriteLog("BF: " + sName + " is female non-unique - Add BeeingNUFemaleSpell")
 					akTarget.AddSpell(BeeingNUFemaleSpell)
 				endif
 			EndIf
@@ -228,16 +228,16 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 		;If sName == ""
 		;	sName = akTarget.GetLeveledActorBase().GetName()
 		;EndIf
-		;Debug.Trace("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
+		;FW_log.WriteLog("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
 		;Debug.Notification("BF: " + sName+ " " + akTarget as string + " is in ProcessActor.")
 		if IsFemale		
 			;If (akTarget.GetLeveledActorBase().IsUnique())
 				if akTarget.HasSpell(BeeingFemaleSpell)
-					;Debug.Trace("BF: " + sName + " has Female Spell but not the Effect - removed")
+					;FW_log.WriteLog("BF: " + sName + " has Female Spell but not the Effect - removed")
 					akTarget.RemoveSpell(BeeingFemaleSpell)
 					Return
 				else;if akTarget.HasSpell(BeeingFemaleSpell)==false
-					;Debug.Trace("BF: " + sName + " is female unique - Add BeeingFemaleSpell")
+					;FW_log.WriteLog("BF: " + sName + " is female unique - Add BeeingFemaleSpell")
 					akTarget.AddSpell(BeeingFemaleSpell)
 				endif
 ;			Else;If BeeingNUFemaleSpell
@@ -245,17 +245,17 @@ Function ProcessActor(Actor akTarget, bool IsFemale = true); Tkc (Loverslab): op
 ;					akTarget.RemoveSpell(BeeingNUFemaleSpell)
 ;					Return
 ;				else;if akTarget.HasSpell(BeeingNUFemaleSpell)==false 
-;					;Debug.Trace("BF: " + sName + " is female non-unique - Add BeeingNUFemaleSpell")
+;					;FW_log.WriteLog("BF: " + sName + " is female non-unique - Add BeeingNUFemaleSpell")
 ;					akTarget.AddSpell(BeeingNUFemaleSpell)
 ;				endif
 ;			Endif
 		else			
 			if akTarget.HasSpell(BeeingMaleSpell)
-				;Debug.Trace("BF: " + sName + " has Female Spell but not the Effect - removed")
+				;FW_log.WriteLog("BF: " + sName + " has Female Spell but not the Effect - removed")
 				akTarget.RemoveSpell(BeeingFemaleSpell)
 				Return
 			else;if akTarget.HasSpell(BeeingMaleSpell)==false
-				;Debug.Trace("BF: "+ sName + " is male - Add BeeingMaleSpell")
+				;FW_log.WriteLog("BF: "+ sName + " is male - Add BeeingMaleSpell")
 				akTarget.AddSpell(BeeingMaleSpell)
 			endif
 		Endif
@@ -324,7 +324,7 @@ State Processing
 			;;;;;;;;;;;;;;;;;
 		EndIf
 		EndIf
-		;Debug.Trace("- Register for single update("+Interval+")")
+		;FW_log.WriteLog("- Register for single update("+Interval+")")
 		GoToState("")
 	EndEvent
 

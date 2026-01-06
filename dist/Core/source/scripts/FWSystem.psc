@@ -277,7 +277,7 @@ function RemoveSPIDitems(actor woman)
 			ithItem = Pill_Items.GetAt(index)
 			ithItemNum = woman.GetItemCount(ithItem)
 			if(ithItemNum)
-				Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
+				FW_log.WriteLog("FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
 				woman.RemoveItem(ithItem, ithItemNum, true)
 			endIf
 			index += 1
@@ -290,7 +290,7 @@ function RemoveSPIDitems(actor woman)
 			ithItem = WashOut_List.GetAt(index)
 			ithItemNum = woman.GetItemCount(ithItem)
 			if(ithItemNum)
-				Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
+				FW_log.WriteLog("FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " " + ithItem + ". Removing...")
 				woman.RemoveItem(ithItem, ithItemNum, true)
 			endIf
 			index += 1
@@ -299,19 +299,19 @@ function RemoveSPIDitems(actor woman)
 	
 	ithItemNum = woman.GetItemCount(Tampon_Normal)
 	if(ithItemNum)
-		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " tampons. Removing...")
+		FW_log.WriteLog("FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " tampons. Removing...")
 		woman.RemoveItem(Tampon_Normal, ithItemNum, true)
 	endIf
 
 	ithItemNum = woman.GetItemCount(Sanitary_Napkin_Normal)
 	if(ithItemNum)
-		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " panties. Removing...")
+		FW_log.WriteLog("FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " panties. Removing...")
 		woman.RemoveItem(Sanitary_Napkin_Normal, ithItemNum, true)
 	endIf
 
 	ithItemNum = woman.GetItemCount(CallChildren2)
 	if(ithItemNum)
-		Debug.Trace("[Beeing Female NG] - FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " child scrolls. Removing...")
+		FW_log.WriteLog("FWSystem - RemoveSPIDitems : Actor " + woman + " has " + ithItemNum + " child scrolls. Removing...")
 		woman.RemoveItem(CallChildren2, ithItemNum, true)
 	endIf
 endFunction
@@ -705,7 +705,7 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 					bool myIsCustomChildActor = (StorageUtil.GetIntValue(myCustomChildActor, "FW.Child.IsCustomChildActor", 0) == 1)
 					if(myIsCustomChildActor)
 					else
-						Debug.Trace("[Beeing Female NG] - FWSystem: Adding IsCustomChildActor flag to the actor: " + myCustomChildActor)
+						FW_log.WriteLog("FWSystem: Adding IsCustomChildActor flag to the actor: " + myCustomChildActor)
 						StorageUtil.SetIntValue(myCustomChildActor, "FW.Child.IsCustomChildActor", 1)
 					endIf			
 				else
@@ -1388,12 +1388,12 @@ Bool Function Message(string akMessage, int aiPriority = 1, int aiType = 0)
 			Debug.Notification(akMessage)
 		elseif aiType == MSG_Trace
 			FW_log.WriteLog(akMessage)
-			;Debug.Trace(akMessage)
+			;FW_log.WriteLog(akMessage)
 		else
 			if bMessageEnabledAfterNewGameStarted ;Tkc (Loverslab): optimization
 			else;bMessageEnabledAfterNewGameStarted==false
 				FW_log.WriteLog(akMessage)
-				;Debug.Trace("BeeingFemale Message: "+akMessage)
+				;FW_log.WriteLog("BeeingFemale Message: "+akMessage)
 			EndIf
 		EndIf
 		Return True
@@ -1933,7 +1933,7 @@ int function calculateNumChildren(actor Woman)
 	
 	float myMultipleBabySperm = Manager.ActorMultipleBabySperm(Woman)
 	if(myMultipleBabySperm > 0.0)
-		Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: MultipleBabySperm = " + myMultipleBabySperm + " for actor " + Woman)
+		FW_log.WriteLog("FWSystem - calculateNumChildren: MultipleBabySperm = " + myMultipleBabySperm + " for actor " + Woman)
 		float[] relevantSperm = Controller.GetRelevantSpermFloatTimed(Woman, GameDaysPassed.GetValue(), false, false)
 		float relevanceTotal = 0.0
 		int c = relevantSperm.length
@@ -1947,21 +1947,21 @@ int function calculateNumChildren(actor Woman)
 			
 		float myMultipleBabySpermChance = Manager.ActorMultipleBabyChancePerSperm(Woman)
 		if(myMultipleBabySpermChance > 0.0)
-			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: MultipleBabyChancePerSperm = " + myMultipleBabySpermChance + " for actor " + Woman)
-			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: The amount of sperm in " + Woman + " is " + relevanceTotal)
+			FW_log.WriteLog("FWSystem - calculateNumChildren: MultipleBabyChancePerSperm = " + myMultipleBabySpermChance + " for actor " + Woman)
+			FW_log.WriteLog("FWSystem - calculateNumChildren: The amount of sperm in " + Woman + " is " + relevanceTotal)
 				
-			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Original multiple baby chance for " + Woman + " was " + myOrigMaxBabyChance)
+			FW_log.WriteLog("FWSystem - calculateNumChildren: Original multiple baby chance for " + Woman + " was " + myOrigMaxBabyChance)
 			float myMaxBabyChanceMultiplier = relevanceTotal * myMultipleBabySpermChance / myMultipleBabySperm
 			MaxBabyChance *= myMaxBabyChanceMultiplier
-			Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Multiple baby chance for " + Woman + " will be multiplied by " + myMaxBabyChanceMultiplier)
+			FW_log.WriteLog("FWSystem - calculateNumChildren: Multiple baby chance for " + Woman + " will be multiplied by " + myMaxBabyChanceMultiplier)
 		endIf
 	endIf
 	myMaxBabyChance = (1.0 / (cfg.MultipleThreshold)) * MaxBabyChance
 	if(myMaxBabyChance > 1.0)
-		Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Multiple baby chance cannot exceed 100 percent! Changing the probability for " + Woman + " to 100 percent")
+		FW_log.WriteLog("FWSystem - calculateNumChildren: Multiple baby chance cannot exceed 100 percent! Changing the probability for " + Woman + " to 100 percent")
 		myMaxBabyChance = 1.0
 	endIf
-	Debug.Trace("[Beeing Female NG] - FWSystem - calculateNumChildren: Current multiple baby chance for " + Woman + " is " + myMaxBabyChance)
+	FW_log.WriteLog("FWSystem - calculateNumChildren: Current multiple baby chance for " + Woman + " is " + myMaxBabyChance)
 	
 	; on a realistic base of 1 / 85 (~1.2%) following results will be
 	; 1 Child    - 100.0000000000%
@@ -2289,7 +2289,7 @@ bool function canBecomePregnant(actor woman)
 				endif
 				chance *= Manager.PregnancyChanceActorScale(woman)
 
-				Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + "'s pregnancy chance is " + chance)
+				FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + "'s pregnancy chance is " + chance)
 
 
 				actor my_a = none
@@ -2321,7 +2321,7 @@ bool function canBecomePregnant(actor woman)
 
 						if(my_Impreg_Any > 0)
 							if(Utility.RandomFloat(0.0, 99.9) < (chance + my_Impreg_Chance))
-								Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
+								FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
 
 								return true
 							endIf
@@ -2331,11 +2331,11 @@ bool function canBecomePregnant(actor woman)
 
 
 				if(Utility.RandomFloat(0.0, 99.9) < chance)
-					Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
+					FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " can become pregnant")
 
 					return true
 				else
-					Debug.Trace("[Beeing Female NG] - FWSystem - canBecomePregnant: the actor " + woman + " cannot become pregnant yet")
+					FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " cannot become pregnant yet")
 				endIf
 			endIf
 		endIf
@@ -2722,13 +2722,13 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 	Actor ParentActor
 	int myProbRandom = Utility.RandomInt(0, 99)
 	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
-	Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+	FW_log.WriteLog("FWSystem - SpawnChildActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	If(myProbRandom < myChildRaceDeterminedByFather)
-		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
+		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
 
 		ParentActor = Father
 	Else
-		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
+		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
 
 		ParentActor = Mother
 	EndIF
@@ -2741,13 +2741,13 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 	
 	myProbRandom = Utility.RandomInt(0, 99)
 	int myChildSexDetermMale = Manager.ActorChildSexDetermMale(Father)
-	Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
+	FW_log.WriteLog("FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
 
 	if(myProbRandom < myChildSexDetermMale)
-		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildSexDetermMale. Child will be a boy.")
+		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildSexDetermMale. Child will be a boy.")
 		gender=0
 	else
-		Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
+		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
 		gender=1
 	endif
 	actorbase newChildBase = BabyItemList.getBabyActorNew(Mother, Father, ParentActor, gender)
@@ -2837,7 +2837,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		
 		;Race newChildRace = BabyItemList.LastRace
 		
-		;Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
+		;FW_log.WriteLog("FWSystem - SpawnChildActor: LastRace of the child " + newChild + " is " + BabyItemList.LastRace)
 		StorageUtil.SetFormValue(newChild, "FW.Child.ParentActor", ParentActor)
 		Manager.RaceExcludeFromSLandBF(newChild, ParentActor)
 		
@@ -2856,12 +2856,12 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		
 		if(bool_AllowPCDialogue)
 			newChild.AllowPCDialogue(true)
-			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
+			FW_log.WriteLog("FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
 		endIf
 		
 		FWChildActor fwchild = newChild as FWChildActor
 		if fwchild; != none ;Tkc (Loverslab): optimization
-			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " belongs to FWChildActor")
+			FW_log.WriteLog("FWSystem - SpawnChildActor: Child " + newChild + " belongs to FWChildActor")
 			StorageUtil.SetIntValue(fwchild, "FW.AddOn.StartGrowing", 1)
 			
 ;			fwchild.ChildRace = BabyItemList.LastRace
@@ -2935,7 +2935,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 			endif
 			fwchild.InitChild()
 		else
-			Debug.Trace("[Beeing Female NG] - FWSystem - SpawnChildActor: Child " + newChild + " does not belong to FWChildActor")
+			FW_log.WriteLog("FWSystem - SpawnChildActor: Child " + newChild + " does not belong to FWChildActor")
 			newChild.StopCombat()
 			if Mother
 				newChild.SetRelationshipRank(Mother, ChildSettings.ParentRelationShipLevel)
@@ -3620,7 +3620,7 @@ Event OnKeyDown(int keyCode)
 						endif
 						race r = target.GetLeveledActorBase().GetRace()
 						msg="RaceAddOn Informations for "+r.GetName()
-						Debug.Trace("RaceAddOn Informations for "+r.GetName())
+						FW_log.WriteLog("RaceAddOn Informations for "+r.GetName())
 						msg+=console_PrintRaceBaby(bLog,r, "BabyActor_Female")
 						msg+=console_PrintRaceBaby(bLog,r, "BabyActor_Male")
 						msg+=console_PrintRaceBaby(bLog,r, "BabyActor_FemalePlayer")
@@ -3748,26 +3748,26 @@ Event OnKeyDown(int keyCode)
 							msg+="Exporting AddOns from the given mod\n  bf:export <modName> [<export prefix>]\n  bf:export BeeingFemale.esm BF_\n"
 						else
 							cmd[1]=FWUtility.StringReplace(cmd[1],"%20"," ")
-							Debug.Trace("Exporting BeeingFemale AddOns")
-							Debug.Trace("- Mod: "+cmd[1])
+							FW_log.WriteLog("Exporting BeeingFemale AddOns")
+							FW_log.WriteLog("- Mod: "+cmd[1])
 							int exported=0
 							string prefix = ""
 							if cmd.length>=3
 								prefix=cmd[2]
 							endif
 							int c=FWUtility.GetQuestObjectCount(cmd[1])
-							Debug.Trace("- Number Of Quests: "+c)
+							FW_log.WriteLog("- Number Of Quests: "+c)
 							while c>0
 								c-=1
 								quest q = FWUtility.GetQuestObject(cmd[1],c)
 								if q as FWAddOnBase; != none ;Tkc (Loverslab): optimization
-									Debug.Trace("- Export: "+q.GetName() +" [0x"+FWUtility.Hex(q.GetFormID() % 0x1000000,6)+"]")
+									FW_log.WriteLog("- Export: "+q.GetName() +" [0x"+FWUtility.Hex(q.GetFormID() % 0x1000000,6)+"]")
 									if FWAddOnManager.Export(q as FWAddOnBase, prefix)
 										exported+=1
 									endif
 								endif
 							endWhile
-							Debug.Trace("- Export done, "+exported+" AddOns exported")
+							FW_log.WriteLog("- Export done, "+exported+" AddOns exported")
 							msg+=exported+" AddOns exported\n"
 						endif
 						bSuccess=true
@@ -3873,7 +3873,7 @@ endFunction
 string function console_PrintCME(string phase, bool bLog)
 	string s="== CME Info for "+phase+" =="
 	if bLog
-		Debug.Trace("== CME Info "+phase+"==")
+		FW_log.WriteLog("== CME Info "+phase+"==")
 	endif
 	phase = FWUtility.toLower(phase)
 	if phase=="0" || phase=="all" || phase=="follicularphase" || phase=="follicular"
@@ -3914,28 +3914,28 @@ string function console_PrintCME_h(bool bLog, string Phase)
 	int c=StorageUtil.FormListCount(none,"FW.AddOn.Always_"+Phase)
 	r+="\n- Always "+phase+" ("+c+")"
 	if bLog
-		Debug.Trace("- Always "+phase+" ("+c+")")
+		FW_log.WriteLog("- Always "+phase+" ("+c+")")
 	endif
 	if c>0
 		while c>0
 			c-=1
 			r+="\n- - "+StorageUtil.FormListGet(none,"FW.AddOn.Always_"+Phase,c).GetName()+"\n"
 			if bLog
-				Debug.Trace("- - "+StorageUtil.FormListGet(none,"FW.AddOn.Always_"+Phase,c).GetName())
+				FW_log.WriteLog("- - "+StorageUtil.FormListGet(none,"FW.AddOn.Always_"+Phase,c).GetName())
 			endif
 		endWhile
 	endif
 	c=StorageUtil.FormListCount(none,"FW.AddOn.Sometimes_"+Phase)
 	r+="\n- Sometimes "+phase+" ("+c+")"
 	if bLog
-		Debug.Trace("- Sometimes "+phase+" ("+c+")")
+		FW_log.WriteLog("- Sometimes "+phase+" ("+c+")")
 	endif
 	if c>0
 		while c>0
 			c-=1
 			r+="\n- - "+StorageUtil.FormListGet(none,"FW.AddOn.Sometimes_"+Phase,c).GetName()
 			if bLog
-				Debug.Trace("- - "+StorageUtil.FormListGet(none,"FW.AddOn.Sometimes_"+Phase,c).GetName())
+				FW_log.WriteLog("- - "+StorageUtil.FormListGet(none,"FW.AddOn.Sometimes_"+Phase,c).GetName())
 			endif
 		endWhile
 	endif
@@ -3946,14 +3946,14 @@ string function console_PrintRace(bool bLog, race r, string type)
 	if StorageUtil.HasFloatValue(r, "FW.AddOn."+type);/==true/; ;Tkc (Loverslab): optimization
 		float f = StorageUtil.GetFloatValue(r, "FW.AddOn."+type, 1.0)
 		if bLog
-			Debug.Trace("- "+type+": "+f)
+			FW_log.WriteLog("- "+type+": "+f)
 		endif
 		if f!=1.0
 			return "\n- "+type+": "+f
 		endif
 	else
 		if bLog
-			Debug.Trace("- "+type+": "+1.0)
+			FW_log.WriteLog("- "+type+": "+1.0)
 		endif
 	endif
 	return ""
@@ -3977,14 +3977,14 @@ string function console_PrintRaceBaby(bool bLog, race r, string Baby)
 			endif
 		endWhile
 		if bFirst
-			Debug.Trace("- "+Baby+": none - All are nothing")
+			FW_log.WriteLog("- "+Baby+": none - All are nothing")
 			return ""
 		else
-			Debug.Trace("- "+s)
+			FW_log.WriteLog("- "+s)
 			return "\n"+s
 		endif
 	elseif bLog
-		Debug.Trace("- "+Baby+": none")
+		FW_log.WriteLog("- "+Baby+": none")
 		return ""
 	endif
 endFunction

@@ -10,7 +10,7 @@ MagicEffect Property BeeingFemaleEffect Auto
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
 	
-	;Debug.Trace("FWCloaking::OnEffectStart("+akTarget.GetLeveledActorBase().GetName()+", "+akCaster.GetLeveledActorBase().GetName()+")")
+	;FW_log.WriteLog("FWCloaking::OnEffectStart("+akTarget.GetLeveledActorBase().GetName()+", "+akCaster.GetLeveledActorBase().GetName()+")")
 	If StorageUtil.FormListHas(BeeingFemaleSpell, "BF_CloakEffectList", akTarget) ;Tkc (Loverslab): optimization
 	else;If !StorageUtil.FormListHas(BeeingFemaleSpell, "BF_CloakEffectList", akTarget)
 		StorageUtil.FormListAdd(BeeingFemaleSpell, "BF_CloakEffectList", akTarget)
@@ -18,7 +18,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 ;			If akTarget.HasSpell(BeeingFemaleSpell)
 ;				if akTarget.HasMagicEffect(BeeingFemaleEffect) ;Tkc (Loverslab): optimization
 ;				else;if !akTarget.HasMagicEffect(BeeingFemaleSpell.GetNthEffectMagicEffect(0))
-					;Debug.Trace("- Target has Female Spell already but not the Effect")
+					;FW_log.WriteLog("- Target has Female Spell already but not the Effect")
 ;					akTarget.RemoveSpell(BeeingFemaleSpell)
 ;					Utility.WaitMenuMode(2.5)
 ;				endif
@@ -26,32 +26,32 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 ;			if akTarget.HasSpell(BeeingMaleSpell)
 ;				if akTarget.HasMagicEffect(BeingMaleEffect) ;Tkc (Loverslab): optimization
 ;				else;if !akTarget.HasMagicEffect(BeeingMaleSpell.GetNthEffectMagicEffect(0))
-					;Debug.Trace("- Target has Male Spell already but not the Effect")
+					;FW_log.WriteLog("- Target has Male Spell already but not the Effect")
 ;					akTarget.RemoveSpell(BeeingMaleSpell)
 ;					Utility.WaitMenuMode(2.5)
 ;				endif
 ;			endif
 			
 			;/If (! akTarget) 
-				;Debug.Trace("- Target is none")
+				;FW_log.WriteLog("- Target is none")
 				Dispel()
 			
 			ElseIf System.IsValidateMaleActor(akTarget) > 0;(akTarget.GetLeveledActorBase().GetSex() == 0)
 				;if akTarget.HasMagicEffect(BeeingMaleSpell.GetNthEffectMagicEffect(0))==false
 				if akTarget.HasSpell(BeeingMaleSpell)==false
-					;Debug.Trace("- Target is male - Add Spell")
+					;FW_log.WriteLog("- Target is male - Add Spell")
 					akTarget.AddSpell(BeeingMaleSpell)
 				endif
 			ElseIf (akTarget.GetLeveledActorBase().IsUnique())
 				;if akTarget.HasMagicEffect(BeeingFemaleSpell.GetNthEffectMagicEffect(0))==false
 				if akTarget.HasSpell(BeeingFemaleSpell)==false  && System.IsValidateFemaleActor(akTarget) > 0
-					;Debug.Trace("- Target is female unique - Add Spell")
+					;FW_log.WriteLog("- Target is female unique - Add Spell")
 					akTarget.AddSpell(BeeingFemaleSpell)
 				endif
 			ElseIf BeeingNUFemaleSpell!=none
 				;if akTarget.HasMagicEffect(BeeingNUFemaleSpell.GetNthEffectMagicEffect(0))==false
 				if akTarget.HasSpell(BeeingNUFemaleSpell)==false
-					;Debug.Trace("- Target is female non-unique - Add Spell")
+					;FW_log.WriteLog("- Target is female non-unique - Add Spell")
 					akTarget.AddSpell(BeeingNUFemaleSpell)
 				endif
 			EndIf/;
@@ -61,7 +61,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 					;if akTarget.HasMagicEffect(BeeingMaleSpell.GetNthEffectMagicEffect(0))==false
 					if akTarget.HasSpell(BeeingMaleSpell) ;Tkc (Loverslab): optimization
 					else;if akTarget.HasSpell(BeeingMaleSpell)==false
-						;Debug.Trace("- Target is male - Add Spell")
+						;FW_log.WriteLog("- Target is male - Add Spell")
 						akTarget.AddSpell(BeeingMaleSpell)
 					endif
 				elseIf System.IsValidateFemaleActor(akTarget) > 0
@@ -84,7 +84,7 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 ;					if akTarget.HasSpell(BeeingFemaleSpell) ;Tkc (Loverslab): optimization
 ;					else;if akTarget.HasSpell(BeeingFemaleSpell)==false
 ;						if System.IsValidateFemaleActor(akTarget) > 0
-;							;Debug.Trace("- Target is female unique - Add Spell")
+;							;FW_log.WriteLog("- Target is female unique - Add Spell")
 ;							akTarget.AddSpell(BeeingFemaleSpell)
 ;						endif
 ;					endif
@@ -92,19 +92,19 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 ;					;if akTarget.HasMagicEffect(BeeingNUFemaleSpell.GetNthEffectMagicEffect(0))==false
 ;					if akTarget.HasSpell(BeeingNUFemaleSpell) ;Tkc (Loverslab): optimization
 ;					else;if akTarget.HasSpell(BeeingNUFemaleSpell)==false
-;						;Debug.Trace("- Target is female non-unique - Add Spell")
+;						;FW_log.WriteLog("- Target is female non-unique - Add Spell")
 ;						akTarget.AddSpell(BeeingNUFemaleSpell)
 ;					endif
 				endIf
 				
 				bool myIsDispelledCustomChildActor = (StorageUtil.GetIntValue(akTarget, "FW.Child.DispelledCustomChildActor", 0) == 1)
 				if(myIsDispelledCustomChildActor)
-					Debug.Trace("[Beeing Female NG] - FWCloaking: Recasting DefaultCustomChildSpell to the actor " + akTarget)
+					FW_log.WriteLog("FWCloaking: Recasting DefaultCustomChildSpell to the actor " + akTarget)
 					akTarget.AddSpell(System._BF_DefaultCustomChildSpell)
 					StorageUtil.SetIntValue(akTarget, "FW.Child.DispelledCustomChildActor", 0)
 				endIf
 			Else
-				;Debug.Trace("- Target is none")
+				;FW_log.WriteLog("- Target is none")
 				Dispel()				
 			EndIf
 ;		EndIf

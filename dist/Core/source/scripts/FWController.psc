@@ -362,7 +362,7 @@ endFunction
 ; Check for the normal impregnation at the given time, using the sperm, the value if she can become pregnant in this cycle, and so on.
 bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnoreContraception = false)
 	System.Trace("FWController.ActiveSpermImpregnationTimed",Mother)
-	;Debug.Trace("ActiveSpermImpregnationTimed 01 - "+Time)
+	;FW_log.WriteLog("ActiveSpermImpregnationTimed 01 - "+Time)
 	if Mother==PlayerRef ;Tkc (Loverslab) optimization
 	else;if Mother!=PlayerRef
 		if cfg.NPCCanBecomePregnant
@@ -379,18 +379,18 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 	else;if bIgnoreContraception==false
 		ContraceptionSpermKillTimed(Mother,Time)
 	endIf
-	;Debug.Trace("ActiveSpermImpregnationTimed 02")
+	;FW_log.WriteLog("ActiveSpermImpregnationTimed 02")
 	if HasRelevantSpermTimed(Mother,Time,false)
-		;Debug.Trace("ActiveSpermImpregnationTimed 03 - Has relevant sperm")
+		;FW_log.WriteLog("ActiveSpermImpregnationTimed 03 - Has relevant sperm")
 		if Manager.ActorCanBecomePregnant(Mother);/==true/;
-			;Debug.Trace("ActiveSpermImpregnationTimed 04 - can become pregnant")
+			;FW_log.WriteLog("ActiveSpermImpregnationTimed 04 - can become pregnant")
 			; Impregnate by active sperm
 			int numChild=System.calculateNumChildren(Mother)
 			if numChild ;Tkc (Loverslab) optimization
 			else;if numChild==0
 				return false
 			endIf
-			;Debug.Trace("ActiveSpermImpregnationTimed 05 - "+numChild)
+			;FW_log.WriteLog("ActiveSpermImpregnationTimed 05 - "+numChild)
 			actor[] a=GetRelevantSpermActorsTimed(Mother,Time,false,false)
 			float[] relevantSperm=GetRelevantSpermFloatTimed(Mother,Time, false, false)
 			;if relevantSperm.length==0 ;Tkc (Loverslab) optimization: commented, next condition is checking same thing
@@ -406,11 +406,11 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 			float relevanceTotal=0.0
 			while i<c
 				relevanceTotal+=relevantSperm[i]
-				;Debug.Trace("["+Mother.GetLeveledActorBase().GetName()+"] Relevant sperm ["+i+"] = "+relevantSperm[i])
+				;FW_log.WriteLog("["+Mother.GetLeveledActorBase().GetName()+"] Relevant sperm ["+i+"] = "+relevantSperm[i])
 				i+=1
 			endWhile
-			;Debug.Trace("["+Mother.GetLeveledActorBase().GetName()+"] Relevant sperm total = "+relevanceTotal)
-			;Debug.Trace("ActiveSpermImpregnationTimed 06 - spermTotal: "+relevanceTotal)
+			;FW_log.WriteLog("["+Mother.GetLeveledActorBase().GetName()+"] Relevant sperm total = "+relevanceTotal)
+			;FW_log.WriteLog("ActiveSpermImpregnationTimed 06 - spermTotal: "+relevanceTotal)
 			
 			StorageUtil.SetIntValue(Mother,"FW.NumChilds",numChild)
 			actor[] Fathers = FWUtility.ActorArray(numChild)
@@ -555,10 +555,10 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 			ChangeStateTimed(Mother,Time,4)
 			return true
 		else
-			;Debug.Trace("ActiveSpermImpregnationTimed 04 - can't become pregnant")
+			;FW_log.WriteLog("ActiveSpermImpregnationTimed 04 - can't become pregnant")
 		endIf
 	else
-		;Debug.Trace("ActiveSpermImpregnationTimed 03 - Has no relevant sperm")
+		;FW_log.WriteLog("ActiveSpermImpregnationTimed 03 - Has no relevant sperm")
 	endIf
 	return false
 endFunction
@@ -667,40 +667,40 @@ int function getNumBabys(actor Mother)
 endFunction
 
 bool function setNumBabys(actor Mother,int num)
-	Debug.Trace("FWController::setNumBabys("+Mother.GetLeveledActorBase().GetName()+", "+num+")")
+	FW_log.WriteLog("FWController::setNumBabys("+Mother.GetLeveledActorBase().GetName()+", "+num+")")
 	int cur = StorageUtil.GetIntValue(Mother,"FW.NumChilds",0)
 	if cur ;Tkc (Loverslab) optimization: swapped checks
 		if cur==num
 			; same value
-			Debug.Trace("- No changes")
+			FW_log.WriteLog("- No changes")
 			return true
 		elseif cur<num
 			; add fathers
-			Debug.Trace("- Raise from "+cur+" to "+num+" Babys")
+			FW_log.WriteLog("- Raise from "+cur+" to "+num+" Babys")
 			StorageUtil.SetIntValue(Mother,"FW.NumChilds",num)
 			actor father = StorageUtil.FormListGet(Mother,"FW.ChildFather", 0) as actor
 			int i=cur
 			while i<cur
-				Debug.Trace("- Father for Baby "+i+" is "+father.GetLeveledActorBase().GetName())
+				FW_log.WriteLog("- Father for Baby "+i+" is "+father.GetLeveledActorBase().GetName())
 				StorageUtil.FormListAdd(Mother,"FW.ChildFather", father)
 				i+=1
 			endWhile
 			return true
 		else;if cur>num
-			Debug.Trace("- Drop from "+cur+" to "+num+" Babys")
+			FW_log.WriteLog("- Drop from "+cur+" to "+num+" Babys")
 			
 			; remove fathers
 			StorageUtil.SetIntValue(Mother,"FW.NumChilds",num)
 			int i=StorageUtil.FormListCount(Mother,"FW.ChildFather")
 			while i>num
 				i-=1
-				Debug.Trace("- Remove Father "+i+": "+(StorageUtil.FormListGet(Mother,"FW.ChildFather", i) as actor).GetLeveledActorBase().GetName())
+				FW_log.WriteLog("- Remove Father "+i+": "+(StorageUtil.FormListGet(Mother,"FW.ChildFather", i) as actor).GetLeveledActorBase().GetName())
 				StorageUtil.FormListRemoveAt(Mother,"FW.ChildFather", i)
 			endWhile
 			return true
 		endif
 	else;if cur==0
-		Debug.Trace("- Actor not pregnant")
+		FW_log.WriteLog("- Actor not pregnant")
 		return false
 	endif
 endFunction
@@ -1116,7 +1116,7 @@ function GiveBirth(actor Mother)
 		Mother.SetDontMove(false)
 		
 		if(cfg.NPCHaveItems)
-			Debug.Trace("[Beeing Female NG] - FWController : NPCHaveItems option is turned on, and thus adding contraception to " + Mother + " whose name is " + Mother.GetDisplayName())
+			FW_log.WriteLog("FWController : NPCHaveItems option is turned on, and thus adding contraception to " + Mother + " whose name is " + Mother.GetDisplayName())
 			Mother.AddItem(ContraceptionMid,3)
 			Mother.AddItem(ContraceptionLow,12)
 		endIf
@@ -1147,7 +1147,7 @@ endFunction
 ; This function will damage the unborn child of the given mother
 function DamageBaby(actor Mother,float Damage)
 	if(cfg.abortus)
-		Debug.Trace("[Beeing Female NG] - FWController - DamageBaby: Abortus is turned on! Processing DamageBaby on mother " + Mother)
+		FW_log.WriteLog("FWController - DamageBaby: Abortus is turned on! Processing DamageBaby on mother " + Mother)
 
 		System.Trace("FWController.DamageBaby",Mother)
 		If (StorageUtil.FormListFind(none,"FW.SavedNPCs",Mother)<0)
@@ -1222,7 +1222,7 @@ function DamageBaby(actor Mother,float Damage)
 			SendModEvent("BeeingFemale","CheckAbortus",Mother.GetFormID())
 		endIf
 	else
-		Debug.Trace("[Beeing Female NG] - FWController - DamageBaby: Abortus is turned off!")
+		FW_log.WriteLog("FWController - DamageBaby: Abortus is turned off!")
 		return
 	endIf
 endFunction
@@ -1679,17 +1679,17 @@ bool function HasRelevantSpermTimed(actor woman,float Time, bool bShowTravelingS
 		CreateFemaleActor(woman)
 	EndIf
 	int c = StorageUtil.FormListCount(woman, "FW.SpermName") ;StorageUtil.FloatListCount(woman, "FW.SpermName")
-	;Debug.Trace("HasRelevantSpermTimed "+woman.GetLeveledActorBase().GetName()+" info")
-	;Debug.Trace("Check "+c+"Entries")
+	;FW_log.WriteLog("HasRelevantSpermTimed "+woman.GetLeveledActorBase().GetName()+" info")
+	;FW_log.WriteLog("Check "+c+"Entries")
 	while c>0
 		c-=1
 		float STime = StorageUtil.FloatListGet(woman, "FW.SpermTime", c)
 		actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
 		float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
-		;Debug.Trace("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-		;Debug.Trace(STime+" + "+System.getMaleSpermDuration(SName)+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-		;Debug.Trace((STime+System.getMaleSpermDuration(SName))+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-		;Debug.Trace((STime+System.getMaleSpermDuration(SName)>Time)+" && ("+(STime+System.cfg.WashOutHourDelay<Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+		;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+		;FW_log.WriteLog(STime+" + "+System.getMaleSpermDuration(SName)+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+		;FW_log.WriteLog((STime+System.getMaleSpermDuration(SName))+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+		;FW_log.WriteLog((STime+System.getMaleSpermDuration(SName)>Time)+" && ("+(STime+System.cfg.WashOutHourDelay<Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
 		
 		;if STime + System.getMaleSpermDuration(SName) > Time && (STime+System.cfg.WashOutHourDelay < Time || bShowTravelingSperm) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
 		if STime + System.getMaleSpermDuration(SName) > Time ;Tkc (Loverslab) optimization
@@ -1748,10 +1748,10 @@ actor[] function GetRelevantSpermActorsTimed(actor woman,float Time, bool bShowT
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
 			
-			;Debug.Trace("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-			;Debug.Trace(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-			;Debug.Trace((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-			;Debug.Trace((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+			;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+			;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+			;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+			;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
 			
 			if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
 				;FWUtility.ActorArrayAppend(actors, SName)
@@ -1774,10 +1774,10 @@ actor[] function GetRelevantSpermActorsTimed(actor woman,float Time, bool bShowT
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
 			
-			;Debug.Trace("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-			;Debug.Trace(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-			;Debug.Trace((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-			;Debug.Trace((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+			;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+			;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+			;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+			;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
 		
 			if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
 				float SpermDurationPercent = (Time - STime) / maxSDuration
@@ -1929,10 +1929,10 @@ float[] function GetRelevantSpermFloatTimed(actor woman,float Time, bool bShowTr
 		float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 		float maxSDuration = System.getMaleSpermDuration(SName)
 		
-		;Debug.Trace("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-		;Debug.Trace(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-		;Debug.Trace((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-		;Debug.Trace((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+		;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+		;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+		;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+		;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
 		
 		if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
 			float SpermDurationPercent = (Time - STime) / maxSDuration
@@ -3193,7 +3193,7 @@ function __deprecated__showRankedInfoBox(actor target, int Rank)
 	string s=""
 	string targetName
 	
-	;Debug.Trace("showRankedInfoBox "+target.GetLeveledActorBase().GetName()+" info")
+	;FW_log.WriteLog("showRankedInfoBox "+target.GetLeveledActorBase().GetName()+" info")
 	
 	if target==PlayerRef
 		targetName=Content.InfoSpell_You

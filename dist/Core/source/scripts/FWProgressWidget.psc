@@ -93,7 +93,7 @@ bool property Shown hidden
 				_shown = value
 			endif
 		;elseif value==true
-		;	Debug.Trace("fwprogresswidget::Shown = true; Widget not ready jet - wait")
+		;	FW_log.WriteLog("fwprogresswidget::Shown = true; Widget not ready jet - wait")
 		;	_bAboutToShow = true
 		;	RegisterForSingleUpdate(1)
 		;endif
@@ -121,7 +121,7 @@ string property Icon hidden
 	endFunction
 	function set(string value)
 		;if (Ready)
-			;Debug.Trace("fwprogresswidget::Icon = "+value)
+			;FW_log.WriteLog("fwprogresswidget::Icon = "+value)
 			UI.InvokeString(HUD_MENU, WidgetRoot + ".setIcon", value)
 			lastIcon = value
 		;endif
@@ -134,7 +134,7 @@ string property Job hidden
 	endFunction
 	function set(string value)
 		;if (Ready)
-			;Debug.Trace("fwprogresswidget::Job = "+value)
+			;FW_log.WriteLog("fwprogresswidget::Job = "+value)
 			UI.InvokeString(HUD_MENU, WidgetRoot + ".setPhase", value)
 			lastMessage = value
 		;endif
@@ -147,7 +147,7 @@ int property Percent hidden
 	endFunction
 	function set(int value)
 		;if (Ready)
-			;Debug.Trace("fwprogresswidget::Percent = "+value)
+			;FW_log.WriteLog("fwprogresswidget::Percent = "+value)
 			UI.InvokeInt(HUD_MENU, WidgetRoot + ".setPercent", value)
 			lastPercent = value
 		;endif

@@ -176,22 +176,22 @@ function UpdatePerDay(actor Woman)
 			
 			; Check Birth control pills
 			if bIsPlayer == false && bIsPregnant==false && bHasContraceptionItems
-				;Debug.Trace(Woman.GetLeveledActorBase().GetName()+" Ask for Pill")
+				;FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" Ask for Pill")
 				; Check if it's time for the next pill and the woman is not pregnant
 				if contraceptionTime + (System.GetPillDuration(Woman) * 0.85) < cur
-					;Debug.Trace(Woman.GetLeveledActorBase().GetName()+" request pill")
+					;FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" request pill")
 					int pill_i = Pill_Items.GetSize()
 					while pill_i>0
 						pill_i-=1
 						if Woman.GetItemCount(Pill_Items.GetAt(pill_i))>0 && (Pill_Items.GetAt(pill_i) as Potion)!=none
-							;Debug.Trace(Woman.GetLeveledActorBase().GetName()+" got pill item: "+System.Pill_Items.GetAt(pill_i))
+							;FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" got pill item: "+System.Pill_Items.GetAt(pill_i))
 							potion pill = (Pill_Items.GetAt(pill_i) as Potion)
 							int fx_count=pill.GetNumEffects()
 							while fx_count>0
 								fx_count-=1
 								if pill.GetNthEffectMagicEffect(fx_count) == Pill_Effect
 									float mag=pill.GetNthEffectMagnitude(fx_count)
-									Debug.Trace(Woman.GetLeveledActorBase().GetName()+" added contraception: "+mag+"%")
+									FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" added contraception: "+mag+"%")
 									contraception = FWUtility.MinFloat(System.MaxContraception,mag+contraception)
 									contraceptionTime=cur
 									Woman.RemoveItem(pill, 1, true)
@@ -349,15 +349,15 @@ function __Update_Old(actor Woman)
 			
 			; Check Birth control pills
 			if bIsPlayer == false
-				Debug.Trace(Woman.GetLeveledActorBase().GetName()+" Ask for Pill")
+				FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" Ask for Pill")
 				; Check if it's time for the next pill and the woman is not pregnant
 				if StorageUtil.GetFloatValue(Woman,"FW.ContraceptionTime") + System.GetPillDuration(Woman) - 0.3 < StateEnterTime && bIsPregnant==false
-					Debug.Trace(Woman.GetLeveledActorBase().GetName()+" request pill")
+					FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" request pill")
 					int pill_i = Pill_Items.GetSize()
 					while pill_i>0
 						pill_i-=1
 						if Woman.GetItemCount(Pill_Items.GetAt(pill_i))>0 && (Pill_Items.GetAt(pill_i) as Potion)!=none
-							Debug.Trace(Woman.GetLeveledActorBase().GetName()+" got pill item: "+Pill_Items.GetAt(pill_i))
+							FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" got pill item: "+Pill_Items.GetAt(pill_i))
 							potion pill = (Pill_Items.GetAt(pill_i) as Potion)
 							int fx_count=pill.GetNumEffects()
 							while fx_count>0
@@ -366,7 +366,7 @@ function __Update_Old(actor Woman)
 									float val = StorageUtil.GetFloatValue(Woman,"FW.Contraception",0.0)
 									float mag=pill.GetNthEffectMagnitude(fx_count)
 									val += mag
-									Debug.Trace(Woman.GetLeveledActorBase().GetName()+" added contraception: "+mag)
+									FW_log.WriteLog(Woman.GetLeveledActorBase().GetName()+" added contraception: "+mag)
 									StorageUtil.SetFloatValue(Woman,"FW.Contraception",FWUtility.MinFloat(100,val))
 									StorageUtil.SetFloatValue(Woman,"FW.ContraceptionTime",StateEnterTime)
 									Woman.RemoveItem(pill, 1, true)

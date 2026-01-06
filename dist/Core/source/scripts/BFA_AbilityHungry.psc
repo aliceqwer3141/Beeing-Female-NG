@@ -114,7 +114,7 @@ bool function CheckinventoryForFood()
 endFunction
 
 bool function Eat(Form itm)
-	;Debug.Trace("Hungry Check Eat: " + itm.GetName())
+	;FW_log.WriteLog("Hungry Check Eat: " + itm.GetName())
 	if (itm as potion);/!=none/;
 		potion p = itm as potion
 		if p.IsFood();/ == true/;

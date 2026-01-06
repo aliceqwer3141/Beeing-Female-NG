@@ -24,7 +24,7 @@ endFunction
 
 function OnAddOnActivate()
 	if bActive==false
-		Debug.Trace("Reminder activated")
+		FW_log.WriteLog("Reminder activated")
 		bActive=true
 		RegisterForUpdateGameTime(2)
 		execute()
@@ -33,7 +33,7 @@ endFunction
 
 function OnAddOnDeactivate()
 	if bActive==true
-		Debug.Trace("Reminder deactivated")
+		FW_log.WriteLog("Reminder deactivated")
 		bActive=false
 		UnregisterForUpdateGameTime()
 		SetStage(0)

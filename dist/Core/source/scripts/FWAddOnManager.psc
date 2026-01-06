@@ -182,7 +182,7 @@ function RefreshAddOnH(int type=127)
 	
 	int c = FWUtility.GetFileCount("AddOn","ini")
 	
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - Number of AddOn is " + c)
+	FW_log.WriteLog("FWAddOnManager - Number of AddOn is " + c)
 	
 	_LoadingState=0x21
 	AddOnFolderHash=FWUtility.GetDirectoryHash("AddOn")
@@ -193,34 +193,34 @@ function RefreshAddOnH(int type=127)
 		string n = FWUtility.GetFileName("AddOn","ini",c)
 		
 		if(n)
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn file name is " + n)
+			FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn file name is " + n)
 		
 			if FWUtility.getIniCBool("AddOn",n,"AddOn","enabled") || FWUtility.getIniCBool("AddOn",n,"AddOn","locked")
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn is enabled or locked")
+				FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn is enabled or locked")
 			
 				_LoadingState=0x31
 				string required = FWUtility.getIniCString("AddOn",n,"AddOn","required")
 				bool bUse=true
 				if required;/!=""/; ;Tkc (Loverslab): optimization
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn has requirements")
+					FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn has requirements")
 
 					string[] requiredA = StringUtil.Split(required,",")
 					
 					int NumOfRequired = requiredA.Length
 					int myIndex = 0
 					while(myIndex < NumOfRequired)
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : " + (myIndex + 1) + "th requirement is " + requiredA[myIndex])				
+						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : " + (myIndex + 1) + "th requirement is " + requiredA[myIndex])				
 						myIndex += 1
 					endWhile				
 					
 					if FWUtility.AreModsInstalled(requiredA) ;Tkc (Loverslab): optimization
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - Requirements of " + c + "th AddOn are already installed!")
+						FW_log.WriteLog("FWAddOnManager - Requirements of " + c + "th AddOn are already installed!")
 					else;if FWUtility.AreModsInstalled(requiredA)==false
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn is failed to work due to the lack of requirements...")
+						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn is failed to work due to the lack of requirements...")
 						bUse=false
 					endif
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - Failed to load requirements of " + c + "th AddOn. Maybe it does not need requirements...")
+					FW_log.WriteLog("FWAddOnManager - Failed to load requirements of " + c + "th AddOn. Maybe it does not need requirements...")
 				endif
 				_LoadingState=0x32
 				if bUse
@@ -229,10 +229,10 @@ function RefreshAddOnH(int type=127)
 					_LoadingState=0x34
 					
 					if(t)
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is " + t)
+						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is " + t)
 
 						if t=="misc" && Math.LogicalAnd(type,1)==1
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is misc")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is misc")
 							
 							_LoadingState=0x40
 							string modName=FWUtility.getIniCString("AddOn",n,"AddOn","modFile")							
@@ -241,55 +241,55 @@ function RefreshAddOnH(int type=127)
 							_LoadingState=0x42
 							;if modName!="" && FWUtility.IsModInstalled(modName) && formID>0
 							if modName;/!=""/; ;Tkc (Loverslab): optimization
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn has modName")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn has modName")
 							
 								if FWUtility.IsModInstalled(modName)
-									Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is installed")
+									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is installed")
 									
 									if formID>0
 										_LoadingState=0x43
 										FWAddOn_Misc tmp=Game.GetFormFromFile(formID,modName) as FWAddOn_Misc
 										if tmp as FWAddOn_Misc;/!=none/;
-											Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : tmp = " + tmp)
+											FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : tmp = " + tmp)
 											
 											sMisc[iMisc]=n
 											Misc[iMisc]=tmp
 											iMisc+=1
 										else
-											Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : Failed to load tmp with FormID = " + formID)
+											FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Failed to load tmp with FormID = " + formID)
 										endif
 										_LoadingState=0x44
 									else
-										Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : FormID is not positive and hence it is invalid...")
+										FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : FormID is not positive and hence it is invalid...")
 									endif
 								else
-									Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is not installed...")
+									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is not installed...")
 								endif
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn does not have modName")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn does not have modName")
 							endif
 							_LoadingState=0x45
 						elseif t=="race" && Math.LogicalAnd(type,2)==2
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is race")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is race")
 							
 							string sRaceCount=FWUtility.getIniString("AddOn",n,"races","")							
 							int RaceCount=0
 							if sRaceCount;/!=""/; ;Tkc (Loverslab): optimization
 								RaceCount=sRaceCount as int
 								
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : RaceCount = " + RaceCount)
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount = " + RaceCount)
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : sRaceCount is zero")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : sRaceCount is zero")
 							endif
 							if RaceCount==0
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : RaceCount is zero. Running AddRaceAddOnCat...")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount is zero. Running AddRaceAddOnCat...")
 								
 								AddRaceAddOnCat(n,"AddOn")
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : RaceCount is not zero")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount is not zero")
 								
 								while RaceCount>0
-									Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : Running " + RaceCount + "th AddRaceAddOnCat...")
+									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Running " + RaceCount + "th AddRaceAddOnCat...")
 									
 									AddRaceAddOnCat(n,"Race"+RaceCount)
 									RaceCount-=1
@@ -297,7 +297,7 @@ function RefreshAddOnH(int type=127)
 							endif
 							
 						elseif t=="cme" && Math.LogicalAnd(type,4)==4
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is cme")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is cme")
 							
 							_LoadingState=0x70
 							AddCME(n,"Always_FollicularPhase")
@@ -327,10 +327,10 @@ function RefreshAddOnH(int type=127)
 							_LoadingState=0x76
 							AddCME(n,"Sometimes_Trimester3")
 						elseif(t == "global")
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is global")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is global")
 							
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_RemoveSPIDitems", false))
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_RemoveSPIDitems is true")
+								FW_log.WriteLog("FWAddOnManager - Global_RemoveSPIDitems is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 1)
 							endIf
 							LoadGlobalAddOnValue(n, "Global_WidgetFadeOutTime")
@@ -338,7 +338,7 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_WidgetNoFlashShowTime")
 
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisablePregnancy", false))
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Activating Global_DisablePregnancy")	
+								FW_log.WriteLog("FWAddOnManager - Activating Global_DisablePregnancy")	
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisablePregnancy", 1)
 							endIf
 							
@@ -388,7 +388,7 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_Male_Recovery_Scale")
 							LoadGlobalAddOnValue(n, "Global_Ignore_Contraception_Prob")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Allow_Impregnation_For_Any_Period", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
+								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
 								
 								LoadGlobalAddOnValue(n, "Global_Sperm_Impregnation_Prob_For_Any_Period")
 								if(StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -403,7 +403,7 @@ function RefreshAddOnH(int type=127)
 
 
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Female_Force_This_Baby", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Female_Force_This_Baby")
+								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Female_Force_This_Baby")
 								
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_Female_Force_This_Baby", 1)
 							endif
@@ -412,71 +412,71 @@ function RefreshAddOnH(int type=127)
 							AddGlobalAddOnArrayToList(n, "Global_BabyActor_Male")
 							AddGlobalAddOnArrayToList(n, "Global_BabyActor_MalePlayer")
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_MixWithCopyActorBase", false))
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_MixWithCopyActorBase and reading Global_ProbChildActorBorn...")
+								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_MixWithCopyActorBase and reading Global_ProbChildActorBorn...")
 								
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase", 1)
 								LoadGlobalAddOnValueInt(n, "Global_ProbChildActorBorn")
 							endif
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowPCDialogue", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_AllowPCDialogue is true")
+								FW_log.WriteLog("FWAddOnManager - Global_AllowPCDialogue is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 1)
 							endif
 							LoadGlobalAddOnValue(n, "Global_initialScale")
 							LoadGlobalAddOnValue(n, "Global_finalScale")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisableMatureTime", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_DisableMatureTime is true")
+								FW_log.WriteLog("FWAddOnManager - Global_DisableMatureTime is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableMatureTime", 1)
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_DisableMatureTime is false. Reading Global_MatureTimeScale...")
+								FW_log.WriteLog("FWAddOnManager - Global_DisableMatureTime is false. Reading Global_MatureTimeScale...")
 								LoadGlobalAddOnValue(n, "Global_MatureTimeScale")	
 							endif
 							LoadGlobalAddOnValueInt(n, "Global_MatureStep")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowUnrestrictedS", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_AllowUnrestrictedS is true")
+								FW_log.WriteLog("FWAddOnManager - Global_AllowUnrestrictedS is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 1)
 							endif
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_ProtectedChildActor", false)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - Global_ProtectedChildActor is true")
+								FW_log.WriteLog("FWAddOnManager - Global_ProtectedChildActor is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 1)
 							endif
 						elseif(t == "actor")
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type is actor")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is actor")
 							
 							string sActorCount = FWUtility.getIniString("AddOn", n, "actors", "")							
 							int ActorCount = 0
 							if sActorCount;/!=""/; ;Tkc (Loverslab): optimization
 								ActorCount = sActorCount as int
 								
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount = " + ActorCount)
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount = " + ActorCount)
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : sActorCount is zero")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : sActorCount is zero")
 							endif
 							if(ActorCount == 0)
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount is zero. Running AddActorAddOnCat...")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount is zero. Running AddActorAddOnCat...")
 								
 								AddActorAddOnCat(n, "AddOn")
 							else
-								Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : ActorCount is not zero")
+								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount is not zero")
 								
 								while(ActorCount > 0)
-									Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn : Running " + ActorCount + "th AddActorAddOnCat...")
+									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Running " + ActorCount + "th AddActorAddOnCat...")
 									
 									AddActorAddOnCat(n, "Actor" + ActorCount)
 									ActorCount -= 1
 								endwhile
 							endif
 						else
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn type cannot be recognized in BeeingFemale...")
+							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type cannot be recognized in BeeingFemale...")
 						endif
 					else
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - Failed to load " + c + "th AddOn type...")
+						FW_log.WriteLog("FWAddOnManager - Failed to load " + c + "th AddOn type...")
 					endIf
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - " + c + "th AddOn will not be used...")
+					FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn will not be used...")
 				endif
 			endif
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - Failed to load " + c + "th AddOn file name...")
+			FW_log.WriteLog("FWAddOnManager - Failed to load " + c + "th AddOn file name...")
 		endIf
 	endWhile
 endFunction
@@ -892,32 +892,32 @@ endFunction
 
 
 function AddCME(string n, string valueName)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : AddOn file name = " + n + ", with valueName = " + valueName)
+;	FW_log.WriteLog("FWAddOnManager - AddCME : AddOn file name = " + n + ", with valueName = " + valueName)
 
 	string s=FWUtility.getIniCString("AddOn",n,"AddOn",valueName)
 	
 	if s;/!=""/; ;Tkc (Loverslab): optimization
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : " + n + " - Loaded valueName = " + s)
+;		FW_log.WriteLog("FWAddOnManager - AddCME : " + n + " - Loaded valueName = " + s)
 		
 		string[] ss = StringUtil.Split(s,",")
 		int c=ss.Length
 		
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : Number of valueName in " + n + " is " + c)
+;		FW_log.WriteLog("FWAddOnManager - AddCME : Number of valueName in " + n + " is " + c)
 		while c>0
 			c-=1
 ;			spell itm = FWUtility.GetFormFromString(ss[c]) as spell		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
 			spell itm = FWUtility.GetFormFromStringSE(ss[c]) as spell
 							
 			if itm;/!=none/;
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : " + (c + 1) + "th spell in " + n + " is " + itm + ". It will be added to FW.AddOn." + valueName)
+				FW_log.WriteLog("FWAddOnManager - AddCME : " + (c + 1) + "th spell in " + n + " is " + itm + ". It will be added to FW.AddOn." + valueName)
 					
 				StorageUtil.FormListAdd(none,"FW.AddOn."+valueName,itm)
 ;			else
-;				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : Failed to get " + (c + 1) + "th spell in " + n + "...")
+;				FW_log.WriteLog("FWAddOnManager - AddCME : Failed to get " + (c + 1) + "th spell in " + n + "...")
 			endif
 		endWhile
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddCME : " + n + " - Failed to load valueName...")
+;		FW_log.WriteLog("FWAddOnManager - AddCME : " + n + " - Failed to load valueName...")
 	endif
 endFunction
 
@@ -925,16 +925,16 @@ function AddRaceAddOnValue(race r, string n, string cat,string valueName)
 	float v=FWUtility.getIniCFloat("AddOn",n,cat,valueName,1.0)
 	
 	if v>0; && v<10
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		
 		float oldVal = StorageUtil.GetFloatValue(r,"FW.AddOn."+valueName,1.0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
 		
 		StorageUtil.SetFloatValue(r, "FW.AddOn."+valueName, (oldVal * v))
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName > 0 is not satisfied..")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName > 0 is not satisfied..")
 	endif
 endFunction
 
@@ -942,12 +942,12 @@ function LoadRaceAddOnValue(race r, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if v > 0
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
 endFunction
 
@@ -955,8 +955,8 @@ function LoadRaceAddOnValueIncludingZero(race r, string n, string cat, string va
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if v >= 0
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -964,8 +964,8 @@ endFunction
 function LoadRaceAddOnValueAnything(race r, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
 	
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 endFunction
 
@@ -973,94 +973,94 @@ function LoadRaceAddOnValueInt(race r, string n, string cat, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, cat, valueName, -1)
 	
 	if v >= 0
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetIntValue(r, "FW.AddOn." + valueName, v)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
 endFunction
 
 function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+;	FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
 
 	string s = FWUtility.getIniCString("AddOn",n,cat,valueName,"")
 	if s;/!=""/; ;Tkc (Loverslab): optimization
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded valueName = " + s)
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded valueName = " + s)
 
 		string[] ss=StringUtil.Split(s,",")
 		int c=ss.length
 		
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Number of valueName = " + c)
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Number of valueName = " + c)
 		
 		if StorageUtil.GetIntValue(r,"FW.AddOn.Female_Force_This_Baby",0)==0
-;			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is zero")
+;			FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is zero")
 			
 			while c>0
 				c-=1
 				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
-;					Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName = " + ss[c])
+;					FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName = " + ss[c])
 ;					form itm = FWUtility.GetFormFromString(ss[c])		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
 					form itm = FWUtility.GetFormFromStringSE(ss[c])				
 
 					if itm;/!=none/;
-;						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+;						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 						
 						if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm) ;Tkc (Loverslab): optimization
-;							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
+;							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
+							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
 							StorageUtil.FormListAdd(r,"FW.AddOn."+valueName,itm)
 						endif
 ;					else
-;						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
+;						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
 					endif
 ;				else
-;					Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
+;					FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
 				endif
 			endWhile
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is not zero")
+			FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is not zero")
 
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r)
+			FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r)
 			StorageUtil.FormListClear(r, "FW.AddOn." + valueName)
 
 			while c>0
 				c-=1
 				if ss[c];/!=""/; ;Tkc (Loverslab): optimization
-;					Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName = " + ss[c])
+;					FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName = " + ss[c])
 ;					form itm = FWUtility.GetFormFromString(ss[c])		// GetFormFromString is DEPRECATED in SE! Use FWUtility.GetFormFromStringSE() instead!
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
+						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
 						if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm) ;Tkc (Loverslab): optimization
-;							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
+;							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
 							StorageUtil.FormListAdd(r,"FW.AddOn."+valueName,itm)
 						endIf
 ;					else
-;						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
+;						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
 					endif
 ;				else
-;					Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
+;					FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Failed to load " + (c + 1) + "th valueName...")
 				endif
 			endWhile
 		endif
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Failed to load valueName...")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Failed to load valueName...")
 	endif
 endFunction
 
 function AddRaceAddOnCat(string n, string cat)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat)
+;	FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat)
 
 	string ids=FWUtility.getIniCString("AddOn",n,cat,"id","")
 	if ids;/!=""/; ;Tkc (Loverslab): optimization
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Loaded id = " + ids)
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Loaded id = " + ids)
 
 		string[] saRaces=StringUtil.Split(ids,",")
 		int c2=saRaces.length
@@ -1070,34 +1070,34 @@ function AddRaceAddOnCat(string n, string cat)
 			race r = FWUtility.GetFormFromStringSE(saRaces[c2]) as Race
 			
 			if r;/!=none/;
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th race is " + r)
+				FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th race is " + r)
 					
 				AddRaceAddOn(r,n,cat)
 ;			else
-;				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Failed to load " + (c2 + 1) + "th race...")
+;				FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Failed to load " + (c2 + 1) + "th race...")
 			endif
 		endWhile
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Failed to load id...")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". Failed to load id...")
 	endif
 endFunction
 function AddRaceAddOn(race r, string n, string cat)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r)
+;	FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r)
 
 	if StorageUtil.FormListHas(none,"FW.AddOn.Races",r) ;Tkc (Loverslab): optimization
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". This race is already in FW.AddOn.Races...")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". This race is already in FW.AddOn.Races...")
 	else;if !StorageUtil.FormListHas(none,"FW.AddOn.Races",r)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Adding this race to FW.AddOn.Races")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Adding this race to FW.AddOn.Races")
 
 		StorageUtil.FormListAdd(none,"FW.AddOn.Races",r)
 	endif
 	
 	if FWUtility.getIniCBool("AddOn",n,cat,"DisablePregnancy",false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisablePregnancy for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisablePregnancy for this race")
 	
 		StorageUtil.SetIntValue(r,"FW.AddOn.DisablePregnancy",1)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.DisablePregnancy for this race")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.DisablePregnancy for this race")
 	endif
 	AddRaceAddOnValue(r,n,cat,"ChanceToBecomePregnantScale")
 	AddRaceAddOnValue(r,n,cat,"ContraceptionDuration")
@@ -1165,7 +1165,7 @@ function AddRaceAddOn(race r, string n, string cat)
 	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
 	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this race")
 		
 		LoadRaceAddOnValue(r, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
 		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -1176,7 +1176,7 @@ function AddRaceAddOn(race r, string n, string cat)
 	endif
 	LoadRaceAddOnValueAnything(r, n, cat, "Sperm_Impregnation_Boost")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_NTR_baby for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_NTR_baby for this race")
 		
 		LoadRaceAddOnValue(r, n, cat, "Sperm_NTR_baby_Prob")
 		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
@@ -1190,11 +1190,11 @@ function AddRaceAddOn(race r, string n, string cat)
 
 
 	if FWUtility.getIniCBool("AddOn",n,cat,"Female_Force_This_Baby",false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
 		
 		StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",1)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.Female_Force_This_Baby for this race")
+;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Does not activate FW.AddOn.Female_Force_This_Baby for this race")
 	endif
 	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Female")
 	AddRaceAddOnArrayToList(r,n,cat,"BabyArmor_Male")
@@ -1203,31 +1203,31 @@ function AddRaceAddOn(race r, string n, string cat)
 	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Male")
 	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_MalePlayer")
 	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
 		
 		StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 1)
 		LoadRaceAddOnValueInt(r, n, cat, "ProbChildActorBorn")
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 1)
 	endIf
 	LoadRaceAddOnValue(r, n, cat, "initialScale")
 	LoadRaceAddOnValue(r, n, cat, "finalScale")
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisableMatureTime for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisableMatureTime for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.DisableMatureTime", 1)
 	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". FW.AddOn.DisableMatureTime is disabled for this race. Reading MatureTimeScale...")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". FW.AddOn.DisableMatureTime is disabled for this race. Reading MatureTimeScale...")
 		LoadRaceAddOnValue(r, n, cat, "MatureTimeScale")	
 	endif
 	LoadRaceAddOnValueInt(r, n, cat, "MatureStep")
 	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowUnrestrictedS for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowUnrestrictedS for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.AllowUnrestrictedS", 1)
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.ProtectedChildActor for this race")
+		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.ProtectedChildActor for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.ProtectedChildActor", 1)
 	endIf
 endFunction
@@ -1393,40 +1393,40 @@ function LoadGlobalAddOnValue(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
 	
 	if v > 0
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". valueName condition is satisfied!")
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
 endFunction
 function LoadGlobalAddOnValueIncludingZero(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
 	
 	if(v >= 0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 	endif
 endFunction
 function LoadGlobalAddOnValueAnything(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, 0)
 	
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 endFunction
 function LoadGlobalAddOnValueInt(string n, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, "AddOn", valueName, -1)
 	
 	if v >= 0
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : AddOn file name = " + n + ", loading data in AddOn, and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName = " + v)
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". valueName condition is satisfied!")
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : AddOn file name = " + n + ", loading data in AddOn, and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName = " + v)
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetIntValue(none, "FW.AddOn." + valueName, v)
 ;	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
+;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName is out of range. valueName >=0 is not satisfied..")
 	endif
 endFunction
 function AddGlobalAddOnArrayToList(string n, string valueName)
@@ -1445,16 +1445,16 @@ function AddGlobalAddOnArrayToList(string n, string valueName)
 					if itm;/!=none/;
 						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+							FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
 							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
 						endif
 					endif
 				endif
 			endWhile
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Global FW.AddOn.Female_Force_This_Baby is not zero")
+			FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Global FW.AddOn.Female_Force_This_Baby is not zero")
 
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Clearing FW.AddOn." + valueName + " in global settings")
+			FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Clearing FW.AddOn." + valueName + " in global settings")
 			StorageUtil.FormListClear(none, "FW.AddOn." + valueName)
 
 			while(c > 0)
@@ -1463,9 +1463,9 @@ function AddGlobalAddOnArrayToList(string n, string valueName)
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+						FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
 						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
 							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
@@ -1494,16 +1494,16 @@ function AddActorAddOnArrayToList(actor a, string n, string cat, string valueNam
 					if itm;/!=none/;
 						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddRaceAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
 							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
 						endif
 					endif
 				endif
 			endWhile
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". For actor " + a + ", FW.AddOn.Female_Force_This_Baby is not zero")
+			FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". For actor " + a + ", FW.AddOn.Female_Force_This_Baby is not zero")
 
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in actor " + a)
+			FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in actor " + a)
 			StorageUtil.FormListClear(a, "FW.AddOn." + valueName)
 
 			while(c > 0)
@@ -1513,9 +1513,9 @@ function AddActorAddOnArrayToList(actor a, string n, string cat, string valueNam
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+						FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
 						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
 							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
@@ -1530,11 +1530,11 @@ function AddActorAddOnValue(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 1.0)
 	
 	if(v > 0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		
 		float oldVal = StorageUtil.GetFloatValue(a, "FW.AddOn." + valueName, 1.0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
 		
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, (oldVal * v))
 	endif
@@ -1543,8 +1543,8 @@ function LoadActorAddOnValueInt(actor a, string n, string cat, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, cat, valueName, -1)
 	
 	if(v >= 0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValueInt : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValueInt : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetIntValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -1552,8 +1552,8 @@ function LoadActorAddOnValue(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if(v > 0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -1561,16 +1561,16 @@ function LoadActorAddOnValueIncludingZero(actor a, string n, string cat, string 
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if(v >= 0)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
 function LoadActorAddOnValueAnything(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
 	
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 endFunction
 
@@ -1585,7 +1585,7 @@ function AddActorAddOnCat(string n, string cat)
 			actor a = FWUtility.GetFormFromStringSE(saActors[c2]) as actor
 			
 			if a;/!=none/;
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th actor is " + a)
+				FW_log.WriteLog("FWAddOnManager - AddActorAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th actor is " + a)
 					
 				AddActorAddOn(a, n, cat)
 			endif
@@ -1595,13 +1595,13 @@ endFunction
 function AddActorAddOn(actor a, string n, string cat)
 	if StorageUtil.FormListHas(none, "FW.AddOn.Actors", a) ;Tkc (Loverslab): optimization
 	else;if !StorageUtil.FormListHas(none,"FW.AddOn.Races",r)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Adding this Actor to FW.AddOn.Actors")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Adding this Actor to FW.AddOn.Actors")
 
 		StorageUtil.FormListAdd(none, "FW.AddOn.Actors", a)
 	endif
 	
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisablePregnancy", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisablePregnancy for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisablePregnancy for this actor")
 	
 		StorageUtil.SetIntValue(a, "FW.AddOn.DisablePregnancy", 1)
 	endif
@@ -1669,7 +1669,7 @@ function AddActorAddOn(actor a, string n, string cat)
 	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
 	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this actor")
 		
 		LoadActorAddOnValue(a, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
 		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -1680,7 +1680,7 @@ function AddActorAddOn(actor a, string n, string cat)
 	endif
 	LoadActorAddOnValueAnything(a, n, cat, "Sperm_Impregnation_Boost")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_NTR_baby for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_NTR_baby for this actor")
 		
 		LoadActorAddOnValue(a, n, cat, "Sperm_NTR_baby_Prob")
 		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
@@ -1694,7 +1694,7 @@ function AddActorAddOn(actor a, string n, string cat)
 
 
 	if FWUtility.getIniCBool("AddOn", n, cat, "Female_Force_This_Baby", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Female_Force_This_Baby for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Female_Force_This_Baby for this actor")
 		
 		StorageUtil.SetIntValue(a, "FW.AddOn.Female_Force_This_Baby", 1)
 	endif
@@ -1703,36 +1703,36 @@ function AddActorAddOn(actor a, string n, string cat)
 	AddActorAddOnArrayToList(a, n, cat, "BabyActor_Male")
 	AddActorAddOnArrayToList(a, n, cat, "BabyActor_MalePlayer")
 	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.MixWithCopyActorBase for this actor and reading ProbChildActorBorn...")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.MixWithCopyActorBase for this actor and reading ProbChildActorBorn...")
 		
 		StorageUtil.SetIntValue(a, "FW.AddOn.MixWithCopyActorBase", 1)
 		LoadActorAddOnValueInt(a, n, cat, "ProbChildActorBorn")
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowPCDialogue for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowPCDialogue for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.AllowPCDialogue", 1)
 	endIf
 	LoadActorAddOnValue(a, n, cat, "initialScale")
 	LoadActorAddOnValue(a, n, cat, "finalScale")
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisableMatureTime for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisableMatureTime for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.DisableMatureTime", 1)
 	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". FW.AddOn.DisableMatureTime is disabled for this actor. Reading MatureTimeScale...")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". FW.AddOn.DisableMatureTime is disabled for this actor. Reading MatureTimeScale...")
 		LoadActorAddOnValue(a, n, cat, "MatureTimeScale")	
 	endif
 	LoadActorAddOnValueInt(a, n, cat, "MatureStep")
 	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowUnrestrictedS for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowUnrestrictedS for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.AllowUnrestrictedS", 1)
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.ProtectedChildActor for this actor")
+		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.ProtectedChildActor for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.ProtectedChildActor", 1)
 	endIf
 endFunction
 function ClearActorAddOns()
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearActorAddOns : Clearing...")
+	FW_log.WriteLog("FWAddOnManager - ClearActorAddOns : Clearing...")
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Actors")
 	while(c > 0)
@@ -1923,7 +1923,7 @@ endFunction
 
 
 function Clear(int type=7)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - Clear : Clearing...")
+	FW_log.WriteLog("FWAddOnManager - Clear : Clearing...")
 	AddOnFolderHash=""
 	if Math.LogicalAnd(type,1)==1
 		ClearMiscAddOns()
@@ -1937,7 +1937,7 @@ function Clear(int type=7)
 endFunction
 
 function ClearMiscAddOns()
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearMiscAddOns : Clearing Misc AddOns...")
+	FW_log.WriteLog("FWAddOnManager - ClearMiscAddOns : Clearing Misc AddOns...")
 
 	Misc=new FWAddOn_Misc[128]
 	sMisc=new string[128]
@@ -1946,7 +1946,7 @@ function ClearMiscAddOns()
 endFunction
 
 function ClearCMEAddOns()
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearCMEAddOns : Clearing CME AddOns...")
+	FW_log.WriteLog("FWAddOnManager - ClearCMEAddOns : Clearing CME AddOns...")
 
 	StorageUtil.FormListClear(none,"FW.AddOn.Always_FollicularPhase")
 	StorageUtil.FormListClear(none,"FW.AddOn.Always_LaborPains")
@@ -1971,7 +1971,7 @@ function ClearCMEAddOns()
 endFunction
 
 function ClearRaceAddOns()
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ClearRaceAddOns : Clearing...")
+	FW_log.WriteLog("FWAddOnManager - ClearRaceAddOns : Clearing...")
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Races")
 	while c>0
@@ -2170,7 +2170,7 @@ endFunction
 
 
 function RecastSpell2(actor a, string s)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RecastSpell2 : Recasting...")
+	FW_log.WriteLog("FWAddOnManager - RecastSpell2 : Recasting...")
 
 	if StringUtil.Substring(s,0,7)=="Always_" || StringUtil.Substring(s,0,10)=="Sometimes_"
 		int i = StorageUtil.FormListCount(none,"FW.AddOn."+s)
@@ -2305,7 +2305,7 @@ endFunction
 ; 8 = Labor Pains
 ; 9 = Replanish
 function removeCME(actor a, int EffectID = -1)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - removeCME : Removing...")
+	FW_log.WriteLog("FWAddOnManager - removeCME : Removing...")
 
 	if EffectID==-1
 		ActorRemoveSpellsS(a,"Always_FollicularPhase")
@@ -2363,7 +2363,7 @@ function removeCME(actor a, int EffectID = -1)
 endFunction
 
 function castCME(actor a, int EffectID, int NumEffects)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - castCME : Casting...")
+	FW_log.WriteLog("FWAddOnManager - castCME : Casting...")
 
 	if EffectID==0
 		FWUtility.ActorAddSpellsS(a,"Always_FollicularPhase");
@@ -2403,7 +2403,7 @@ endFunction
 ;  8		LaborPains
 ;  9		Recovery
 function castCMEEffect(Actor akActor,int EffectID, int MaxEffectNumber)
-	Debug.Trace("[Beeing Female NG] - FWAddOnManager - castCMEEffect : Casting...")
+	FW_log.WriteLog("FWAddOnManager - castCMEEffect : Casting...")
 
 	if akActor ;Tkc (Loverslab): optimization
 	else;if akActor == none
@@ -2478,7 +2478,7 @@ bool function ActorCanBecomePregnant(actor a)
 			race abr = a.GetRace()
 			if abr
 				myResult = RaceCanBecomePregnant(abr)
-				Debug.Trace("[Beeing Female NG] - FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + myResult)
+				FW_log.WriteLog("FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + myResult)
 			endIf
 		endIf
 		return myResult
@@ -2486,7 +2486,7 @@ bool function ActorCanBecomePregnant(actor a)
 	return false
 endfunction
 bool function RaceCanBecomePregnant(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceCanBecomePregnant : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceCanBecomePregnant : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
 
 	;WaitRaces()
 ;	return StorageUtil.GetFloatValue(RaceID,"FW.AddOn.DisablePregnancy",0)==0
@@ -2519,7 +2519,7 @@ float function PregnancyChanceActorScale(actor a)
 	endif
 endfunction
 float function PregnancyChanceRaceScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - PregnancyChanceRaceScale : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - PregnancyChanceRaceScale : Race = " + RaceID + ". ChanceToBecomePregnantScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale",1.0))
 
 	float result = 1.0;
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ChanceToBecomePregnantScale", 1.0)
@@ -2557,7 +2557,7 @@ float function getActorContraceptionDuration(actor a)
 	endIf
 endFunction
 float function getRaceContraceptionDuration(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceContraceptionDuration : Race = " + RaceID + ". ContraceptionDuration = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceContraceptionDuration : Race = " + RaceID + ". ContraceptionDuration = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.ContraceptionDuration", 1.0)
@@ -2695,14 +2695,14 @@ float function getActorDurationScale(int Step, Actor a)
 endFunction
 ; Deprecated
 float function getRaceDurationScale(int Step, race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_01_Follicular = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_01_Follicular",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_02_Ovulation = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_02_Ovulation",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_03_Luteal = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_03_Luteal",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_04_Menstruation = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_04_Menstruation",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_05_Trimester1 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_05_Trimester1",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_06_Trimester2 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_06_Trimester2",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_07_Trimester3 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_07_Trimester3",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_08_Recovery = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_08_Recovery",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_01_Follicular = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_01_Follicular",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_02_Ovulation = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_02_Ovulation",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_03_Luteal = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_03_Luteal",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_04_Menstruation = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_04_Menstruation",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_05_Trimester1 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_05_Trimester1",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_06_Trimester2 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_06_Trimester2",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_07_Trimester3 = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_07_Trimester3",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDurationScale : Race = " + RaceID + ". Duration_08_Recovery = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_08_Recovery",1.0))
 
 ;	if Step==7 ; Labor Pain is fixed
 ;		return result
@@ -2856,7 +2856,7 @@ float function getActorDuration_BetweenLaborPains(actor a)
 	endIf
 endFunction
 float function getRaceDuration_BetweenLaborPains(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDuration_BetweenLaborPains : Race = " + RaceID + ". Duration_10_SecondsBetweenLaborPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDuration_BetweenLaborPains : Race = " + RaceID + ". Duration_10_SecondsBetweenLaborPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_10_SecondsBetweenLaborPains",1.0)
@@ -2893,7 +2893,7 @@ float function getActorDuration_BabySpawn(actor a)
 	endIf
 endFunction
 float function getRaceDuration_BabySpawn(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDuration_BabySpawn : Race = " + RaceID + ". Duration_11_SecondsBetweenBabySpawn = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDuration_BabySpawn : Race = " + RaceID + ". Duration_11_SecondsBetweenBabySpawn = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_11_SecondsBetweenBabySpawn",1.0)
@@ -2931,7 +2931,7 @@ float function IrregulationChance(actor woman, int state_number)
 		endIf
 	endIf
 
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationChance : Race = " + RaceID + ". Irregulation_Chance_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Chance_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - IrregulationChance : Race = " + RaceID + ". Irregulation_Chance_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Chance_Scale",1.0))
 
 	if result < 0.1
 		return 0.1
@@ -2963,7 +2963,7 @@ float function IrregulationValue(actor woman, int state_number)
 		endIf
 	endIf
 
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - IrregulationValue : Race = " + RaceID + ". Irregulation_Value_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Value_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - IrregulationValue : Race = " + RaceID + ". Irregulation_Value_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Irregulation_Value_Scale",1.0))
 
 	if result < 0.1
 		return 0.1
@@ -2993,7 +2993,7 @@ float function ActorMaxChance(actor a)
 	endif
 endfunction
 float function RaceMaxChance(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxChance : Race = " + RaceID + ". Multiple_Threshold_Chance = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceMaxChance : Race = " + RaceID + ". Multiple_Threshold_Chance = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0))
 
 	float result = 1.0;
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Chance",1.0)
@@ -3029,7 +3029,7 @@ float function ActorMaxBabse(actor a)
 	endif
 endfunction
 float function RaceMaxBabse(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaxBabse : Race = " + RaceID + ". Multiple_Threshold_Max_Babys = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceMaxBabse : Race = " + RaceID + ". Multiple_Threshold_Max_Babys = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0))
 
 	float result = 1.0;
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Multiple_Threshold_Max_Babys",1.0)
@@ -3135,13 +3135,13 @@ float function getActorDamageScale(int DamageType, actor a)
 endFunction
 ; Deprecated
 float function getRaceDamageScale(int DamageType, race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Mittelschmerz = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Mittelschmerz",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Phase_CyclePains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Phase_CyclePains",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_PMS = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_PMS",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_LaborPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_LaborPains",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Phase_PregnantPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Phase_PregnantPains",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_GivingBirthPain_PMS = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_GivingBirthPain_PMS",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Abortus = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Abortus",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Mittelschmerz = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Mittelschmerz",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Phase_CyclePains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Phase_CyclePains",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_PMS = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_PMS",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_LaborPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_LaborPains",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Phase_PregnantPains = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Phase_PregnantPains",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_GivingBirthPain_PMS = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_GivingBirthPain_PMS",1.0))
+;	FW_log.WriteLog("FWAddOnManager - getRaceDamageScale : Race = " + RaceID + ". Pain_Abortus = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Pain_Abortus",1.0))
 
 	float result = 1.0
 	float myMulti = 1.0
@@ -3240,7 +3240,7 @@ float function PMSChanceActorScale(actor a)
 	endif
 endfunction
 float function PMSChanceRaceScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - PMSChanceRaceScale : Race = " + RaceID + ". PMS_ChanceScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.PMS_ChanceScale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - PMSChanceRaceScale : Race = " + RaceID + ". PMS_ChanceScale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.PMS_ChanceScale",1.0))
 
 	float result = 1.0;
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.PMS_ChanceScale",1.0)
@@ -3314,10 +3314,10 @@ float function ActorSizeScaler(int Type, actor a)
 endfunction
 ; Deprecated
 float function RaceSizeScaler(int Type, race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Belly_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Belly_Max",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Breasts_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Breasts_Max",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Belly_Max_Multiple = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Belly_Max_Multiple",1.0))
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Breasts_Max_Multiple = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Breasts_Max_Multiple",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Belly_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Belly_Max",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Breasts_Max = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Breasts_Max",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Belly_Max_Multiple = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Belly_Max_Multiple",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceSizeScaler : Race = " + RaceID + ". Sizes_Breasts_Max_Multiple = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sizes_Breasts_Max_Multiple",1.0))
 
 	float result = 1.0;
 	if Type < 2
@@ -3370,10 +3370,10 @@ float Function ActorPreg1stBellyScale(actor a)
 	endIf
 	
 	if myPreg1stBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
 		return myPreg1stBellyScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 0)
 	endIf
 endFunction
@@ -3396,10 +3396,10 @@ float Function ActorPreg2ndBellyScale(actor a)
 	endIf
 	
 	if myPreg2ndBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
 		return myPreg2ndBellyScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 1)
 	endIf
 endFunction
@@ -3422,10 +3422,10 @@ float Function ActorPreg3rdBellyScale(actor a)
 	endIf
 	
 	if myPreg3rdBellyScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
 		return myPreg3rdBellyScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 2)
 	endIf
 endFunction
@@ -3448,10 +3448,10 @@ float Function ActorPreg1stBreastsScale(actor a)
 	endIf
 	
 	if myPreg1stBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
 		return myPreg1stBreastsScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 0)
 	endIf
 endFunction
@@ -3474,10 +3474,10 @@ float Function ActorPreg2ndBreastsScale(actor a)
 	endIf
 	
 	if myPreg2ndBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
 		return myPreg2ndBreastsScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 1)
 	endIf
 endFunction
@@ -3500,10 +3500,10 @@ float Function ActorPreg3rdBreastsScale(actor a)
 	endIf
 	
 	if myPreg3rdBreastsScale > 0
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
 		return myPreg3rdBreastsScale
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 2)
 	endIf
 endFunction
@@ -3519,7 +3519,7 @@ float Function ActorMultipleBabySperm(actor a)
 			if abr
 				myMultipleBabySperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabySperm", -1)
 				if(myMultipleBabySperm <= 0)
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabySperm: Failed to get race specific MultipleBabySperm for actor " + a + ", thus loading Global_MultipleBabySperm...")
+					FW_log.WriteLog("FWAddOnManager - ActorMultipleBabySperm: Failed to get race specific MultipleBabySperm for actor " + a + ", thus loading Global_MultipleBabySperm...")
 					myMultipleBabySperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabySperm", -1)
 				endIf
 			endIf
@@ -3527,10 +3527,10 @@ float Function ActorMultipleBabySperm(actor a)
 	endIf
 	
 	if myMultipleBabySperm > 0
-		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
 		return myMultipleBabySperm
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
 		return -1
 	endIf
 endFunction
@@ -3546,7 +3546,7 @@ float Function ActorMultipleBabyChancePerSperm(actor a)
 			if abr
 				myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(abr, "FW.AddOn.MultipleBabyChancePerSperm", -1)
 				if(myMultipleBabyChancePerSperm <= 0)
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorMultipleBabyChancePerSperm: Failed to get race specific MultipleBabyChancePerSperm for actor " + a + ", thus loading Global_MultipleBabyChancePerSperm...")
+					FW_log.WriteLog("FWAddOnManager - ActorMultipleBabyChancePerSperm: Failed to get race specific MultipleBabyChancePerSperm for actor " + a + ", thus loading Global_MultipleBabyChancePerSperm...")
 					myMultipleBabyChancePerSperm = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_MultipleBabyChancePerSperm", -1)
 				endIf
 			endIf
@@ -3554,10 +3554,10 @@ float Function ActorMultipleBabyChancePerSperm(actor a)
 	endIf
 	
 	if myMultipleBabyChancePerSperm > 0
-		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
 		return myMultipleBabyChancePerSperm
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
+		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
 		return -1
 	endIf
 endFunction
@@ -3584,7 +3584,7 @@ float function ActorBabyHealingScale(actor a)
 	endif
 endFunction
 float function RaceBabyHealingScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0)
@@ -3621,7 +3621,7 @@ float function ActorBabyDamageScale(actor a)
 	endif
 endFunction
 float function RaceBabyDamageScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0)
@@ -3660,7 +3660,7 @@ float function ActorMaleSpermDurationScale(actor a)
 	endif
 endFunction
 float function RaceMaleSpermDurationScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaleSpermDurationScale : Race = " + RaceID + ". Duration_MaleSperm = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_MaleSperm",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceMaleSpermDurationScale : Race = " + RaceID + ". Duration_MaleSperm = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_MaleSperm",1.0))
 
 	float result = 1.0;
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Duration_MaleSperm",1.0)
@@ -3697,7 +3697,7 @@ float function ActorSpermAmountScale(actor a)
 	endif
 endFunction
 float function RaceSpermAmountScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceSpermAmountScale : Race = " + RaceID + ". Sperm_Amount_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sperm_Amount_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceSpermAmountScale : Race = " + RaceID + ". Sperm_Amount_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sperm_Amount_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Sperm_Amount_Scale",1.0)
@@ -3734,7 +3734,7 @@ float function ActorMaleRecoveryScale(actor a)
 	endif
 endFunction
 float function RaceMaleRecoveryScale(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceMaleRecoveryScale : Race = " + RaceID + ". Male_Recovery_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Male_Recovery_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceMaleRecoveryScale : Race = " + RaceID + ". Male_Recovery_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Male_Recovery_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Male_Recovery_Scale",1.0)
@@ -3753,7 +3753,7 @@ endFunction
 ; Get ChildRaceDeterminedByFather
 int Function ActorChildRaceDeterminedByFather(actor a)
 	int DefaultChildRaceDeterminedByFather = myBFA_ProbChildRaceDeterminedByFather.GetValue() as int
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildRaceDeterminedByFather: DefaultChildRaceDeterminedByFather = " + DefaultChildRaceDeterminedByFather)
+;	FW_log.WriteLog("FWAddOnManager - ActorChildRaceDeterminedByFather: DefaultChildRaceDeterminedByFather = " + DefaultChildRaceDeterminedByFather)
 
 	int ChildRaceDeterminedByFather
 	if a
@@ -3766,10 +3766,10 @@ int Function ActorChildRaceDeterminedByFather(actor a)
 		endIf
 	endIf
 	if ChildRaceDeterminedByFather < 0	; Must be nonnegative!
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildRaceDeterminedByFather: Changing ChildRaceDeterminedByFather from " + ChildRaceDeterminedByFather + " to " + DefaultChildRaceDeterminedByFather)
+;		FW_log.WriteLog("FWAddOnManager - ActorChildRaceDeterminedByFather: Changing ChildRaceDeterminedByFather from " + ChildRaceDeterminedByFather + " to " + DefaultChildRaceDeterminedByFather)
 		return DefaultChildRaceDeterminedByFather
 	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildRaceDeterminedByFather: ChildRaceDeterminedByFather = " + ChildRaceDeterminedByFather)
+;		FW_log.WriteLog("FWAddOnManager - ActorChildRaceDeterminedByFather: ChildRaceDeterminedByFather = " + ChildRaceDeterminedByFather)
 		return ChildRaceDeterminedByFather
 	endif
 endFunction
@@ -3778,7 +3778,7 @@ endFunction
 ; Get ChildSexDetermMale
 int Function ActorChildSexDetermMale(actor a)
 	int DefaultChildSexDetermMale = myBFA_ProbChildSexDetermMale.GetValue() as int
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildSexDetermMale: DefaultChildSexDetermMale = " + DefaultChildSexDetermMale)
+;	FW_log.WriteLog("FWAddOnManager - ActorChildSexDetermMale: DefaultChildSexDetermMale = " + DefaultChildSexDetermMale)
 	
 	int ChildSexDetermMale
 	if a
@@ -3791,10 +3791,10 @@ int Function ActorChildSexDetermMale(actor a)
 		endIf
 	endIf
 	if ChildSexDetermMale < 0	; Must be nonnegative!
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildSexDetermMale: Changing ChildSexDetermMale from " + ChildSexDetermMale + " to " + DefaultChildSexDetermMale)
+;		FW_log.WriteLog("FWAddOnManager - ActorChildSexDetermMale: Changing ChildSexDetermMale from " + ChildSexDetermMale + " to " + DefaultChildSexDetermMale)
 		return DefaultChildSexDetermMale
 	else
-;		Debug.Trace("[Beeing Female NG] - FWAddOnManager - ActorChildSexDetermMale: ChildSexDetermMale = " + ChildSexDetermMale)
+;		FW_log.WriteLog("FWAddOnManager - ActorChildSexDetermMale: ChildSexDetermMale = " + ChildSexDetermMale)
 		return ChildSexDetermMale
 	endif
 endFunction
@@ -3817,7 +3817,7 @@ float function ActorBabyHealingScaleByFather(actor a)
 	return result
 endFunction
 float function RaceBabyHealingScaleByFather(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceBabyHealingScale : Race = " + RaceID + ". Baby_Healing_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Healing_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Modify_Baby_Healing_Scale_by_FatherRace",1.0)
@@ -3846,7 +3846,7 @@ float function ActorBabyDamageScaleByFather(actor a)
 	return result
 endFunction
 float function RaceBabyDamageScaleByFather(race RaceID)
-;	Debug.Trace("[Beeing Female NG] - FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
+;	FW_log.WriteLog("FWAddOnManager - RaceBabyDamageScale : Race = " + RaceID + ". Baby_Damage_Scale = " + StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Baby_Damage_Scale",1.0))
 
 	float result = 1.0
 	result = StorageUtil.GetFloatValue(RaceID,"FW.AddOn.Modify_Baby_Damage_Scale_by_FatherRace",1.0)
@@ -3867,7 +3867,7 @@ ActorBase function validateBabyCustomRace(ActorBase b)
 	if childRace
 		string childRaceName = FWUtility.toLower(childRace.GetName() + MiscUtil.GetRaceEditorID(childRace))
 		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
-			Debug.Trace("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
+			FW_log.WriteLog("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("Child race is not labeled as child; falling back to default.")
 			endIf
@@ -3894,7 +3894,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 		if m;/!=none/;
 			return validateBabyCustomRace(m)
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+			FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 			if(cfg.ShowDebugMessage)
 				Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
 			endIf
@@ -3905,7 +3905,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 			if m;/!=none/;
 				return validateBabyCustomRace(m)
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 				if(cfg.ShowDebugMessage)
 					Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
 				endIf
@@ -3919,7 +3919,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 			if m;/!=none/;
 				return validateBabyCustomRace(m)
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if(cfg.ShowDebugMessage)
 					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 				endIf
@@ -3930,7 +3930,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 				if m;/!=none/;
 					return validateBabyCustomRace(m)
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+					FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 					if(cfg.ShowDebugMessage)
 						Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 					endIf
@@ -3944,7 +3944,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 				if m;/!=none/;
 					return validateBabyCustomRace(m)
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
+					FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby model cannot be found...")
 					if(cfg.ShowDebugMessage)
 						Debug.Messagebox("Baby model cannot be found...")
 					endIf
@@ -3955,14 +3955,14 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 					if m;/!=none/;
 						return validateBabyCustomRace(m)
 					else
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby model cannot be found...")
+						FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby model cannot be found...")
 						if(cfg.ShowDebugMessage)
 							Debug.Messagebox("Baby model cannot be found...")
 						endIf
 					endif
 				endWhile		
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby actor model cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby actor model cannot be found...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("Baby actor model cannot be found...")
 				endIf
@@ -3986,7 +3986,7 @@ ActorBase function GetBabyActor(race ParentRace,int Gender)
 		if m;/!=none/;
 			return m
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+			FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 			endIf
@@ -3997,14 +3997,14 @@ ActorBase function GetBabyActor(race ParentRace,int Gender)
 			if m;/!=none/;
 				return m
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 				endIf
 			endif
 		endWhile
 	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetBabyActor - Parent race " + ParentRace + " cannot be found...")
+		FW_log.WriteLog("FWAddOnManager - GetBabyActor - Parent race " + ParentRace + " cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
 		endIf
@@ -4028,7 +4028,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 		if m;/!=none/;
 			return validateBabyCustomRace(m)
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+			FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 			if(cfg.ShowDebugMessage)
 				Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
 			endIf
@@ -4039,7 +4039,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 			if m;/!=none/;
 				return validateBabyCustomRace(m)
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
 				if(cfg.ShowDebugMessage)
 					Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
 				endIf
@@ -4053,7 +4053,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 			if m;/!=none/;
 				return validateBabyCustomRace(m)
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if(cfg.ShowDebugMessage)
 					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 				endIf
@@ -4064,7 +4064,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 				if m;/!=none/;
 					return validateBabyCustomRace(m)
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+					FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 					if(cfg.ShowDebugMessage)
 						Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 					endIf
@@ -4078,7 +4078,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 				if m;/!=none/;
 					return validateBabyCustomRace(m)
 				else
-					Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
+					FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
 					if(cfg.ShowDebugMessage)
 						Debug.Messagebox("Baby model cannot be found...")
 					endIf
@@ -4089,14 +4089,14 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 					if m;/!=none/;
 						return validateBabyCustomRace(m)
 					else
-						Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
+						FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby model cannot be found...")
 						if(cfg.ShowDebugMessage)
 							Debug.Messagebox("Baby model cannot be found...")
 						endIf
 					endif
 				endWhile		
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby actor model cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby actor model cannot be found...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("Baby actor model cannot be found...")
 				endIf
@@ -4120,7 +4120,7 @@ ActorBase function GetPlayerBabyActor(race ParentRace,int Gender)
 		if m;/!=none/;
 			return m
 		else
-			Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+			FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 			endIf
@@ -4131,14 +4131,14 @@ ActorBase function GetPlayerBabyActor(race ParentRace,int Gender)
 			if m;/!=none/;
 				return m
 			else
-				Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
+				FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
 				if cfg.ShowDebugMessage
 					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
 				endIf
 			endif
 		endWhile
 	else
-		Debug.Trace("[Beeing Female NG] - FWAddOnManager - GetPlayerBabyActor - Parent race " + ParentRace + " cannot be found...")
+		FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - Parent race " + ParentRace + " cannot be found...")
 		if cfg.ShowDebugMessage
 			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
 		endIf
@@ -4152,21 +4152,21 @@ int Function RaceProbChildActorBornNew(actor ParentActor, race ParentRace)
 	int myProbChildActorBorn = StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProbChildActorBorn", -1)
 	
 	if(myProbChildActorBorn > 0)
-		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the actor " + ParentActor)
+		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the actor " + ParentActor)
 		return myProbChildActorBorn
 	else
 		myProbChildActorBorn = StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProbChildActorBorn", -1)
 		if(myProbChildActorBorn > 0)
-			Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + ParentRace)
+			FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + ParentRace)
 			return myProbChildActorBorn
 		else
 			myProbChildActorBorn = StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProbChildActorBorn", -1)
 			if(myProbChildActorBorn > 0)
-				Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for everything")
+				FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for everything")
 				return myProbChildActorBorn
 			else
 				; must be positive
-				Debug.Trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + ParentRace)
+				FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + ParentRace)
 				return -1
 			endIf
 		endIf
@@ -4177,10 +4177,10 @@ int Function RaceProbChildActorBorn(race RaceID)
 	int myProbChildActorBorn = StorageUtil.GetIntValue(RaceID, "FW.AddOn.ProbChildActorBorn", -1)
 	
 	if(myProbChildActorBorn > 0)
-		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
+		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
 		return myProbChildActorBorn
 	else	; must be positive
-		Debug.Trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
+		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
 		return -1
 	endIf
 endFunction
@@ -4546,7 +4546,7 @@ endFunction
 Function AddToSLandBF(actor TargetActor)
 	if(TargetActor)
 		if(TargetActor.IsInFaction(BF_ForbiddenFaction))
-			Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is in BF_ForbiddenFaction. Removing...")
+			FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is in BF_ForbiddenFaction. Removing...")
 			TargetActor.RemoveFromFaction(BF_ForbiddenFaction)
 		endIf
 		if(Game.IsPluginInstalled("SexLab.esm"))
@@ -4554,16 +4554,16 @@ Function AddToSLandBF(actor TargetActor)
 
 			if(SexLabForbiddenActors)
 				if(TargetActor.IsInFaction(SexLabForbiddenActors))
-					Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is in SexLabForbiddenActors faction. Removing...")
+					FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is in SexLabForbiddenActors faction. Removing...")
 					TargetActor.RemoveFromFaction(SexLabForbiddenActors)
 				else
-					Debug.Trace("AddToSLandBF: Actor " + TargetActor + " is not in SexLabForbiddenActors faction.")
+					FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is not in SexLabForbiddenActors faction.")
 				endIf
 			else
 				Debug.Messagebox("AddToSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page...")
 			endIf
 		else
-			Debug.Trace("AddToSLandBF: SexLab is not installed")
+			FW_log.WriteLog("AddToSLandBF: SexLab is not installed")
 		endIf
 	else
 		Debug.Messagebox("AddToSLandBF: Failed to get child actor. Please report to the BeeingFemaleSE_Opt mod page...")		
@@ -4579,7 +4579,7 @@ endFunction
 FWAddOn_Misc usedCameraAddOn=none
 function StartCamera()
 	if usedCameraAddOn;/!=none/;
-		;Debug.Trace("There was a camera already running ("+usedCameraAddOn.GetName()+") - camera stoped")
+		;FW_log.WriteLog("There was a camera already running ("+usedCameraAddOn.GetName()+") - camera stoped")
 		StopCamera()
 	endIf
 	FWAddOn_Misc[] cams = new FWAddOn_Misc[64]
@@ -4602,7 +4602,7 @@ function StartCamera()
 		usedCameraAddOn=cams[camID]
 	endIf
 	if usedCameraAddOn;/!=none/;
-		;Debug.Trace("Using camera "+usedCameraAddOn.GetName()+" - start it")
+		;FW_log.WriteLog("Using camera "+usedCameraAddOn.GetName()+" - start it")
 		usedCameraAddOn.StartCamera()
 	endIf
 endFunction
@@ -4612,7 +4612,7 @@ function StopCamera()
 		usedCameraAddOn.StopCamera()
 		usedCameraAddOn=none
 	endIf
-	;Debug.Trace("Camera stoped")
+	;FW_log.WriteLog("Camera stoped")
 endFunction
 
 function OnEnterState(actor akFemale, int iState)

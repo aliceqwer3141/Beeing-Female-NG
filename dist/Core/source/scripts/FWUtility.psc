@@ -163,7 +163,7 @@ string function GetModFromID(Form frm, bool bFileExtention = true) global
 		actorbase b = a.GetLeveledActorBase()
 		int mID = a.GetFormID() % 0x1000000
 		int nID = b.GetFormID() % 0x1000000
-		;Debug.Trace("Find Mod by Actor '"+b.GetName()+"' - "+mID+ "("+a.GetFormID()+") / " + nID + "("+b.GetFormID()+")")
+		;FW_log.WriteLog("Find Mod by Actor '"+b.GetName()+"' - "+mID+ "("+a.GetFormID()+") / " + nID + "("+b.GetFormID()+")")
 		while i<c
 			mName = Game.GetModName(i)
 			if a == Game.GetFormFromFile(mID,mName) as actor
@@ -249,7 +249,7 @@ string function Hex(int value, int Digits) native global
 ;		sHex = sHex + HexDigit(value,0x000000F)
 ;	elseif Digits==8
 ;		if Digits>8
-;			Debug.Trace("Max Hex digit count: 8")
+;			FW_log.WriteLog("Max Hex digit count: 8")
 ;		endif
 ;		sHex = sHex + HexDigit(value,0xF0000000,28)
 ;		sHex = sHex + HexDigit(value,0x0F000000,24)
@@ -328,7 +328,7 @@ Form Function GetFormFromStringSE(string s) global	; Use this one INSTEAD of Get
 							
 		return Game.GetFormFromFile(myStringFormID, myStringMasterPlugin)
 	else
-		Debug.Trace("[Beeing Female NG] - FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:)...")
+		FW_log.WriteLog("FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:)...")
 		
 		return none
 	endIf
@@ -429,27 +429,27 @@ string function getObjectListNames(ObjectReference[] objs, bool PrefareDisplayNa
 endFunction
 
 string function getRandomName(int iSex) Global
-	;Debug.Trace("BeeingFemale - getRandomName("+iSex+")")
+	;FW_log.WriteLog("BeeingFemale - getRandomName("+iSex+")")
 	string lang = Utility.GetINIString("sLanguage:General")
 	string path = "../../../BeeingFemale/Names/"
 	string Full = path + "BeeingFemaleNames_" + lang + ".json"
 	string ssex = ""
-	;Debug.Trace("- Use Language: '"+lang+"'")
-	;Debug.Trace("- Name File: '" + Full + "'")
+	;FW_log.WriteLog("- Use Language: '"+lang+"'")
+	;FW_log.WriteLog("- Name File: '" + Full + "'")
 	
 	if iSex == 0
 		ssex = "male"
 	elseif iSex == 1
 		ssex = "female"
 	endif
-	;Debug.Trace("- ssex: '" + ssex + "'")
+	;FW_log.WriteLog("- ssex: '" + ssex + "'")
 	int Count = JsonUtil.StringListCount(Full, ssex)
-	;Debug.Trace("- Name Count: '" + Count + "'")
+	;FW_log.WriteLog("- Name Count: '" + Count + "'")
 	;JsonUtil.StringListAdd(Full, ssex, "Alex", false)
 	int id = Utility.RandomInt(0, Count - 1)
-	;Debug.Trace("- Random ID: '" + id + "'")
+	;FW_log.WriteLog("- Random ID: '" + id + "'")
 	string sName = JsonUtil.StringListGet(Full, ssex, id)
-	;Debug.Trace("- Result: '" + sName+"'")
+	;FW_log.WriteLog("- Result: '" + sName+"'")
 	return sName
 endFunction
 

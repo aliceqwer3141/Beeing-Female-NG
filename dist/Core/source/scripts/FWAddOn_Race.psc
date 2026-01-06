@@ -53,7 +53,7 @@ float property ContraceptionDuration = 1.0 auto
 ;		elseif AddOnManager != none
 ;			AddOnManager.RegisterRaceAddOn(self)
 ;		else
-;			Debug.Trace("Beeing Female Mod Manager - RefreshAddOns PMS "+GetName()+" failed - Manager is none")
+;			FW_log.WriteLog("Beeing Female Mod Manager - RefreshAddOns PMS "+GetName()+" failed - Manager is none")
 ;		endif
 ;	endIf
 ;endFunction

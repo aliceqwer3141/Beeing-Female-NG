@@ -166,23 +166,23 @@ function UpdateContent()
 	
 	if System ;Tkc (Loverslab) optimization
 	else;if System==none
-		Debug.Trace("FWPantyWidget::UpdateContent - System is none")
+		FW_log.WriteLog("FWPantyWidget::UpdateContent - System is none")
 	endif
 	if Sanitary_Napkin_Bloody ;Tkc (Loverslab) optimization
 	else;if System.Sanitary_Napkin_Bloody == none
-		Debug.Trace("FWPantyWidget::UpdateContent - Sanitary_Napkin_Bloody is none")
+		FW_log.WriteLog("FWPantyWidget::UpdateContent - Sanitary_Napkin_Bloody is none")
 	endif
 	if Tampon_Bloody ;Tkc (Loverslab) optimization
 	else;if System.Tampon_Bloody == none
-		Debug.Trace("FWPantyWidget::UpdateContent - Tampon_Bloody is none")
+		FW_log.WriteLog("FWPantyWidget::UpdateContent - Tampon_Bloody is none")
 	endif
 	if Sanitary_Napkin_Normal ;Tkc (Loverslab) optimization
 	else;if System.Sanitary_Napkin_Normal == none
-		Debug.Trace("FWPantyWidget::UpdateContent - Sanitary_Napkin_Normal is none")
+		FW_log.WriteLog("FWPantyWidget::UpdateContent - Sanitary_Napkin_Normal is none")
 	endif
 	if Tampon_Normal ;Tkc (Loverslab) optimization
 	else;if System.Tampon_Normal == none
-		Debug.Trace("FWPantyWidget::UpdateContent - Tampon_Normal is none")
+		FW_log.WriteLog("FWPantyWidget::UpdateContent - Tampon_Normal is none")
 	endif
 	
 	if System;/!=none/;

@@ -206,15 +206,15 @@ function Upgrade(int oldVersion, int newVersion)
 endFunction
 
 function LoadContent()
-	Debug.Trace("FWTextContents::LoadContent()")
+	FW_log.WriteLog("FWTextContents::LoadContent()")
 	string Language = Utility.GetINIString("sLanguage:General")	
 	string LanguageFile = ""
-	Debug.Trace("FWTextContents::LoadContent() - " + Language)
+	FW_log.WriteLog("FWTextContents::LoadContent() - " + Language)
 	IOReadTranslation(Language)
-	Debug.Trace("FWTextContents::LoadContent() - Content loaded")
+	FW_log.WriteLog("FWTextContents::LoadContent() - Content loaded")
 	int size=getLangSize()
-	Debug.Trace("FWTextContents::LoadContent() - TextContent Size = "+size)
-	Debug.Trace("FWTextContents::LoadContent() - Load in variable content")
+	FW_log.WriteLog("FWTextContents::LoadContent() - TextContent Size = "+size)
+	FW_log.WriteLog("FWTextContents::LoadContent() - Load in variable content")
 	
 	NPCCameInsideNPC = getLangText("GAME_CONTENT_NPCCameInsideNPC")
 	NPCCameInsideYou = getLangText("GAME_CONTENT_NPCCameInsideYou")
@@ -409,5 +409,5 @@ function LoadContent()
 	BabyHealth = getLangText("GAME_CONTENT_BabyHealth")
 	ActorNotPregnant = getLangText("GAME_CONTENT_ActorNotPregnant")
 	
-	Debug.Trace("FWTextContents::LoadContent() Loading Done")
+	FW_log.WriteLog("FWTextContents::LoadContent() Loading Done")
 endfunction

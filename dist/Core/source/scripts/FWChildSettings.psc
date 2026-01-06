@@ -257,7 +257,7 @@ function SetMeetPoint(ObjectReference or = none)
 	if ra ;Tkc (Loverslab) optimization
 		xor = ra.GetReference()
 	else;if(ra==none)
-		;Debug.Trace("BeeingFemale::FWChildSettings->SetMeetPoint - ra ")
+		;FW_log.WriteLog("BeeingFemale::FWChildSettings->SetMeetPoint - ra ")
 		xor = PlayerRef.PlaceAtMe(MeetPointForm)
 	endif
 	if xor;/!=none/;
@@ -267,9 +267,9 @@ function SetMeetPoint(ObjectReference or = none)
 			xor.MoveTo(or)
 		endif
 		(ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).ForceRefTo(xor)
-		;Debug.Trace("BeeingFemale::FWChildSettings->SetMeetPoint - Set Meet Point to: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetName() + "; Name: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetRef().GetName() + "; Location: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetRef().GetCurrentLocation().GetName())
+		;FW_log.WriteLog("BeeingFemale::FWChildSettings->SetMeetPoint - Set Meet Point to: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetName() + "; Name: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetRef().GetName() + "; Location: " + (ChildDialogueQuest.GetAliasByName("MeetPoint") as referencealias).GetRef().GetCurrentLocation().GetName())
 	else
-		;Debug.Trace("BeeingFemale::FWChildSettings->SetMeetPoint - Failed Set Meet Point")
+		;FW_log.WriteLog("BeeingFemale::FWChildSettings->SetMeetPoint - Failed Set Meet Point")
 	endif
 endFunction
 
@@ -279,7 +279,7 @@ endFunction
 function AddChildPerk(string NewChildPerk)
 	LoadingState=14
 	if NewChildPerk==""
-		;Debug.Trace("- AddChildPerk('"+NewChildPerk+"'): -Empty File string-")
+		;FW_log.WriteLog("- AddChildPerk('"+NewChildPerk+"'): -Empty File string-")
 		return
 	endif
 	LoadingState=15
@@ -297,7 +297,7 @@ function AddChildPerk(string NewChildPerk)
 	endWhile
 	LoadingState=17
 	
-	;Debug.Trace("- AddChildPerk('"+NewChildPerk+"'): Add Perk")
+	;FW_log.WriteLog("- AddChildPerk('"+NewChildPerk+"'): Add Perk")
 	; Add perk
 	i = 0
 	while i<128
@@ -310,12 +310,12 @@ function AddChildPerk(string NewChildPerk)
 			ChildPerkRank[i] = FWUtility.getIniCInt("ChildPerk", NewChildperk, "General","Ranks", 0)
 			ChildPerkBool[i] = FWUtility.getIniCBool("ChildPerk", NewChildperk, "General","UseAll", false)
 			ChildPerkEnabled[i] = FWUtility.getIniCBool("ChildPerk", NewChildperk, "General","Enabled", true)
-			;Debug.Trace("- - ChildPerkFile["+i+"]: '"+ChildPerkFile[i]+"'")
-			;Debug.Trace("- - ChildPerkX["+i+"]: '"+ChildPerkX[i]+"'")
-			;Debug.Trace("- - ChildPerkY["+i+"]: '"+ChildPerkY[i]+"'")
-			;Debug.Trace("- - ChildPerkRank["+i+"]: '"+ChildPerkRank[i]+"'")
-			;Debug.Trace("- - ChildPerkBool["+i+"]: '"+ChildPerkBool[i]+"'")
-			;Debug.Trace("- - ChildPerkEnabled["+i+"]: '"+ChildPerkEnabled[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkFile["+i+"]: '"+ChildPerkFile[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkX["+i+"]: '"+ChildPerkX[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkY["+i+"]: '"+ChildPerkY[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkRank["+i+"]: '"+ChildPerkRank[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkBool["+i+"]: '"+ChildPerkBool[i]+"'")
+			;FW_log.WriteLog("- - ChildPerkEnabled["+i+"]: '"+ChildPerkEnabled[i]+"'")
 			LoadingState=20
 			return
 		endif
@@ -383,12 +383,12 @@ endFunction
 
 event ChildLoadPerkData(string hookName, string argString, float argNum, form Sender)
 	; Send Perk-List / Requerst next perk
-	;Debug.Trace("AddChildPerk()")
+	;FW_log.WriteLog("AddChildPerk()")
 
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildLoadPerkData : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - ChildLoadPerkData : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	int i = lastInitPerk
@@ -408,8 +408,8 @@ event ChildLoadPerkData(string hookName, string argString, float argNum, form Se
 			int c = ChildPerkRank[i]
 			int k = 0
 			
-			;Debug.Trace("- Perk File: '"+perkFile+"'")
-			;Debug.Trace("- Perk Ranks: '"+c+"'")
+			;FW_log.WriteLog("- Perk File: '"+perkFile+"'")
+			;FW_log.WriteLog("- Perk Ranks: '"+c+"'")
 			
 			while k<c
 				k+=1
@@ -458,15 +458,15 @@ event ChildLoadPerkData(string hookName, string argString, float argNum, form Se
 						ent[1]=s.GetName()
 					endif
 				
-					;Debug.Trace("- Rank "+currentRank)
-					;Debug.Trace("- - ID: '"+ent[0]+"'")
-					;Debug.Trace("- - Name: '"+ent[1]+"'")
-					;Debug.Trace("- - Description: '"+ent[2]+"'")
-					;Debug.Trace("- - bEnabled: '"+ent[3]+"'")
-					;Debug.Trace("- - Perk Requirement Strings: '"+ent[4]+"'")
+					;FW_log.WriteLog("- Rank "+currentRank)
+					;FW_log.WriteLog("- - ID: '"+ent[0]+"'")
+					;FW_log.WriteLog("- - Name: '"+ent[1]+"'")
+					;FW_log.WriteLog("- - Description: '"+ent[2]+"'")
+					;FW_log.WriteLog("- - bEnabled: '"+ent[3]+"'")
+					;FW_log.WriteLog("- - Perk Requirement Strings: '"+ent[4]+"'")
 					UI.InvokeStringA("CustomMenu", "_root.childSkillDial.AddPerkEntry", ent)
 				else
-					;Debug.Trace("Perk Entry failed. File: '"+perkFile+"' on Rank "+k+". Spell not found")
+					;FW_log.WriteLog("Perk Entry failed. File: '"+perkFile+"' on Rank "+k+". Spell not found")
 					;Debug.Notification("Perk Entry failed. File: '"+perkFile+"' on Rank "+k+". Spell not found")
 				endif
 			endwhile
@@ -478,7 +478,7 @@ event ChildLoadPerkData(string hookName, string argString, float argNum, form Se
 			a[4]=currentRank
 			a[5]=rankIndex
 			a[6]=ChildPerkRank[i]
-			;Debug.Trace("- childSkillDial.AddPerkA('"+a[0]+"','"+a[1]+"','"+a[2]+"','"+a[3]+"','"+a[4]+"','"+a[5]+"')")
+			;FW_log.WriteLog("- childSkillDial.AddPerkA('"+a[0]+"','"+a[1]+"','"+a[2]+"','"+a[3]+"','"+a[4]+"','"+a[5]+"')")
 			UI.InvokeStringA("CustomMenu", "_root.childSkillDial.AddPerkA", a)
 			rankIndex+=ChildPerkRank[i]
 			
@@ -497,7 +497,7 @@ event ChildActorPerk(string hookName, string argString, float argNum, form Sende
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildActorPerk : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - ChildActorPerk : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(Sender == menuChild)
@@ -549,7 +549,7 @@ event ChildActorSkilled(string hookName, string argString, float argNum, form Se
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildActorSkilled : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - ChildActorSkilled : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(Sender == menuChild)
@@ -573,7 +573,7 @@ event ChildSkillMenuClosed(string hookName, string argString, float argNum, form
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - ChildSkillMenuClosed : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - ChildSkillMenuClosed : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(menuChild.IsLearning) ;Tkc (Loverslab) optimization
@@ -591,7 +591,7 @@ event GetBeeingFemaleChildData(string hookName, string argString, float argNum, 
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildData : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - GetBeeingFemaleChildData : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	; Info Tab
@@ -688,7 +688,7 @@ event GetBeeingFemaleChildStats(string hookName, string argString, float argNum,
 	if(menuChild)
 	else
 		menuChild = sender as FWChildActor
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildStats : menuChild was not assigned. Assigning menuChild = " + menuChild)
+		FW_log.WriteLog("FWChildSettings - GetBeeingFemaleChildStats : menuChild was not assigned. Assigning menuChild = " + menuChild)
 	endIf
 	
 	if(menuChild)
@@ -715,7 +715,7 @@ event GetBeeingFemaleChildStats(string hookName, string argString, float argNum,
 		intA[17] = menuChild.GetActorValue("Sneak")
 		intA[18] = menuChild.GetActorValue("Health")
 	else
-		Debug.Trace("[Beeing Female NG] - FWChildSettings - GetBeeingFemaleChildStats : menuChild is none!")
+		FW_log.WriteLog("FWChildSettings - GetBeeingFemaleChildStats : menuChild is none!")
 	endIf
 	
 	int numPerks=0

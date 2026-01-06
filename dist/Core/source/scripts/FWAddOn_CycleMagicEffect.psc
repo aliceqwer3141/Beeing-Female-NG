@@ -30,7 +30,7 @@ spell[] property Sometimes_Recovery Auto
 ;		elseif AddOnManager != none
 ;			AddOnManager.RegisterCMEAddOn(self)
 ;		else
-;			Debug.Trace("Beeing Female Mod Manager - RefreshAddOns CME " + GetName() + " failed - Manager is none")
+;			FW_log.WriteLog("Beeing Female Mod Manager - RefreshAddOns CME " + GetName() + " failed - Manager is none")
 ;		endif
 ;	endIf
 ;endFunction

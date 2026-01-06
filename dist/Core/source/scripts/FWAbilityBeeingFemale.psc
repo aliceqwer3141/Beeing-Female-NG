@@ -190,7 +190,7 @@ Event OnEffectStart(Actor target, Actor caster)
 			endif
 			
 			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 0) == 1)
-				Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale : removing SPID distributed items for actor " + ActorRef + ", whose name is " + ActorRef.GetDisplayName())
+				FW_log.WriteLog("FWAbilityBeeingFemale : removing SPID distributed items for actor " + ActorRef + ", whose name is " + ActorRef.GetDisplayName())
 				System.RemoveSPIDitems(ActorRef)
 			endIf
 		endif
@@ -285,7 +285,7 @@ event OnUpdateGameTime()
 	float startTime = GameDaysPassed.GetValue()
 	float currentTime = GameDaysPassed.GetValue()
 	string ActorCurrentState = Self.GetState()
-	;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime start - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState)
+	;FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime start - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState)
 	;if System.IsActorPregnantByChaurus(ActorRef) && (Self.GetState() != "PregnantChaurus_State")
 	if System.IsActorPregnantByChaurus(ActorRef) ;Tkc (Loverslab): optimization
 	 if (ActorCurrentState == "PregnantChaurus_State")
@@ -351,9 +351,9 @@ event OnUpdateGameTime()
 	endif
 	if IsPlayer
 		if System.Player ;Tkc (Loverslab): optimization
-			;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player already set for " + ActorRef.GetLeveledActorBase().GetName())
+			;FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player already set for " + ActorRef.GetLeveledActorBase().GetName())
 		else;if System.Player==none
-			;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player was none, setting to self for " + ActorRef.GetLeveledActorBase().GetName())
+			;FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - System.Player was none, setting to self for " + ActorRef.GetLeveledActorBase().GetName())
 			System.Player=self
 			System.PlayerMale=none
 		endif
@@ -401,7 +401,7 @@ event OnUpdateGameTime()
 	endif
 	OnUpdateFunction()
 	FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime("+ActorRef.GetLeveledActorBase().GetName()+") " + (Utility.GetCurrentRealTime() - startTime) + " sec")
-	;Debug.Trace("FWAbilityBeeingFemale::OnUpdateGameTime end - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState + " percent=" + CurrentStatePercent)
+	;FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime end - " + ActorRef.GetLeveledActorBase().GetName() + " state=" + CurrentState + " percent=" + CurrentStatePercent)
 	Utility.WaitMenuMode(1)
 	If ActorRef.HasMagicEffect(_BFAbilityEffectBeeingFemale)
 		Self.RegisterForSingleUpdateGameTime(oldUpdateDelay)
@@ -1526,16 +1526,16 @@ Function SetBelly(bool bForce=false)
 						ScaleBelly = my_Preg1stBellyScale * (CurrentStatePercent / 100)
 						ScaleBreast = my_Preg1stBreastsScale * (CurrentStatePercent / 100)
 
-						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
-						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+						FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+						FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " + ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 					Else;If stateID == 5
 ;						ScaleBelly = System.GetPhaseScale(0, 0) + (System.GetPhaseScale(0, 1) * (CurrentStatePercent / 100))
 ;						ScaleBreast = System.GetPhaseScale(1, 0) + (System.GetPhaseScale(1, 1) * (CurrentStatePercent / 100))
 						ScaleBelly = my_Preg1stBellyScale + (my_Preg2ndBellyScale * (CurrentStatePercent / 100))
 						ScaleBreast = my_Preg1stBreastsScale + (my_Preg2ndBreastsScale * (CurrentStatePercent / 100))
 
-						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
-						Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+						FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+						FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 					endIf
 				Else;If stateID == 6
 ;					ScaleBelly = System.GetPhaseScale(0, 0) + System.GetPhaseScale(0, 1) + (System.GetPhaseScale(0, 2) * (CurrentStatePercent / 100))
@@ -1543,8 +1543,8 @@ Function SetBelly(bool bForce=false)
 					ScaleBelly = my_Preg1stBellyScale + my_Preg2ndBellyScale + (my_Preg3rdBellyScale * (CurrentStatePercent / 100))
 					ScaleBreast = my_Preg1stBreastsScale + my_Preg2ndBreastsScale + (my_Preg3rdBreastsScale * (CurrentStatePercent / 100))
 
-					Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
-					Debug.Trace("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+					FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBelly is " + ScaleBelly + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+					FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - ScaleBreast is " + ScaleBreast + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				endIf
 			; Set to maximum scale in labor pains phase and later
 			Else
@@ -1572,8 +1572,8 @@ Function SetBelly(bool bForce=false)
 			UpdateBodyMorphs(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
 			if cfg.VisualScaling == 4 ; SLIF
-				Debug.Trace("FWAbilityBeeingFemale - SetBelly - Current belly scale is " + ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
-				Debug.Trace("FWAbilityBeeingFemale - SetBelly - Current breast scale is " + ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current belly scale is " + ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
+				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current breast scale is " + ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				FillHerUpUpdateNotes(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			else
 				UpdateNodesSLIF(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
@@ -2237,7 +2237,7 @@ state PregnancyFirst_State
 	function onUpdateFunction()
 		bool my_BabyNTR = cfg.AllowNTRbaby
 		if(my_BabyNTR)
-			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyFirst_State : Baby NTR is enabled!")
+			FW_log.WriteLog("FWAbilityBeeingFemale - PregnancyFirst_State : Baby NTR is enabled!")
 
 			actor a = none
 			race abr = none
@@ -2293,7 +2293,7 @@ state PregnancyFirst_State
 								Float rnd = Utility.RandomFloat(0, 99)
 								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
 									; Baby will be replaced!
-									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyFirst_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									FW_log.WriteLog("FWAbilityBeeingFemale - PregnancyFirst_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
 									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
 								endIf
 							endIf
@@ -2352,7 +2352,7 @@ state PregnancySecond_State
 	function onUpdateFunction()
 		bool my_BabyNTR = cfg.AllowNTRbaby
 		if(my_BabyNTR)
-			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancySecond_State : Baby NTR is enabled!")
+			FW_log.WriteLog("FWAbilityBeeingFemale - PregnancySecond_State : Baby NTR is enabled!")
 
 			actor a = none
 			race abr = none
@@ -2408,7 +2408,7 @@ state PregnancySecond_State
 								Float rnd = Utility.RandomFloat(0, 99)
 								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
 									; Baby will be replaced!
-									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancySecond_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									FW_log.WriteLog("FWAbilityBeeingFemale - PregnancySecond_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
 									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
 								endIf
 							endIf
@@ -2435,7 +2435,7 @@ state PregnancyThird_State
 	function onUpdateFunction()
 		bool my_BabyNTR = cfg.AllowNTRbaby
 		if(my_BabyNTR)
-			Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyThird_State : Baby NTR is enabled!")
+			FW_log.WriteLog("FWAbilityBeeingFemale - PregnancyThird_State : Baby NTR is enabled!")
 
 			actor a = none
 			race abr = none
@@ -2491,7 +2491,7 @@ state PregnancyThird_State
 								Float rnd = Utility.RandomFloat(0, 99)
 								if(rnd < (my_baby_NTR_Chance - NTR_defense_chance))
 									; Baby will be replaced!
-									Debug.Trace("[Beeing Female NG] - FWAbilityBeeingFemale - PregnancyThird_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
+									FW_log.WriteLog("FWAbilityBeeingFemale - PregnancyThird_State : For female " + ActorRef + " , the actor " + a + " replaced the previous " + num_babies + "th father = " + father_NTR_defense)
 									StorageUtil.FormListSet(ActorRef, "FW.ChildFather", num_babies, a)
 								endIf
 							endIf
@@ -2620,7 +2620,7 @@ state LaborPains_State
 	endFunction
 	
 	function onUpdateFunction()
-		;Debug.Trace(CurrentStatePercent+"% at Labor Pains for "+ActorRef.GetLeveledActorBase().GetName())
+		;FW_log.WriteLog(CurrentStatePercent+"% at Labor Pains for "+ActorRef.GetLeveledActorBase().GetName())
 		if CurrentStatePercent >=50 && ActorRef.HasSpell(Effect_Presswehen)==false
 			FWUtility.ActorRemoveSpell(ActorRef,Effect_Eroeffnungswehen)
 			System.ActorAddSpellOpt(ActorRef,Effect_Presswehen, ShowMsg=cfg.Messages<4) ;Tkc (Loverslab): added ShowMsg parameter to not show messages when Innmersion or None Messages mode

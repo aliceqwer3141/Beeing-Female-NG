@@ -217,7 +217,7 @@ Function InitFromStorage()
 	endif
 	WriteLog("FWChildArmor::InitFromStorage")
 	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	;Debug.Trace("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
+	;FW_log.WriteLog("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	int flag = StorageUtil.GetIntValue(self, "FW.Child.Flag", 0)
 	bIsVampire = Math.LogicalAnd(flag,1) == 1
 	if Math.LogicalAnd(flag,4) == 4
@@ -366,13 +366,13 @@ endFunction
 Event OnEquipped(Actor akActor)
 	InitFromStorage()
 	;Debug.Notification("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	;Debug.Trace("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
+	;FW_log.WriteLog("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Utility.Wait(3)
 	FW_log.WriteLog("FWChildArmor::OnEquipped("+akActor.GetLeveledActorBase().GetName()+")")
-	;Debug.Trace("Baby Name1: "+_xName)
-	;Debug.Trace("Baby Name2: "+StorageUtil.GetStringValue(self,"FW.Child.Name","none"))
-	;Debug.Trace("Baby Name3: "+GetDisplayName())
-	;Debug.Trace("Baby Name4: "+GetName())
+	;FW_log.WriteLog("Baby Name1: "+_xName)
+	;FW_log.WriteLog("Baby Name2: "+StorageUtil.GetStringValue(self,"FW.Child.Name","none"))
+	;FW_log.WriteLog("Baby Name3: "+GetDisplayName())
+	;FW_log.WriteLog("Baby Name4: "+GetName())
 	if GetName()=="Baby" || GetName()=="" || \
 	   GetDisplayName()=="Baby" || GetDisplayName()=="" || \
 	   _xName=="Baby" || _xName=="" || \

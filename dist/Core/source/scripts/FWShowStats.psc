@@ -111,89 +111,89 @@ function PrintLinked()
 	int i=0
 	ObjectReference lnkRef = ActorRef.GetLinkedRef()
 	if lnkRef;/!=none/;
-		Debug.Trace("Linked References: " + lnkRef.GetName() + " [" + lnkRef.GetFormID() + "]")
+		FW_log.WriteLog("Linked References: " + lnkRef.GetName() + " [" + lnkRef.GetFormID() + "]")
 	else
-		Debug.Trace("Linked References: <NONE>")
+		FW_log.WriteLog("Linked References: <NONE>")
 	endif
-	Debug.Trace("Linked Ref Chains: " + cChain)
+	FW_log.WriteLog("Linked Ref Chains: " + cChain)
 	while i<cChain
 		ObjectReference lnk = ActorRef.GetNthLinkedRef(i)
-		Debug.Trace(i + ": " + lnk.GetName() + " [" + lnk.GetFormID() + "]")
+		FW_log.WriteLog(i + ": " + lnk.GetName() + " [" + lnk.GetFormID() + "]")
 		i+=1
 	endWhile
 endFunction
 
 function printChildInformations()
 	if ActorRef.GetLeveledActorBase();/!=none/;
-		Debug.Trace("BeeingChild Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
+		FW_log.WriteLog("BeeingChild Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
 	else
-		Debug.Trace("BeeingChild Saved Data for: "+ActorRef.GetName());
+		FW_log.WriteLog("BeeingChild Saved Data for: "+ActorRef.GetName());
 	endif
-	Debug.Trace("Child Name: "+StorageUtil.GetStringValue(ActorRef,"FW.Child.Name",""))
-	Debug.Trace("Child last Update: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.LastUpdate",0))
+	FW_log.WriteLog("Child Name: "+StorageUtil.GetStringValue(ActorRef,"FW.Child.Name",""))
+	FW_log.WriteLog("Child last Update: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.LastUpdate",0))
 	actor Mother = StorageUtil.GetFormValue(ActorRef,"FW.Child.Mother") as actor
 	actor Father = StorageUtil.GetFormValue(ActorRef,"FW.Child.Father") as actor
 	if Mother;/!=none/;
 		if Mother.GetLeveledActorBase();/!=none/;
-			Debug.Trace("Mother: "+Mother.GetLeveledActorBase().GetName())
+			FW_log.WriteLog("Mother: "+Mother.GetLeveledActorBase().GetName())
 		else
-			Debug.Trace("Mother: #"+Mother.GetName())
+			FW_log.WriteLog("Mother: #"+Mother.GetName())
 		endif
 	else
-		Debug.Trace("Mother: <NONE>")
+		FW_log.WriteLog("Mother: <NONE>")
 	endif
 	if Father;/!=none/;
 		if Father.GetLeveledActorBase();/!=none/;
-			Debug.Trace("Father: "+Father.GetLeveledActorBase().GetName())
+			FW_log.WriteLog("Father: "+Father.GetLeveledActorBase().GetName())
 		else
-			Debug.Trace("Father: #"+Father.GetName())
+			FW_log.WriteLog("Father: #"+Father.GetName())
 		endif
 	else
-		Debug.Trace("Father: <NONE>")
+		FW_log.WriteLog("Father: <NONE>")
 	endif
-	Debug.Trace("Level: "+StorageUtil.GetFloatValue(ActorRef, "FW.Child.Level"))
-	Debug.Trace("Experience: "+StorageUtil.GetFloatValue(ActorRef, "FW.Child.StatExperience"))
-	Debug.Trace("Stats:")
-	Debug.Trace("Comprehension: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatComprehension"))
-	Debug.Trace("Destruction: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatDestruction"))
-	Debug.Trace("Illusion: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatIllusion"))
-	Debug.Trace("Conjuration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatConjuration"))
-	Debug.Trace("Restoration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatRestoration"))
-	Debug.Trace("Alteration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatAlteration"))
-	Debug.Trace("Block: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatBlock"))
-	Debug.Trace("OneHanded: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatOneHanded"))
-	Debug.Trace("TwoHanded: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatTwoHanded"))
-	Debug.Trace("Marksman: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatMarksman"))
-	Debug.Trace("Sneak: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatSneak"))
-	Debug.Trace("Magicka: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatMagicka"))
-	Debug.Trace("CarryWeight: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatCarryWeight"))
-	Debug.Trace("Health: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatHealth"))
-	Debug.Trace("Perks:")
+	FW_log.WriteLog("Level: "+StorageUtil.GetFloatValue(ActorRef, "FW.Child.Level"))
+	FW_log.WriteLog("Experience: "+StorageUtil.GetFloatValue(ActorRef, "FW.Child.StatExperience"))
+	FW_log.WriteLog("Stats:")
+	FW_log.WriteLog("Comprehension: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatComprehension"))
+	FW_log.WriteLog("Destruction: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatDestruction"))
+	FW_log.WriteLog("Illusion: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatIllusion"))
+	FW_log.WriteLog("Conjuration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatConjuration"))
+	FW_log.WriteLog("Restoration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatRestoration"))
+	FW_log.WriteLog("Alteration: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatAlteration"))
+	FW_log.WriteLog("Block: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatBlock"))
+	FW_log.WriteLog("OneHanded: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatOneHanded"))
+	FW_log.WriteLog("TwoHanded: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatTwoHanded"))
+	FW_log.WriteLog("Marksman: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatMarksman"))
+	FW_log.WriteLog("Sneak: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatSneak"))
+	FW_log.WriteLog("Magicka: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatMagicka"))
+	FW_log.WriteLog("CarryWeight: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatCarryWeight"))
+	FW_log.WriteLog("Health: " + StorageUtil.GetFloatValue(ActorRef,"FW.Child.StatHealth"))
+	FW_log.WriteLog("Perks:")
 	int sc = StorageUtil.FormListCount(ActorRef,"FW.Child.Perks")
 	while sc>0
 		sc-=1
 		spell s = StorageUtil.FormListGet(ActorRef,"FW.Child.Perks",sc) as spell
 		if s;/!=none/;
-			Debug.Trace(s.GetName())
+			FW_log.WriteLog(s.GetName())
 		else
-			Debug.Trace("Unknown Perk")
+			FW_log.WriteLog("Unknown Perk")
 		endif
 	endWhile
 	
 	PrintLinked()
 	
-	Debug.Trace("-----------------------------------------------------------------")
+	FW_log.WriteLog("-----------------------------------------------------------------")
 endfunction
 
 function printMaleInformations()
 	if ActorRef.GetLeveledActorBase();/!=none/;
-		Debug.Trace("BeeingMale Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
+		FW_log.WriteLog("BeeingMale Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
 	else
-		Debug.Trace("BeeingMale Saved Data for: "+ActorRef.GetName());
+		FW_log.WriteLog("BeeingMale Saved Data for: "+ActorRef.GetName());
 	endif
 	PrintLinked()
 	
-	Debug.Trace("-----------------------------------------------------------------")
+	FW_log.WriteLog("-----------------------------------------------------------------")
 endfunction
 
 function printFemaleInformations()
@@ -204,36 +204,36 @@ function printFemaleInformations()
 	int cSpermAmmount=StorageUtil.FloatListCount(ActorRef,"FW.SpermAmount")
 	int cBornChildFather=StorageUtil.FormListCount(ActorRef,"FW.BornChildFather")
 	int cBornChildTime=StorageUtil.FloatListCount(ActorRef,"FW.BornChildTime")
-	Debug.Trace("-----------------------------------------------------------------")
+	FW_log.WriteLog("-----------------------------------------------------------------")
 	if ActorRef.GetLeveledActorBase();/!=none/;
-		Debug.Trace("BeeingFemale Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
+		FW_log.WriteLog("BeeingFemale Saved Data for: "+ActorRef.GetLeveledActorBase().GetName());
 	else
-		Debug.Trace("BeeingFemale Saved Data for: #"+ActorRef.GetName());
+		FW_log.WriteLog("BeeingFemale Saved Data for: #"+ActorRef.GetName());
 	endif
-	Debug.Trace("Current Game Time: "+ GameDaysPassed.GetValue())
-	Debug.Trace("-----------------------------------------------------------------")
-	Debug.Trace(" FW.LastUpdate :  "+StorageUtil.GetFloatValue(ActorRef,"FW.LastUpdate"))
-	Debug.Trace(" FW.StateEnterTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.StateEnterTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.StateEnterTime")) +"]")
-	Debug.Trace(" FW.CurrentState :  "+StorageUtil.GetIntValue(ActorRef,"FW.CurrentState"))
-	Debug.Trace(" FW.Abortus :  "+StorageUtil.GetIntValue(ActorRef,"FW.Abortus"))
-	Debug.Trace(" FW.AbortusTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.AbortusTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.AbortusTime")) +"]")
-	Debug.Trace(" FW.UnbornHealth :  "+StorageUtil.GetFloatValue(ActorRef,"FW.UnbornHealth"))
-	Debug.Trace(" FW.NumChilds :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumChilds"))
+	FW_log.WriteLog("Current Game Time: "+ GameDaysPassed.GetValue())
+	FW_log.WriteLog("-----------------------------------------------------------------")
+	FW_log.WriteLog(" FW.LastUpdate :  "+StorageUtil.GetFloatValue(ActorRef,"FW.LastUpdate"))
+	FW_log.WriteLog(" FW.StateEnterTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.StateEnterTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.StateEnterTime")) +"]")
+	FW_log.WriteLog(" FW.CurrentState :  "+StorageUtil.GetIntValue(ActorRef,"FW.CurrentState"))
+	FW_log.WriteLog(" FW.Abortus :  "+StorageUtil.GetIntValue(ActorRef,"FW.Abortus"))
+	FW_log.WriteLog(" FW.AbortusTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.AbortusTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.AbortusTime")) +"]")
+	FW_log.WriteLog(" FW.UnbornHealth :  "+StorageUtil.GetFloatValue(ActorRef,"FW.UnbornHealth"))
+	FW_log.WriteLog(" FW.NumChilds :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumChilds"))
 	i=0
 	while i<cChildFather
 		actor a = StorageUtil.FormListGet(ActorRef,"FW.ChildFather",i) as Actor
 		if a;/!=none/;
 			if a.GetLeveledActorBase();/!=none/;
-				Debug.Trace(" FW.ChildFather["+i+"] :  "+a.GetLeveledActorBase().GetName())
+				FW_log.WriteLog(" FW.ChildFather["+i+"] :  "+a.GetLeveledActorBase().GetName())
 			else
-				Debug.Trace(" FW.ChildFather["+i+"] :  #"+a.GetName())
+				FW_log.WriteLog(" FW.ChildFather["+i+"] :  #"+a.GetName())
 			endif
 		endif
 		i+=1
 	endwhile
 	i=0
 	while i<cSpermTime
-		Debug.Trace(" FW.SpermTime["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.SpermTime",i)+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.FloatListGet(ActorRef,"FW.SpermTime",i)) +"]")
+		FW_log.WriteLog(" FW.SpermTime["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.SpermTime",i)+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.FloatListGet(ActorRef,"FW.SpermTime",i)) +"]")
 		i+=1
 	endwhile
 	i=0
@@ -241,47 +241,47 @@ function printFemaleInformations()
 		actor a = StorageUtil.FormListGet(ActorRef,"FW.SpermName",i) as Actor
 		if a;/!=none/;
 			if a.GetLeveledActorBase();/!=none/;
-				Debug.Trace(" FW.SpermName["+i+"] :  "+a.GetLeveledActorBase().GetName())
+				FW_log.WriteLog(" FW.SpermName["+i+"] :  "+a.GetLeveledActorBase().GetName())
 			else
-				Debug.Trace(" FW.SpermName["+i+"] :  #"+a.GetName())
+				FW_log.WriteLog(" FW.SpermName["+i+"] :  #"+a.GetName())
 			endif
 		endif
 		i+=1
 	endwhile
 	i=0
 	while i<cSpermAmmount
-		Debug.Trace(" FW.SpermAmount["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.SpermAmount",i))
+		FW_log.WriteLog(" FW.SpermAmount["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.SpermAmount",i))
 		i+=1
 	endwhile
-	Debug.Trace(" FW.Flags :  "+StorageUtil.GetIntValue(ActorRef,"FW.Flags"))
-	Debug.Trace(" FW.PainLevel :  "+StorageUtil.GetFloatValue(ActorRef,"FW.PainLevel"))
-	Debug.Trace(" FW.Contraception :  "+StorageUtil.GetFloatValue(ActorRef,"FW.Contraception"))
-	Debug.Trace(" FW.ContraceptionTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.ContraceptionTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.ContraceptionTime")) +"]")
-	Debug.Trace(" FW.NumBirth :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumBirth"))
-	Debug.Trace(" FW.NumBabys :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumBabys"))
-	Debug.Trace(" FW.PauseTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.PauseTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.PauseTime")) +"]")
-	Debug.Trace(" FW.LastBornChildTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.LastBornChildTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.LastBornChildTime")) +"]")
+	FW_log.WriteLog(" FW.Flags :  "+StorageUtil.GetIntValue(ActorRef,"FW.Flags"))
+	FW_log.WriteLog(" FW.PainLevel :  "+StorageUtil.GetFloatValue(ActorRef,"FW.PainLevel"))
+	FW_log.WriteLog(" FW.Contraception :  "+StorageUtil.GetFloatValue(ActorRef,"FW.Contraception"))
+	FW_log.WriteLog(" FW.ContraceptionTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.ContraceptionTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.ContraceptionTime")) +"]")
+	FW_log.WriteLog(" FW.NumBirth :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumBirth"))
+	FW_log.WriteLog(" FW.NumBabys :  "+StorageUtil.GetIntValue(ActorRef,"FW.NumBabys"))
+	FW_log.WriteLog(" FW.PauseTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.PauseTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.PauseTime")) +"]")
+	FW_log.WriteLog(" FW.LastBornChildTime :  "+StorageUtil.GetFloatValue(ActorRef,"FW.LastBornChildTime")+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.GetFloatValue(ActorRef,"FW.LastBornChildTime")) +"]")
 	i=0
 	while i<cBornChildFather
 		actor a = StorageUtil.FormListGet(ActorRef,"FW.BornChildFather",i) as Actor
 		if a;/!=none/;
 			if a.GetLeveledActorBase();/!=none/;
-				Debug.Trace(" FW.BornChildFather["+i+"] :  "+a.GetLeveledActorBase().GetName())
+				FW_log.WriteLog(" FW.BornChildFather["+i+"] :  "+a.GetLeveledActorBase().GetName())
 			else
-				Debug.Trace(" FW.BornChildFather["+i+"] :  #"+a.GetName())
+				FW_log.WriteLog(" FW.BornChildFather["+i+"] :  #"+a.GetName())
 			endif
 		endif
 		i+=1
 	endwhile
 	i=0
 	while i<cBornChildTime
-		Debug.Trace(" FW.BornChildTime["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.BornChildTime",i)+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.FloatListGet(ActorRef,"FW.BornChildTime",i)) +"]")
+		FW_log.WriteLog(" FW.BornChildTime["+i+"] :  "+StorageUtil.FloatListGet(ActorRef,"FW.BornChildTime",i)+" ["+ FWUtility.GetTimeString(GameDaysPassed.GetValue() - StorageUtil.FloatListGet(ActorRef,"FW.BornChildTime",i)) +"]")
 		i+=1
 	endwhile
 	
 	PrintLinked()
 	
-	Debug.Trace("-----------------------------------------------------------------")
+	FW_log.WriteLog("-----------------------------------------------------------------")
 endFunction
 
 ; 04.06.2019 ;Tkc (Loverslab) optimizations here because quite slow in game. Other changes marked with "Tkc (Loverslab)" comment

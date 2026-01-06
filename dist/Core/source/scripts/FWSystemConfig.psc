@@ -709,7 +709,7 @@ endFunction
 
 function LoadProfile(string File)
 	string s = "../../../BeeingFemale/Profile/" + File
-	;Debug.Trace("Load Profile: " + s)
+	;FW_log.WriteLog("Load Profile: " + s)
 	;Debug.Notification("Load Profile: " + s)
 	
 	; General Settings
@@ -946,7 +946,7 @@ function LoadWidgetProfile(string ProfileName="")
 		StateWidget.CFG_FlashColor = FWUtility.getIniCInt("HUD", WidgetProfile, "StateWidget", "FlashColor", StateWidget.CFG_FlashColor)
 		StateWidget.CFG_IconPosition = FWUtility.getIniCString("HUD", WidgetProfile, "StateWidget", "IconPosition", StateWidget.CFG_IconPosition)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  StateWidget configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  StateWidget configuration")
 	endif
 	
 	if(ContraceptionWidget;/!=none/;)
@@ -963,7 +963,7 @@ function LoadWidgetProfile(string ProfileName="")
 		ContraceptionWidget.CFG_FlashColor = FWUtility.getIniCInt("HUD", WidgetProfile, "ContraceptionWidget", "FlashColor", ContraceptionWidget.CFG_FlashColor)
 		ContraceptionWidget.CFG_IconPosition = FWUtility.getIniCString("HUD", WidgetProfile, "ContraceptionWidget", "IconPosition", ContraceptionWidget.CFG_IconPosition)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  ContraceptionWidget configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  ContraceptionWidget configuration")
 	endif
 	
 	if(BabyHealthWidget;/!=none/;)
@@ -975,7 +975,7 @@ function LoadWidgetProfile(string ProfileName="")
 		BabyHealthWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "IconWidget", "Enabled", BabyHealthWidget.CFG_Enabled)
 		BabyHealthWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "IconWidget", "Alpha", BabyHealthWidget.CFG_Alpha)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  BabyHealthWidget configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  BabyHealthWidget configuration")
 	endif
 	
 	if(PantyWidget;/!=none/;)
@@ -987,7 +987,7 @@ function LoadWidgetProfile(string ProfileName="")
 		PantyWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "PantyWidget", "Enabled", PantyWidget.CFG_Enabled)
 		PantyWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "PantyWidget", "Alpha", PantyWidget.CFG_Alpha)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  PantyWidget configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  PantyWidget configuration")
 	endif
 	
 	if(Progress;/!=none/;)
@@ -999,7 +999,7 @@ function LoadWidgetProfile(string ProfileName="")
 		Progress.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "ProgressWidget", "Enabled", Progress.CFG_Enabled)
 		Progress.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "ProgressWidget", "Alpha", Progress.CFG_Alpha)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  Progress configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  Progress configuration")
 	endif
 	
 	if(CoupleWidget;/!=none/;)
@@ -1011,7 +1011,7 @@ function LoadWidgetProfile(string ProfileName="")
 		CoupleWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "CoupleWidget", "Enabled", CoupleWidget.CFG_Enabled)
 		CoupleWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "CoupleWidget", "Alpha", CoupleWidget.CFG_Alpha)
 	else
-		Debug.Trace("FWSystemConfig::LoadWidgetProfile() - Failed to load  CoupleWidget configuration")
+		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  CoupleWidget configuration")
 	endif
 endFunction
 
@@ -2812,7 +2812,7 @@ Event OnPageReset(string page)
 		
 		; No AddOn was selected. Print a list with all AddOns
 		else
-;			Debug.Trace("[Beeing Female NG] - FWSystemConfig - Loading AddOns...")
+;			FW_log.WriteLog("FWSystemConfig - Loading AddOns...")
 			; Var Definitions
 			int iFCount=FWUtility.GetFileCount("AddOn","ini")
 			int iCMisc=0
@@ -2842,7 +2842,7 @@ Event OnPageReset(string page)
 			string[] regGroup=new string[128]
 			int cGroup=0
 			
-;			Debug.Trace("[Beeing Female NG] - FWSystemConfig - Number of AddOns is " + iFCount)
+;			FW_log.WriteLog("FWSystemConfig - Number of AddOns is " + iFCount)
 
 			; Read in all AddOns
 			while iFCount>0
@@ -2856,12 +2856,12 @@ Event OnPageReset(string page)
 				string sAddOnType = FWUtility.toLower(FWUtility.getIniCString("AddOn", f, "AddOn", "type", ""))
 				string required = FWUtility.getIniCString("AddOn",f,"AddOn","required")
 
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnEnabled = " + bAddOnEnabled)
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnLocked = " + bAddOnLocked)
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bAddOnHidden = " + bAddOnHidden)
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sAddOnName = " + sAddOnName)
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sAddOnType = " + sAddOnType)
-;				Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: required = " + required)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bAddOnEnabled = " + bAddOnEnabled)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bAddOnLocked = " + bAddOnLocked)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bAddOnHidden = " + bAddOnHidden)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: sAddOnName = " + sAddOnName)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: sAddOnType = " + sAddOnType)
+;				FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: required = " + required)
 
 				bool bUse=true
 				if required;/!=""/;
@@ -2870,14 +2870,14 @@ Event OnPageReset(string page)
 					int myIndex = 0
 					int NumOfRequired = requiredA.Length
 					while(myIndex < NumOfRequired)
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: " + (myIndex + 1) + "th required plugin is = " + requiredA[myIndex])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: " + (myIndex + 1) + "th required plugin is = " + requiredA[myIndex])
 						myIndex += 1
 					endWhile
 
 ;					if FWUtility.AreModsInstalled(requiredA)==false
 					if(FWUtility.AreModsInstalled(requiredA))
 					else
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: requirement is not satisfied...")
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: requirement is not satisfied...")
 						bUse=false
 					endif
 				endif
@@ -2895,9 +2895,9 @@ Event OnPageReset(string page)
 						bERace[iCRace]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNRace[iCRace]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnRaces[" + iCRace + "] is " + UIS_AddOnRaces[iCRace])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bERace[" + iCRace + "] is " + bERace[iCRace])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNRace[" + iCRace + "] is " + sNRace[iCRace])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnRaces[" + iCRace + "] is " + UIS_AddOnRaces[iCRace])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bERace[" + iCRace + "] is " + bERace[iCRace])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: sNRace[" + iCRace + "] is " + sNRace[iCRace])
 
 						iCRace+=1
 ;					elseif sAddOnType=="cme" || sAddOnType=="Cme" || sAddOnType=="CME" || sAddOnType=="CMe"
@@ -2912,9 +2912,9 @@ Event OnPageReset(string page)
 						bECME[iCCME]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNCME[iCCME]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnCME[" + iCCME + "] is " + UIS_AddOnCME[iCCME])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bECME[" + iCCME + "] is " + bECME[iCCME])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNCME[" + iCCME + "] is " + sNCME[iCCME])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnCME[" + iCCME + "] is " + UIS_AddOnCME[iCCME])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bECME[" + iCCME + "] is " + bECME[iCCME])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: sNCME[" + iCCME + "] is " + sNCME[iCCME])
 
 						iCCME+=1
 ;					elseif sAddOnType=="misc" || sAddOnType=="Misc" || sAddOnType=="MISC" || sAddOnType=="MISc"
@@ -2923,9 +2923,9 @@ Event OnPageReset(string page)
 						bEMisc[iCMisc]=(bAddOnEnabled || bAddOnLocked) && bUse
 						sNMisc[iCMisc]=FWUtility.SwitchString(sAddOnName=="",f,sAddOnName)
 
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnMisc[" + iCMisc + "] is " + UIS_AddOnMisc[iCMisc])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: bEMisc[" + iCMisc + "] is " + bEMisc[iCMisc])
-;						Debug.Trace("[Beeing Female NG] - FWSystemConfig - " + iFCount + "th AddOn: sNMisc[" + iCMisc + "] is " + sNMisc[iCMisc])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: UIS_AddOnMisc[" + iCMisc + "] is " + UIS_AddOnMisc[iCMisc])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: bEMisc[" + iCMisc + "] is " + bEMisc[iCMisc])
+;						FW_log.WriteLog("FWSystemConfig - " + iFCount + "th AddOn: sNMisc[" + iCMisc + "] is " + sNMisc[iCMisc])
 
 						iCMisc+=1
 					endif

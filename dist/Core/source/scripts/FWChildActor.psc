@@ -491,7 +491,7 @@ function DebugFactions()
 	faction[] fm = _Mother.GetFactions(-10,20)
 	faction[] ff = _Mother.GetFactions(-10,20)
 	int c = f.length
-	Debug.Trace("DebugFactions() " + GetDisplayName())
+	FW_log.WriteLog("DebugFactions() " + GetDisplayName())
 	while c>0
 		c-=1
 		string logStr = "- [" + f[c].GetFormID() + "] " + f[c].GetName() + " " + GetFactionRank(f[c]) + ": "
@@ -499,29 +499,29 @@ function DebugFactions()
 		logStr += "[PlayerReact: " + f[c].GetReaction(PlayerFaction) + "]"
 		Debug.Notification(logStr)
 		
-		Debug.Trace("- [" + f[c].GetFormID() + "] " + f[c].GetName() + " " + GetFactionRank(f[c]) + ":")
-		Debug.Trace("  - Infamy: " + f[c].GetInfamy() + ";" + f[c].GetInfamyNonViolent() + ";" + f[c].GetInfamyViolent())
-		Debug.Trace("  - PlayerReact: " + f[c].GetReaction(PlayerFaction))
-		Debug.Trace("  - Player Factions:")
+		FW_log.WriteLog("- [" + f[c].GetFormID() + "] " + f[c].GetName() + " " + GetFactionRank(f[c]) + ":")
+		FW_log.WriteLog("  - Infamy: " + f[c].GetInfamy() + ";" + f[c].GetInfamyNonViolent() + ";" + f[c].GetInfamyViolent())
+		FW_log.WriteLog("  - PlayerReact: " + f[c].GetReaction(PlayerFaction))
+		FW_log.WriteLog("  - Player Factions:")
 		
 		int cp = fp.Length
 		while cp>0
 			cp-=1
-			Debug.Trace("  - - [" + fp[cp].GetFormID() + "] " + fp[cp].GetName() + ": " + f[c].GetReaction(fp[cp]) + " / " + fp[cp].GetReaction(f[c]))
+			FW_log.WriteLog("  - - [" + fp[cp].GetFormID() + "] " + fp[cp].GetName() + ": " + f[c].GetReaction(fp[cp]) + " / " + fp[cp].GetReaction(f[c]))
 		endWhile
 		
-		Debug.Trace("  - Mother Factions:")
+		FW_log.WriteLog("  - Mother Factions:")
 		int cm = fm.Length
 		while cm>0
 			cm-=1
-			Debug.Trace("  - - [" + fm[cm].GetFormID() + "] " + fm[cm].GetName() + ": " + f[c].GetReaction(fm[cm]) + " / " + fm[cm].GetReaction(f[c]))
+			FW_log.WriteLog("  - - [" + fm[cm].GetFormID() + "] " + fm[cm].GetName() + ": " + f[c].GetReaction(fm[cm]) + " / " + fm[cm].GetReaction(f[c]))
 		endWhile
 		
-		Debug.Trace("  - Father Factions:")
+		FW_log.WriteLog("  - Father Factions:")
 		int cf = ff.Length
 		while cf>0
 			cf-=1
-			Debug.Trace("  - - [" + ff[cf].GetFormID() + "] " + ff[cf].GetName() + ": " + f[c].GetReaction(ff[cf]) + " / " + ff[cf].GetReaction(f[c]))
+			FW_log.WriteLog("  - - [" + ff[cf].GetFormID() + "] " + ff[cf].GetName() + ": " + f[c].GetReaction(ff[cf]) + " / " + ff[cf].GetReaction(f[c]))
 		endWhile
 	endwhile
 endFunction
@@ -631,29 +631,29 @@ Event OnPlayerLoadGame()
 	endif
 	bOnLoadRunning = true
 	
-;	Debug.Trace("BeeingFemale: FWChildActor - Checking ChildNoEssential...")
-;	Debug.Trace("BeeingFemale: FWChildActor - ChildNoEssential is " + System.cfg.ChildNoEssential)
+;	FW_log.WriteLog("BeeingFemale: FWChildActor - Checking ChildNoEssential...")
+;	FW_log.WriteLog("BeeingFemale: FWChildActor - ChildNoEssential is " + System.cfg.ChildNoEssential)
 ;	ActorBase myChildBase
 ;	if System.cfg.ChildNoEssential
-;		Debug.Trace("BeeingFemale: FWChildActor - ChildNoEssential is turned on!")
+;		FW_log.WriteLog("BeeingFemale: FWChildActor - ChildNoEssential is turned on!")
 ;		myChildBase = self.GetActorBase()
 ;		if(myChildBase.IsUnique())
-;			Debug.Trace("BeeingFemale: FWChildActor - Base actor of this child " + self + " is unique, so essential or protected flag will not be removed to prevent bug...")
+;			FW_log.WriteLog("BeeingFemale: FWChildActor - Base actor of this child " + self + " is unique, so essential or protected flag will not be removed to prevent bug...")
 ;		else
 ;			if(myChildBase.IsEssential())
-;				Debug.Trace("BeeingFemale: FWChildActor - Child " + self + " is set to be essential. Removing essential tag...")
+;				FW_log.WriteLog("BeeingFemale: FWChildActor - Child " + self + " is set to be essential. Removing essential tag...")
 ;				myChildBase.SetEssential(false)
 ;			else
 ;				if(myChildBase.IsProtected())
-;					Debug.Trace("BeeingFemale: FWChildActor - Child " + self + " is set to be protected. Removing protected tag...")
+;					FW_log.WriteLog("BeeingFemale: FWChildActor - Child " + self + " is set to be protected. Removing protected tag...")
 ;					myChildBase.SetProtected(false)
 ;				else
-;					Debug.Trace("BeeingFemale: FWChildActor - Child " + self + " is neither essential nor protected.")
+;					FW_log.WriteLog("BeeingFemale: FWChildActor - Child " + self + " is neither essential nor protected.")
 ;				endIf
 ;			endIf
 ;		endIf
 ;	endIf
-;	Debug.Trace("BeeingFemale: FWChildActor - Finished checking ChildNoEssential")
+;	FW_log.WriteLog("BeeingFemale: FWChildActor - Finished checking ChildNoEssential")
 
 	if _Father!=none || _Mother!=none
 		InitChild()
@@ -732,7 +732,7 @@ function InitChild()
 		ParentActor = _Mother
 	endIf
 
-	Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
+	FW_log.WriteLog("FWChildActor - InitChild: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
 	
 	bool bool_AllowPCDialogue = false
 	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
@@ -749,7 +749,7 @@ function InitChild()
 		
 	if(bool_AllowPCDialogue)
 		self.AllowPCDialogue(true)
-		Debug.Trace("[Beeing Female NG] - FWChildActor - InitChild: Child " + self + " can talk to player")
+		FW_log.WriteLog("FWChildActor - InitChild: Child " + self + " can talk to player")
 	endIf
 
 	RefreshAI()
@@ -780,13 +780,13 @@ Event OnDeath(Actor akKiller)
 endEvent
 
 Event OnUpdateGameTime()
-	Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime is called")
+	FW_log.WriteLog("FWChildActor - OnUpdateGameTime is called")
 
 	if self.GetType() == 62
-		Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime : Type of " + self + " is kCharacter.")
+		FW_log.WriteLog("FWChildActor - OnUpdateGameTime : Type of " + self + " is kCharacter.")
 
 		if IsDead() == false
-			Debug.Trace("[Beeing Female NG] - FWChildActor - OnUpdateGameTime : " + self + " is not dead. Updating size and etc...")
+			FW_log.WriteLog("FWChildActor - OnUpdateGameTime : " + self + " is not dead. Updating size and etc...")
 			
 			StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
 			UpdateSize()
@@ -801,14 +801,14 @@ event OnUpdate()
 endEvent
 
 function UpdateSize()
-	Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize is called")
+	FW_log.WriteLog("FWChildActor - UpdateSize is called")
 	bool IsGrowing = (StorageUtil.GetIntValue(self, "FW.AddOn.StartGrowing", 0) == 1)
 
 	if(IsGrowing)
-		Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is growing!")
+		FW_log.WriteLog("FWChildActor - UpdateSize : " + self + " is growing!")
 		
 		if self.GetType() == 62
-			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : Type of " + self + " is kCharacter.")
+			FW_log.WriteLog("FWChildActor - UpdateSize : Type of " + self + " is kCharacter.")
 
 			actor ParentActor = StorageUtil.GetFormValue(self, "FW.Child.ParentActor", none) as actor
 			if(ParentActor)
@@ -816,15 +816,15 @@ function UpdateSize()
 				ParentActor = _Mother
 			endIf
 
-			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
+			FW_log.WriteLog("FWChildActor - UpdateSize: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
 	
 			float modifiedSizeDuration = _SizeDuration * Manager.ActorMatureTimeScale(ParentActor)
 			float modifiedFinalScale = Manager.ActorFinalScale(ParentActor)
-			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is " + modifiedSizeDuration)
-			Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedFinalScale of " + self + " is " + modifiedFinalScale)
+			FW_log.WriteLog("FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is " + modifiedSizeDuration)
+			FW_log.WriteLog("FWChildActor - UpdateSize : modifiedFinalScale of " + self + " is " + modifiedFinalScale)
 			
 			if(modifiedSizeDuration > 0)
-				Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is positive")
+				FW_log.WriteLog("FWChildActor - UpdateSize : modifiedSizeDuration of " + self + " is positive")
 				
 				If Age >= modifiedSizeDuration
 	;				SetScale(1.0)
@@ -833,16 +833,16 @@ function UpdateSize()
 					Manager.AddToSLandBF(self)
 					
 					StorageUtil.SetIntValue(self, "FW.AddOn.StartGrowing", 0)
-					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
+					FW_log.WriteLog("FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
 				elseif Age < 0.0
 					SetScale(_SmallSizeScale)
 
-					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : The age of " + self + " is negative. Setting the scale to be SmallSizeScale, " + GetScale())
+					FW_log.WriteLog("FWChildActor - UpdateSize : The age of " + self + " is negative. Setting the scale to be SmallSizeScale, " + GetScale())
 				else
 	;				SetScale((((1.0 - _SmallSizeScale) / modifiedSizeDuration) * Age) + _SmallSizeScale)
 					SetScale((((modifiedFinalScale - _SmallSizeScale) / modifiedSizeDuration) * Age) + _SmallSizeScale)
 					
-					Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is growing! Current scale is " + GetScale())
+					FW_log.WriteLog("FWChildActor - UpdateSize : " + self + " is growing! Current scale is " + GetScale())
 				endIf
 			else
 				SetScale(modifiedFinalScale)
@@ -850,7 +850,7 @@ function UpdateSize()
 				Manager.AddToSLandBF(self)
 				
 				StorageUtil.SetIntValue(self, "FW.AddOn.StartGrowing", 0)
-				Debug.Trace("[Beeing Female NG] - FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
+				FW_log.WriteLog("FWChildActor - UpdateSize : " + self + " is fully grown! Current scale is " + GetScale())
 			endIf
 		endif
 	endIf
@@ -1615,13 +1615,13 @@ function handlePerk(int p)
 							endif
 						else
 							if(frm==none)
-								Debug.Trace("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::No Form - "+modName+" "+formID)
+								FW_log.WriteLog("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::No Form - "+modName+" "+formID)
 							else
-								Debug.Trace("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::"+frm.GetName())
+								FW_log.WriteLog("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::"+frm.GetName())
 							endif
 						endif
 					else
-						Debug.Trace("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::No Form - "+modName+" "+formID)
+						FW_log.WriteLog("Perk not Found: "+ChildSettings.ChildPerkFile[p]+"["+rankID+"]::No Form - "+modName+" "+formID)
 					endif
 				endif
 			endWhile
@@ -1704,7 +1704,7 @@ bool function IsSpecialAV(string av)
 endFunction
 
 function CheckForLevelUp()
-	;Debug.Trace("CheckForLevelUp")
+	;FW_log.WriteLog("CheckForLevelUp")
 	int LevelUpCount=0
 	int Level = GetLevel()
 	int PlayerLevel = PlayerRef.GetLevel()
@@ -1731,7 +1731,7 @@ function CheckForLevelUp()
 			bRunning = false
 		endif
 		max-=1
-		;Debug.Trace("Had level up")
+		;FW_log.WriteLog("Had level up")
 	endWhile
 	if LevelUpCount>0
 		StorageUtil.SetFloatValue(self, "FW.Child.StatExperience", exp)

@@ -3,7 +3,7 @@
 float property FreeCamSpeed = 3.5 Auto
 
 function StartCamera()
-	;Debug.Trace("Free Camera started")
+	;FW_log.WriteLog("Free Camera started")
 	bool InFreeCamera = Game.GetCameraState() == 3
 	if InFreeCamera ;Tkc (Loverslab): optimization
 	else;if !InFreeCamera
@@ -13,7 +13,7 @@ function StartCamera()
 endFunction
 
 function StopCamera()
-	;Debug.Trace("Free Camera ended")
+	;FW_log.WriteLog("Free Camera ended")
 	bool InFreeCamera = Game.GetCameraState() == 3
 	If InFreeCamera
 		MiscUtil.ToggleFreeCamera()
