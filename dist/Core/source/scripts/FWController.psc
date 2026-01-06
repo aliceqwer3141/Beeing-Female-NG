@@ -1275,6 +1275,9 @@ function HealBaby(actor Mother,float Healing)
 	
 	
 	int num_babies_orig = StorageUtil.FormListCount(Mother, "FW.ChildFather")
+	if num_babies_orig <= 0
+		return
+	endif
 	actor Father = none
 	float DamageScaleByFather = 0
 	float HealingScaleByFather = 0

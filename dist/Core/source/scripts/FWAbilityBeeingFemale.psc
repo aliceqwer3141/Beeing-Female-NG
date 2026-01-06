@@ -550,6 +550,9 @@ function changeState(int NewState)
 	StorageUtil.SetIntValue(ActorRef,"FW.CurrentState",currentState)
 	StorageUtil.SetFloatValue(ActorRef,"FW.StateEnterTime", GameDaysPassed.GetValue())
 	StorageUtil.SetFloatValue(ActorRef,"FW.LastUpdate",GameDaysPassed.GetValue())
+	if System && System.Controller
+		System.Controller.UpdateParentFaction(ActorRef)
+	endif
 	InitState()
 endFunction
 
