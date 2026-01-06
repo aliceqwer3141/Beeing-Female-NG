@@ -2651,6 +2651,7 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 	if Mother;/!=none/; ;Tkc (Loverslab): optimization
 		obj = Mother.PlaceAtMe(frm as Armor, 1, false, true)
 		mName=Mother.GetLeveledActorBase().GetName()
+		WriteLog("ChildItemSetup::Mother name" + fName)
 		If ParentRace ;Tkc (Loverslab): optimization
 		else;If !ParentRace
 			ParentRace = Mother.GetLeveledActorBase().GetRace()
@@ -2658,6 +2659,7 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 	endif
 	if Father;/!=none/;
 		fName=Father.GetLeveledActorBase().GetName()
+		WriteLog("ChildItemSetup::Father name" + fName)
 		If ParentRace ;Tkc (Loverslab): optimization
 		else;If !ParentRace
 			ParentRace =Father.GetLeveledActorBase().GetRace()
@@ -2677,8 +2679,11 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 		StorageUtil.SetFormValue(obj,"FW.Child.Mother",Mother)
 	endif
 	FW_log.WriteLog("FWSystem::ChildItemSetup Mother=" + Mother + " Father=" + Father + " Obj=" + obj)
+	bool isVampire = false
+	int xflag
 	if gender==-1
-		int xflag = StorageUtil.GetIntValue(obj, "FW.Child.Flag", 0)
+		xflag = StorageUtil.GetIntValue(obj, "FW.Child.Flag", 0)
+		isVampire = Math.LogicalAnd(xflag,1) == 1
 		if (Math.LogicalAnd(xflag,4) == 4)
 			gender=1
 		else
@@ -2697,7 +2702,12 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 		endif
 		obj2.Name = childName
 		obj2.SetSex(gender)
-		obj2.SetVampire(false)
+		obj2.SetVampire(isVampire)
+		if Math.LogicalAnd(xflag,2)==2 && Father
+			obj2.SetHairColor(Father.GetLeveledActorBase().GetHairColor())
+			elseif Mother
+			obj2.SetHairColor(Mother.GetLeveledActorBase().GetHairColor())
+		endif
 		obj2.SetParent(Mother,Father)
 		obj2.ChildRace = ParentRace
 		obj2.SetName(childName)

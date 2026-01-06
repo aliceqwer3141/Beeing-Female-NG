@@ -367,7 +367,7 @@ event OnUpdateGameTime()
 		
 		;find a player child item and grow/spawn child if time comes
 		int babyitemCount = StorageUtil.FormListCount(none,"FW.Babys")
-		FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player babyitemCount: " + babyitemCount)
+		FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - player babyitemCount: " + babyitemCount)
 		
 		float dob = StorageUtil.GetFloatValue(PlayerRef,"FW.ChildArmor.dob",0)
 		Actor f = StorageUtil.GetFormValue(PlayerRef,"FW.ChildArmor.Father",none) as Actor
@@ -377,18 +377,20 @@ event OnUpdateGameTime()
 			babyitemCount -= 1
 			Form formarm = StorageUtil.FormListGet(none,"FW.Babys", babyitemCount)
 			If (formarm)
-				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - form entry in FW.Babys" + formarm.GetName())
+				FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - form entry in FW.Babys " + formarm.GetName())
+				FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - dob: " + formarm.GetName() + dob)
+			Else
+				FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - form entry in FW.Babys none")
 			EndIf
 			Armor childArmor = formarm  as Armor
 			If (childArmor)
-				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - armor entry in FW.Babys" + childArmor.GetName())
+				FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - armor entry in FW.Babys " + childArmor.GetName())
 			EndIf
-			FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - dob: " + formarm.GetName() + dob)
 			
 			if childArmor && PlayerRef.IsEquipped(childArmor)
 				if m && m == PlayerRef
-					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player child: " + childArmor.GetName())
-					ProcessBabyItemTransitionToChild(f,m,SizeDuration,childArmor,dob)
+					FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - player child: " + childArmor.GetName())
+					ProcessBabyItemTransitionToChild(m,f,SizeDuration,childArmor,dob)
 				endif
 			endif
 		endwhile
@@ -436,8 +438,9 @@ Function ProcessBabyItemTransitionToChild(Actor mother,Actor father, float sizeD
 		return
 	endif
 
-	float remainingDays = SizeDuration - Age
-	FW_log.WriteLog("FWChildArmor: Baby is growing. " + (remainingDays as int) + " days remaining.")
+	float remainingDays = sizeDuration - age
+	
+	FW_log.WriteLog("FWChildArmor: Baby is growing. " + remainingDays + " days remaining.")
 EndFunction
 
 bool OnHitIsBusy

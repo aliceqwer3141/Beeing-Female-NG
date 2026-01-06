@@ -196,6 +196,10 @@ ColorForm Function GetHairColor()
 	return HairColor
 EndFunction
 
+Function SetHairColor(ColorForm color)
+	 HairColor = color
+EndFunction
+
 String Function GetName()
 	return Name
 EndFunction
@@ -208,7 +212,6 @@ EndFunction
 ;this likely is not called - duplicated  onequip to be safe
 Event OnLoad()
 	WriteLog("FWChildArmor::OnLoad()")
-	InitFromStorage(none)
 EndEvent
 
 Function InitFromStorage(Actor akActor)
@@ -216,25 +219,10 @@ Function InitFromStorage(Actor akActor)
 		WriteLog("FWChildArmor::InitFromStorage skipped - already done")
 		return
 	endif
-	;WriteLog("FWChildArmor::InitFromStorage")
-	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	;FW_log.WriteLog("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	int flag = StorageUtil.GetIntValue(self, "FW.Child.Flag", 0)
-	bIsVampire = Math.LogicalAnd(flag,1) == 1
-	if Math.LogicalAnd(flag,4) == 4
-		iSex=1
-	else
-		iSex=0
-	endif
-	name = StorageUtil.GetStringValue(self,"FW.Child.Name","")
 	WriteLog("FWChildArmor::InitFromStorage name" + name)
-	if Math.LogicalAnd(flag,2)==2 && _Father
-		HairColor = _Father.GetLeveledActorBase().GetHairColor()
-		WriteLog("FWChildArmor::InitFromStorage father name" + _Father.GetLeveledActorBase().GetName())
-	elseif _Mother
-		HairColor = _Mother.GetLeveledActorBase().GetHairColor()
-		WriteLog("FWChildArmor::InitFromStorage mother name" + _Mother.GetLeveledActorBase().GetName())
-	endif
+	;_Father = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
+	;_Mother = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
+	
 	float storedDob = StorageUtil.GetFloatValue(self,"FW.Child.DOB",0)
 	if storedDob <= 0.0
 		storedDob = GameDaysPassed.GetValue()
@@ -242,8 +230,9 @@ Function InitFromStorage(Actor akActor)
 		WriteLog("FWChildArmor::InitFromStorage FW.Child.DOB" + storedDob)
 	endif
 	dob = storedDob
+
 	if akActor && akActor == PlayerRef
-		;playerref values
+		;playerref values (persistant cause added to actor)
 		StorageUtil.SetFormValue(PlayerRef, "FW.ChildArmor.Mother", akActor)
 		StorageUtil.SetFormValue(PlayerRef, "FW.ChildArmor.Father", _Father)
 		StorageUtil.SetFloatValue(PlayerRef, "FW.ChildArmor.dob", dob)
@@ -253,13 +242,13 @@ Function InitFromStorage(Actor akActor)
 	StorageUtil.SetIntValue(self, "FW.Child.InitDone", 1)
 EndFunction
 
-function SetParent(actor Mother, actor Father)
-	FW_log.WriteLog("FWChildArmor::SetParent Mother=" + Mother + " Father=" + Father)
-	StorageUtil.SetFormValue(self,"FW.Child.Father",Father)
-	StorageUtil.SetFormValue(self,"FW.Child.Mother",Mother)
+function SetParent(actor m, actor f)
+	FW_log.WriteLog("FWChildArmor::SetParent Mother=" + m + " Father=" + f)
+	StorageUtil.SetFormValue(self,"FW.Child.Father",f)
+	StorageUtil.SetFormValue(self,"FW.Child.Mother",m)
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
-	_Father=Father
-	_Mother=Mother
+	_Father=f
+	_Mother=m
 endFunction
 
 Function discardItem()
@@ -275,10 +264,6 @@ Function unequipItem()
 		_Mother.RemoveItem(self, 1, true)
 	endif
 EndFunction
-
-;function UpdateSize()
-	
-;endFunction
 
 function Delete()
 	StorageUtil.UnsetFloatValue(self,"FW.Child.LastUpdate")
@@ -341,25 +326,27 @@ Event OnEquipped(Actor akActor)
 	;FW_log.WriteLog("Baby Name2: "+StorageUtil.GetStringValue(self,"FW.Child.Name","none"))
 	;FW_log.WriteLog("Baby Name3: "+GetDisplayName())
 	;FW_log.WriteLog("Baby Name4: "+GetName())
-	if GetName()=="Baby" || GetName()=="" || \
-	   GetDisplayName()=="Baby" || GetDisplayName()=="" || \
-	   _xName=="Baby" || _xName=="" || \
-	   StorageUtil.GetStringValue(self,"FW.Child.Name","")==""
-		; Name wasn't set or an error happend
-		int xflag = StorageUtil.GetIntValue(self, "FW.Child.Flag", -1)
-			if xflag==-1
-				;Object was never init
-				FWSystem.ChildItemSetup(self)
-			else
-				if Math.LogicalAnd(xflag,4) == 0
-					; Male name
-					Name=FWSystem.getRandomChildName(0)
-				elseif (Math.LogicalAnd(xflag,4) == 4)
-					; Female name
-					Name=FWSystem.getRandomChildName(1)
-				endif
-			endif
-	endif
+	
+	;;Baby is the base armor name
+	; if GetName()=="Baby" || GetName()=="" || \
+	;    GetDisplayName()=="Baby" || GetDisplayName()=="" || \
+	;    _xName=="Baby" || _xName=="" || \
+	;    StorageUtil.GetStringValue(self,"FW.Child.Name","")==""
+	; 	; Name wasn't set or an error happend(-)Upd: this will be -1 all the time
+	; 	int xflag = StorageUtil.GetIntValue(self, "FW.Child.Flag", -1)
+	; 		if xflag==-1
+	; 			;Object was never init
+	; 			;FWSystem.ChildItemSetup(self)
+	; 		else
+	; 			if Math.LogicalAnd(xflag,4) == 0
+	; 				; Male name
+	; 				Name=FWSystem.getRandomChildName(0)
+	; 			elseif (Math.LogicalAnd(xflag,4) == 4)
+	; 				; Female name
+	; 				Name=FWSystem.getRandomChildName(1)
+	; 			endif
+	; 		endif
+	; endif
 	InitFromStorage(akActor)
 endEvent
 
