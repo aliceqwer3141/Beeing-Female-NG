@@ -2676,6 +2676,7 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 	if Mother;/!=none/; ;Tkc (Loverslab): optimization
 		StorageUtil.SetFormValue(obj,"FW.Child.Mother",Mother)
 	endif
+	FW_log.WriteLog("FWSystem::ChildItemSetup Mother=" + Mother + " Father=" + Father + " Obj=" + obj)
 	if gender==-1
 		int xflag = StorageUtil.GetIntValue(obj, "FW.Child.Flag", 0)
 		if (Math.LogicalAnd(xflag,4) == 4)

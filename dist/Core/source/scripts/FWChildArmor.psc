@@ -208,14 +208,25 @@ EndFunction
 ;this likely is not called - duplicated  onequip to be safe
 Event OnLoad()
 	WriteLog("FWChildArmor::OnLoad()")
-	InitFromStorage()
+	InitFromStorage(none)
 EndEvent
 
-Function InitFromStorage()
+Function InitFromStorage(Actor akActor)
 	if bInitFromStorage || StorageUtil.GetIntValue(self, "FW.Child.InitDone", 0) == 1
+		WriteLog("FWChildArmor::InitFromStorage skipped - already done")
 		return
 	endif
-	WriteLog("FWChildArmor::InitFromStorage")
+	if akActor && StorageUtil.GetFormValue(self, "FW.Child.Mother", none) == none
+		StorageUtil.SetFormValue(self, "FW.Child.Mother", akActor)
+		_Mother = akActor
+		FW_log.WriteLog("FWChildArmor::InitFromStorage - set missing mother from equipper " + akActor)
+	endif
+	if StorageUtil.FormListHas(none, "FW.Babys", self) == false
+		StorageUtil.FormListAdd(none, "FW.Babys", self)
+		FW_log.WriteLog("FWChildArmor::InitFromStorage - added to FW.Babys")
+	endif
+
+	;WriteLog("FWChildArmor::InitFromStorage")
 	;Debug.Notification("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;FW_log.WriteLog("Baby Name01: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	int flag = StorageUtil.GetIntValue(self, "FW.Child.Flag", 0)
@@ -226,17 +237,21 @@ Function InitFromStorage()
 		iSex=0
 	endif
 	name = StorageUtil.GetStringValue(self,"FW.Child.Name","")
+	WriteLog("FWChildArmor::InitFromStorage name" + name)
 	_Father = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
 	_Mother = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
 	if Math.LogicalAnd(flag,2)==2 && _Father
 		HairColor = _Father.GetLeveledActorBase().GetHairColor()
+		WriteLog("FWChildArmor::InitFromStorage father name" + _Father.GetLeveledActorBase().GetName())
 	elseif _Mother
 		HairColor = _Mother.GetLeveledActorBase().GetHairColor()
+		WriteLog("FWChildArmor::InitFromStorage mother name" + _Mother.GetLeveledActorBase().GetName())
 	endif
 	float storedDob = StorageUtil.GetFloatValue(self,"FW.Child.DOB",0)
 	if storedDob <= 0.0
 		storedDob = GameDaysPassed.GetValue()
 		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
+		WriteLog("FWChildArmor::InitFromStorage FW.Child.DOB" + storedDob)
 	endif
 	dob = storedDob
 
@@ -245,6 +260,7 @@ Function InitFromStorage()
 EndFunction
 
 function SetParent(actor Mother, actor Father)
+	FW_log.WriteLog("FWChildArmor::SetParent Mother=" + Mother + " Father=" + Father)
 	StorageUtil.SetFormValue(self,"FW.Child.Father",Father)
 	StorageUtil.SetFormValue(self,"FW.Child.Mother",Mother)
 	StorageUtil.SetFloatValue(self,"FW.Child.LastUpdate",GameDaysPassed.GetValue())
@@ -364,7 +380,8 @@ endFunction
 
 ; Event received when this object is equipped by an actor
 Event OnEquipped(Actor akActor)
-	InitFromStorage()
+	InitFromStorage(akActor)
+	
 	;Debug.Notification("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;FW_log.WriteLog("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
 	;Utility.Wait(3)

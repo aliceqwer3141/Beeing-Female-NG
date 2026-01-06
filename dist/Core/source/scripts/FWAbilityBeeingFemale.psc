@@ -370,18 +370,22 @@ event OnUpdateGameTime()
 
 		while childCount > 0
 			childCount -= 1
-			FWChildArmor child = StorageUtil.FormListGet(none,"FW.Babys", childCount) as FWChildArmor
+			Form entry = StorageUtil.FormListGet(none,"FW.Babys", childCount)
+			FWChildArmor child = entry as FWChildArmor
 			if child
 				Actor mother = StorageUtil.GetFormValue(child, "FW.Child.Mother", none) as Actor
+				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - child name: " +  child.GetName())
 				if mother
-					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - childCount: " + childCount)
+					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - mother found for: "+ child.GetName() + "-" + mother.GetLeveledActorBase().GetName())
 					if mother == PlayerRef
-						FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - child found: " + child.GetName())
+						FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - player child found: " + child.GetName())
 						child.ProcessBabyItemTransitionToChild(System, PlayerRef, SizeDuration)
 					endif
 				else
 					FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - mother not found for  " + child.GetName())
 				endif
+			else
+				FW_log.WriteLog("FWAbilityBeeingFemale::OnUpdateGameTime - non-armor entry: " + entry.GetName() + ":" + entry.GetFormID())
 			endif
 		endwhile
 		GlobalPlayerState.SetValue(currentState)
