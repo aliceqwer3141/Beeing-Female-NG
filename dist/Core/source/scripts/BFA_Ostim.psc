@@ -43,6 +43,7 @@ int function registerOstimEventHandlers()
         return 0
     endif
 
+	RegisterForModEvent("ostim_start", "OStimStart")
     if (OStim.GetAPIVersion() >= 29)
         RegisterForModEvent("ostim_actor_orgasm", "OStimOrgasmThread")
     else
@@ -50,6 +51,28 @@ int function registerOstimEventHandlers()
     endif
     return 2
 endFunction
+
+Event OStimStart(String EventName, String sceneId, Float index, Form Sender)
+	OStim = OUtils.GetOStim()
+	if !OStim
+		return
+	endif
+
+	Actor[] actors = OStim.GetActors()
+	if actors.Length <= 0
+		return
+	endif
+
+	int i = actors.Length
+	while i > 0
+		i -= 1
+		Actor a = actors[i]
+		if a && StorageUtil.FormListHas(none, "FW.Babys", a)
+			OStim.ForceStop()
+			return
+		endif
+	endWhile
+EndEvent
 
 Event OStimOrgasmThread(String EventName, String Args, Float ThreadID, Form Sender)
     if sender as Actor
