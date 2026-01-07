@@ -215,21 +215,18 @@ Event OnLoad()
 EndEvent
 
 Function InitFromStorage(Actor akActor)
-	if bInitFromStorage || StorageUtil.GetIntValue(self, "FW.Child.InitDone", 0) == 1
+	if bInitFromStorage
 		WriteLog("FWChildArmor::InitFromStorage skipped - already done")
 		return
 	endif
 	WriteLog("FWChildArmor::InitFromStorage name" + name)
-	;_Father = StorageUtil.GetFormValue(self,"FW.Child.Father",none) as Actor
-	;_Mother = StorageUtil.GetFormValue(self,"FW.Child.Mother",none) as Actor
-	
-	float storedDob = StorageUtil.GetFloatValue(self,"FW.Child.DOB",0)
-	if storedDob <= 0.0
-		storedDob = GameDaysPassed.GetValue()
-		StorageUtil.SetFloatValue(self,"FW.Child.DOB", storedDob)
-		WriteLog("FWChildArmor::InitFromStorage FW.Child.DOB" + storedDob)
-	endif
-	dob = storedDob
+
+	If (dob <= 0.0)
+		float newDob = GameDaysPassed.GetValue()
+		StorageUtil.SetFloatValue(self,"FW.Child.DOB", newDob)
+		WriteLog("FWChildArmor::InitFromStorage FW.Child.DOB" + newDob)
+		dob = newDob
+	EndIf
 
 	if akActor && akActor == PlayerRef
 		;playerref values (persistant cause added to actor)
@@ -239,7 +236,6 @@ Function InitFromStorage(Actor akActor)
 	endif
 
 	bInitFromStorage = true
-	StorageUtil.SetIntValue(self, "FW.Child.InitDone", 1)
 EndFunction
 
 function SetParent(actor m, actor f)
@@ -251,19 +247,19 @@ function SetParent(actor m, actor f)
 	_Mother=m
 endFunction
 
-Function discardItem()
-	StorageUtil.FormListRemove(none,"FW.Babys", self)
-	Delete()
-	self.Disable(true)
-	parent.Delete()
-EndFunction
+; Function discardItem()
+; 	StorageUtil.FormListRemove(none,"FW.Babys", self)
+; 	Delete()
+; 	self.Disable(true)
+; 	parent.Delete()
+; EndFunction
 
-Function unequipItem()
-	if _Mother != none
-		_Mother.UnequipItem(self.GetBaseObject())
-		_Mother.RemoveItem(self, 1, true)
-	endif
-EndFunction
+; Function unequipItem()
+; 	if _Mother != none
+; 		_Mother.UnequipItem(self.GetBaseObject())
+; 		_Mother.RemoveItem(self, 1, true)
+; 	endif
+; EndFunction
 
 function Delete()
 	StorageUtil.UnsetFloatValue(self,"FW.Child.LastUpdate")
@@ -317,45 +313,16 @@ endFunction
 
 ; Event received when this object is equipped by an actor
 Event OnEquipped(Actor akActor)
-	
-	;Debug.Notification("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	;FW_log.WriteLog("Baby Name02: "+_xName + ";"+StorageUtil.GetStringValue(self,"FW.Child.Name","none")+";"+GetDisplayName()+";"+GetName())
-	;Utility.Wait(3)
 	FW_log.WriteLog("FWChildArmor::OnEquipped("+akActor.GetLeveledActorBase().GetName()+")")
-	;FW_log.WriteLog("Baby Name1: "+_xName)
-	;FW_log.WriteLog("Baby Name2: "+StorageUtil.GetStringValue(self,"FW.Child.Name","none"))
-	;FW_log.WriteLog("Baby Name3: "+GetDisplayName())
-	;FW_log.WriteLog("Baby Name4: "+GetName())
-	
-	;;Baby is the base armor name
-	; if GetName()=="Baby" || GetName()=="" || \
-	;    GetDisplayName()=="Baby" || GetDisplayName()=="" || \
-	;    _xName=="Baby" || _xName=="" || \
-	;    StorageUtil.GetStringValue(self,"FW.Child.Name","")==""
-	; 	; Name wasn't set or an error happend(-)Upd: this will be -1 all the time
-	; 	int xflag = StorageUtil.GetIntValue(self, "FW.Child.Flag", -1)
-	; 		if xflag==-1
-	; 			;Object was never init
-	; 			;FWSystem.ChildItemSetup(self)
-	; 		else
-	; 			if Math.LogicalAnd(xflag,4) == 0
-	; 				; Male name
-	; 				Name=FWSystem.getRandomChildName(0)
-	; 			elseif (Math.LogicalAnd(xflag,4) == 4)
-	; 				; Female name
-	; 				Name=FWSystem.getRandomChildName(1)
-	; 			endif
-	; 		endif
-	; endif
 	InitFromStorage(akActor)
 endEvent
 
-Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
-	if akNewContainer == none
-		FW_log.WriteLog("FWChildArmor::OnContainerChanged - dropped, cleaning tracking")
-		StorageUtil.FormListRemove(none, "FW.PlayerBabyArmor", self)
-		discardItem()
-	endif
-endEvent
+; Event OnContainerChanged(ObjectReference akNewContainer, ObjectReference akOldContainer)
+; 	if akNewContainer == none
+; 		FW_log.WriteLog("FWChildArmor::OnContainerChanged - dropped, cleaning tracking")
+; 		StorageUtil.FormListRemove(none, "FW.Babys", self)
+; 		discardItem()
+; 	endif
+; endEvent
 
 ; 02.06.2019 Tkc (Loverslab) optimizations: Changes marked with "Tkc (Loverslab)" comment. Very little changed..
