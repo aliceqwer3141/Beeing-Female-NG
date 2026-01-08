@@ -1388,12 +1388,10 @@ Bool Function Message(string akMessage, int aiPriority = 1, int aiType = 0)
 			Debug.Notification(akMessage)
 		elseif aiType == MSG_Trace
 			FW_log.WriteLog(akMessage)
-			;FW_log.WriteLog(akMessage)
 		else
 			if bMessageEnabledAfterNewGameStarted ;Tkc (Loverslab): optimization
 			else;bMessageEnabledAfterNewGameStarted==false
 				FW_log.WriteLog(akMessage)
-				;FW_log.WriteLog("BeeingFemale Message: "+akMessage)
 			EndIf
 		EndIf
 		Return True

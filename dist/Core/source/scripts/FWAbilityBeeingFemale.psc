@@ -376,12 +376,6 @@ event OnUpdateGameTime()
 		while babyitemCount > 0
 			babyitemCount -= 1
 			Form formarm = StorageUtil.FormListGet(none,"FW.Babys", babyitemCount)
-			; If (formarm)
-			; 	FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - form entry in FW.Babys " + formarm.GetName())
-			; 	FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - dob: " + formarm.GetName() + dob)
-			; Else
-			; 	FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - form entry in FW.Babys none")
-			; EndIf
 			Armor childArmor = formarm  as Armor
 			If (childArmor)
 				FW_log.WriteLog("FWAbilityBeeingFemale::ChildArmor - armor entry in FW.Babys " + childArmor.GetName())

@@ -42,13 +42,8 @@ int function registerOstimEventHandlers()
     if (OStim == none || OStim.GetAPIVersion() < 23)
         return 0
     endif
-
 	RegisterForModEvent("ostim_start", "OStimStart")
-    if (OStim.GetAPIVersion() >= 29)
-        RegisterForModEvent("ostim_actor_orgasm", "OStimOrgasmThread")
-    else
-        RegisterForModEvent("ostim_orgasm", "OStimOrgasm")
-    endif
+	RegisterForModEvent("FertilityModeAddSperm", "OnFertilityModeAddSperm")
     return 2
 endFunction
 
@@ -74,44 +69,13 @@ Event OStimStart(String EventName, String sceneId, Float index, Form Sender)
 	endWhile
 EndEvent
 
-Event OStimOrgasmThread(String EventName, String Args, Float ThreadID, Form Sender)
-    if sender as Actor
-		HandleActorOrgasm(ThreadID as int, sender as Actor)
-	endif
-EndEvent
-
-Event OStimOrgasm(String EventName, String Args, Float Nothing, Form Sender)
-	OStim = OUtils.GetOStim()
-	if !OStim
-		return
-	endif
-	; If this is OStim NG, bail out (Since Below code is processed in OStimOrgasmThread)
-	if (OStim.GetAPIVersion() >= 29)
-		return
-	endif
-
-	if sender as Actor
-		HandleActorOrgasm(0, sender as Actor)
-		return
-	else ;Backup check for most recent orgasmer
-		actor orgasmer = OStim.GetMostRecentOrgasmedActor() ; Was never all that reliable but it is the only failsafe if Sender isnt sent
-		if orgasmer
-			HandleActorOrgasm(0, orgasmer)
-		endif
-	endif
-EndEvent
-
-Function HandleActorOrgasm(int threadId, Actor targetActor)
-	OStim = OUtils.GetOStim()
-	if !OStim
-		return
-	endif
-	Actor partner = ostim.GetSexPartner(targetActor)
-
-	if partner && !OStim.IsFemale(targetActor) && OStim.IsFemale(partner) && Ostim.IsVaginal()
-		processPair(partner, targetActor)
+Event OnFertilityModeAddSperm(Form impregnatedForm, string fatherName, Form fatherForm)
+	Actor impregnated = impregnatedForm as Actor
+	Actor father = fatherForm as Actor
+	if impregnated && father
+		processPair(impregnated, father)
 	endIf
-EndFunction
+EndEvent
 
 function Refresh(string strArg, FWAddOnManager sender)
 	;parent.Refresh(strArg, sender)
