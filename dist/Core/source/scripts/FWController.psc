@@ -349,6 +349,7 @@ function ImpregnateA(actor Mother, actor[] Fathers, int NumChilds=1)
 	EndWhile
 	StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
 	StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
+	StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 	Manager.OnImpregnate(Mother, NumChilds,Fathers)
 	ChangeState(Mother,4)
 endFunction
@@ -551,6 +552,7 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
 			StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
+			StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
 			ChangeStateTimed(Mother,Time,4)
 			return true
@@ -653,6 +655,7 @@ bool function ActiveSpermImpregnationNoContraceptionTimed(actor Mother, float Ti
 				Fathers[numChild]=a[j]
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
+			StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
 			ChangeStateTimed(Mother,Time,4)
 			return true
@@ -848,6 +851,7 @@ function UnimpregnateState(actor Mother, int Menstrual_Cycle_State)
 	StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
 	StorageUtil.UnsetFloatValue(Mother,"FW.UnbornHealth")
 	StorageUtil.UnsetFloatValue(Mother,"FW.AbortusTime")
+	StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 	int xMenstrual_Cycle_State=Menstrual_Cycle_State
 	if xMenstrual_Cycle_State<0 || xMenstrual_Cycle_State>3
 		xMenstrual_Cycle_State=0
@@ -1099,6 +1103,7 @@ function GiveBirth(actor Mother)
 	StorageUtil.UnsetFloatValue(Mother,"FW.UnbornHealth")
 	StorageUtil.FormListClear(Mother,"FW.ChildFather")
 	StorageUtil.UnsetFloatValue(Mother,"FW.AbortusTime")
+	StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 	Utility.Wait(2)
 	; Clear expressions
 	
@@ -1330,6 +1335,7 @@ function AbortusBaby(actor Mother)
 		StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",0.0)
 		StorageUtil.SetIntValue(Mother, "FW.Abortus",2)
 		StorageUtil.SetFloatValue(Mother, "FW.AbortusTime", GameDaysPassed.GetValue())
+		StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 		if PlayerRef == Mother
 			System.Player.checkAbortus()
 		else
@@ -1352,6 +1358,7 @@ function AbortusBabyTimed(actor Mother,Float Time)
 		StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",0.0)
 		StorageUtil.SetIntValue(Mother, "FW.Abortus",2)
 		StorageUtil.SetFloatValue(Mother, "FW.AbortusTime", Time)
+		StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 		if PlayerRef == Mother
 			System.Player.checkAbortus()
 		else
@@ -1376,6 +1383,7 @@ function AbortusState(actor Mother, int Abortus_State)
 		StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",0.0)
 		StorageUtil.SetIntValue(Mother, "FW.Abortus",Abortus_State)
 		StorageUtil.SetFloatValue(Mother, "FW.AbortusTime", GameDaysPassed.GetValue())
+		StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 		if PlayerRef == Mother
 			System.Player.checkAbortus()
 		else
@@ -1399,6 +1407,7 @@ function AbortusStateTimed(actor Mother, float Time, int Abortus_State)
 		StorageUtil.SetFloatValue(Mother, "FW.UnbornHealth",0.0)
 		StorageUtil.SetIntValue(Mother, "FW.Abortus",Abortus_State)
 		StorageUtil.SetFloatValue(Mother, "FW.AbortusTime", Time)
+		StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 		if PlayerRef == Mother
 			System.Player.checkAbortus()
 		else
@@ -2167,6 +2176,7 @@ bool function MyActiveSpermImpregnationTimedForAnyPeriod(actor Mother, bool bIgn
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
 			StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
+			StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
 			ChangeStateTimed(Mother,Time,4)
 			return true
