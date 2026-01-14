@@ -2015,7 +2015,7 @@ endFunction
 ; in original 2 phases:
 ; Follicular phase : 12 - 16 Days (contains Menstuation and Follicular)
 ; Luteal phase : 12 - 16 Days (contains Ovulation and Luteal)
-;--------------
+;
 ; so for 4 Phases:
 ; Follicular: arround 8 - 12 Days
 ; Ovulation: 3, 5 - 4  days (it takes 3 Day for egg to arrive, and there is 12 - 24 hours for sperm)
