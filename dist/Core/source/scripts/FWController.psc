@@ -351,7 +351,38 @@ function ImpregnateA(actor Mother, actor[] Fathers, int NumChilds=1)
 	StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
 	StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 	Manager.OnImpregnate(Mother, NumChilds,Fathers)
+	SendConceptionEvent(Mother, Fathers)
 	ChangeState(Mother,4)
+endFunction
+
+function SendConceptionEvent(actor Mother, actor[] Fathers)
+	if !Mother
+		return
+	endif
+
+	actor Father0 = none 
+	actor Father1 = none
+	actor Father2 = none
+	int childCount = StorageUtil.GetIntValue(Mother,"FW.NumChilds",0)
+	if Fathers.length > 0
+		Father0 = Fathers[0]
+	endif
+	if Fathers.length > 1
+		Father1 = Fathers[1]
+	endif
+	if Fathers.length > 2
+		Father2 = Fathers[2]
+	endif
+
+	int eid = ModEvent.Create("BeeingFemaleConception")
+	if eid
+		ModEvent.PushForm(eid, Mother)
+		ModEvent.PushInt(eid, childCount)
+		ModEvent.PushForm(eid, Father0)
+		ModEvent.PushForm(eid, Father1)
+		ModEvent.PushForm(eid, Father2)
+		ModEvent.Send(eid)
+	endif
 endFunction
 
 ; Check for the normal impregnation, using the sperm, the value if she can become pregnant in this cycle, and so on.
@@ -554,6 +585,7 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 			StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
 			StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
+			SendConceptionEvent(Mother, Fathers)
 			ChangeStateTimed(Mother,Time,4)
 			return true
 		else
@@ -657,6 +689,7 @@ bool function ActiveSpermImpregnationNoContraceptionTimed(actor Mother, float Ti
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
 			StorageUtil.SetFloatValue(Mother,"FW.LastConception", Utility.GetCurrentGameTime())
 			Manager.OnImpregnate(Mother, Fathers.length,Fathers)
+			SendConceptionEvent(Mother, Fathers)
 			ChangeStateTimed(Mother,Time,4)
 			return true
 		endIf
@@ -892,6 +925,29 @@ function GiveBirth(actor Mother)
 	else;if NumChilds==0
 		return;
 	EndIf
+
+	int laborEvent = ModEvent.Create("BeeingFemaleLabor")
+	if laborEvent
+		actor Father0 = none 
+		actor Father1 = none
+		actor Father2 = none
+		int childCount = StorageUtil.GetIntValue(Mother,"FW.NumChilds",0)
+		if StorageUtil.FormListCount(Mother, "FW.ChildFather") > 0
+			Father0 = StorageUtil.FormListGet(Mother,"FW.ChildFather", 0) as actor
+		endif
+		if StorageUtil.FormListCount(Mother, "FW.ChildFather") > 1
+			Father1 = StorageUtil.FormListGet(Mother,"FW.ChildFather", 1) as actor
+		endif
+		if StorageUtil.FormListCount(Mother, "FW.ChildFather") > 2
+			Father2 = StorageUtil.FormListGet(Mother,"FW.ChildFather", 2) as actor
+		endif
+		ModEvent.PushForm(laborEvent, Mother)
+		ModEvent.PushInt(laborEvent, childCount)
+		ModEvent.PushForm(laborEvent, Father0)
+		ModEvent.PushForm(laborEvent, Father1)
+		ModEvent.PushForm(laborEvent, Father2)
+		ModEvent.Send(laborEvent)
+	endif
 	
 	StorageUtil.FormListAdd(none,"FW.GivingBirth", Mother) ;Tkc (Loverslab): Mother added to the GivingBirth list to detect her when is giving birth by papyrus condition or from esp
 	

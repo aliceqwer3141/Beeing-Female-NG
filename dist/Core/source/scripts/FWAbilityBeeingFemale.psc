@@ -2612,6 +2612,28 @@ state LaborPains_State
 	function onEnterState()
 		bWatersBroken = false
 		bAlreadyGaveBirth = false
+		int laborEvent = ModEvent.Create("BeeingFemaleLabor")
+		if laborEvent
+			actor Father0 = none 
+			actor Father1 = none
+			actor Father2 = none
+			int childCount = StorageUtil.GetIntValue(ActorRef,"FW.NumChilds",0)
+			if StorageUtil.FormListCount(ActorRef, "FW.ChildFather") > 0
+				Father0 = StorageUtil.FormListGet(ActorRef,"FW.ChildFather", 0) as actor
+			endif
+			if StorageUtil.FormListCount(ActorRef, "FW.ChildFather") > 1
+				Father1 = StorageUtil.FormListGet(ActorRef,"FW.ChildFather", 1) as actor
+			endif
+			if StorageUtil.FormListCount(ActorRef, "FW.ChildFather") > 2
+				Father2 = StorageUtil.FormListGet(ActorRef,"FW.ChildFather", 2) as actor
+			endif
+			ModEvent.PushForm(laborEvent, ActorRef)
+			ModEvent.PushInt(laborEvent, childCount)
+			ModEvent.PushForm(laborEvent, Father0)
+			ModEvent.PushForm(laborEvent, Father1)
+			ModEvent.PushForm(laborEvent, Father2)
+			ModEvent.Send(laborEvent)
+		endif
 		Manager.RemoveCME(ActorRef,7)
 		Manager.CastCME(ActorRef,8,cfg.PMSEffects)
 		if CurrentStatePercent >=50 && ActorRef.HasSpell(Effect_Presswehen)==false

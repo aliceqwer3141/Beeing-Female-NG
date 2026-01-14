@@ -102,7 +102,7 @@ Beeing Female NG ships an INI-driven add-on framework that lets external mods ex
 
 ### Reading State and Sperm Info
 
-Use StorageUtil to read the current state and inspect stored sperm data.
+Use StorageUtil to read the current state and inspect stored sperm data. Details bellow
 
 ```papyrus
 ; Current state (0..8)
@@ -172,6 +172,11 @@ Beeing Female NG listens for a few mod events you can emit from your own Papyrus
   - `ConceptionChance` (numArg = 1 player, 2 follower, 3 npc): update auto-impregnation flags for the sender based on target group.
 - `AddActorSperm` and `AddSperm` (ModEvent): push two Actor forms (woman first, donor second). Both must be valid actors; adds sperm without using a command string.
 
+Beeing Female NG also emits mod events you can subscribe to:
+
+- `BeeingFemaleConception` (ModEvent): pushed as `Mother` (Form), `ChildCount` (Int), `Father0` (Form), `Father1` (Form), `Father2` (Form). Fathers may be `None` if unknown.
+- `BeeingFemaleLabor` (ModEvent): pushed as `Mother` (Form), `ChildCount` (Int), `Father0` (Form), `Father1` (Form), `Father2` (Form). Fired on labor start and on direct `GiveBirth` calls.
+
 Examples:
 
 ```papyrus
@@ -194,6 +199,45 @@ FemaleActor.SendModEvent("BeeingFemale", "Dispel")
 FemaleActor.SendModEvent("BeeingFemale", "ConceptionChance", 2)
 ```
 
+Event subscription example:
+
+```papyrus
+Event OnInit()
+	RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
+	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
+EndEvent
+
+Event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+	Actor Mother = akMother as Actor
+	Actor Father0 = akFather0 as Actor
+	Actor Father1 = akFather1 as Actor
+	Actor Father2 = akFather2 as Actor
+EndEvent
+
+Event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+	Actor Mother = akMother as Actor
+	Actor Father0 = akFather0 as Actor
+	Actor Father1 = akFather1 as Actor
+	Actor Father2 = akFather2 as Actor
+EndEvent
+```
+
+BeeingFemale ChangeState subscription example:
+
+```papyrus
+Event OnInit()
+	RegisterForModEvent("BeeingFemale", "OnBeeingFemaleCommand")
+EndEvent
+
+Event OnBeeingFemaleCommand(string eventName, string strArg, float numArg, Form sender)
+	if strArg == "ChangeState"
+		Actor woman = sender as Actor
+		int newState = numArg as int
+		; handle state change here
+	endif
+EndEvent
+```
+
 Abortus trigger example (requires a pregnant actor and abortus enabled in config):
 
 ```papyrus
@@ -201,6 +245,54 @@ Abortus trigger example (requires a pregnant actor and abortus enabled in config
 FemaleActor.SendModEvent("BeeingFemale", "DamageBaby", 999)
 FemaleActor.SendModEvent("BeeingFemale", "CheckAbortus")
 ```
+
+### StorageUtil Keys
+
+Beeing Female NG stores most runtime state in StorageUtil values. The most important keys (prefix `FW.`) are:
+
+- `FW.SavedNPCs` (FormList, global): tracked female actors managed by the system.
+- `FW.CurrentState` (Int, per-actor: mother): current cycle state index (0-8).
+- `FW.StateEnterTime` (Float, per-actor: mother): game days timestamp when the current state started.
+- `FW.LastUpdate` (Float, per-actor: mother): last update timestamp for the actor.
+- `FW.Flags` (Int, per-actor: mother): bit flags for cycle options (e.g., can become pregnant/PMS).
+- `FW.NumChilds` (Int, per-actor: mother): number of unborn children.
+- `FW.ChildFather` (FormList, stored on mother): list of fathers (one entry per child, matching `FW.NumChilds`).
+- `FW.UnbornHealth` (Float, per-actor: mother): unborn baby health (0-100).
+- `FW.LastConception` (Float, per-actor: mother): game time of last conception.
+- `FW.Abortus` (Int, per-actor: mother): abortus state flag (0 none, 1 imminent, 2 incipient, 3 incomplete, 4 complete, 5 missed abortion, 6 miscarriage/stillbirth).
+- `FW.AbortusTime` (Float, per-actor: mother): game time when abortus started.
+- `FW.Contraception` (Float, per-actor: mother): current contraception strength (0-100).
+- `FW.ContraceptionTime` (Float, per-actor: mother): game time when contraception last changed.
+- `FW.SpermName` (FormList, per-actor: mother): list of sperm donors (actors).
+- `FW.SpermAmount` (FloatList, per-actor: mother): sperm amounts for each donor.
+- `FW.SpermTime` (FloatList, per-actor: mother): timestamps for each donor entry.
+- `FW.LastSeenNPCs` (FormList, stored on mother): recent nearby NPCs cached for partner selection/impregnation logic.
+- `FW.LastSeenNPCsTime` (FloatList, stored on mother): timestamps aligned with `FW.LastSeenNPCs` entries (same index).
+- `FW.Babys` (FormList, global): active child actor forms tracked by the system.
+- `FW.BornChildFather` (FormList, per-actor: mother): list of fathers for born children.
+- `FW.BornChildTime` (FloatList, per-actor: mother): timestamps for born children.
+- `FW.LastBornChildTime` (Float, per-actor: mother/father): last birth time for a parent.
+
+StorageUtil access examples:
+
+```papyrus
+; Per-actor state
+int state = StorageUtil.GetIntValue(ActorRef, "FW.CurrentState", 0)
+float lastConception = StorageUtil.GetFloatValue(ActorRef, "FW.LastConception", 0.0)
+int numChilds = StorageUtil.GetIntValue(ActorRef, "FW.NumChilds", 0)
+
+; Fathers list
+int fatherCount = StorageUtil.FormListCount(ActorRef, "FW.ChildFather")
+Actor father0 = StorageUtil.FormListGet(ActorRef, "FW.ChildFather", 0) as Actor
+
+; Global tracked actors
+int trackedCount = StorageUtil.FormListCount(none, "FW.SavedNPCs")
+Actor trackedActor = StorageUtil.FormListGet(none, "FW.SavedNPCs", 0) as Actor
+```
+
+Multi-child / multi-father logic: when a pregnancy has multiple children, `FW.NumChilds` stores the count and `FW.ChildFather` stores one father per child (so twins can share a father or have different fathers). Systems that need a single "primary" father typically use index `0`.
+
+Keys under `FW.AddOn.*` are reserved for add-on configuration/overrides and are documented in the add-on INI examples.
 
 
 ### Custom Race Add-ons
@@ -216,5 +308,20 @@ Use a race add-on INI to customize pregnancy/cycle behavior per custom race.
 4) In each `[RaceN]`, set `id=PluginName:FormID` (hex FormID without `0x`; commas allowed).
 5) Edit the per-race settings you need (durations, pain scales, pregnancy chance, etc.).
 6) (Optional) If you need custom baby actors/items, follow `dist/Core/BeeingFemale/AddOn/ChildActor AddOn Example.ini`.
+
+After saving the INI, enable the add-on in the BeeingFemale MCM if it is not enabled by default.
+
+### Custom Actor Add-ons
+
+Use an actor add-on INI to customize pregnancy/cycle behavior for specific actors.
+
+1) Copy `dist/Core/BeeingFemale/AddOn/CustomActor AddOn Example.ini` and rename it.
+2) In `[AddOn]`:
+   - Set `name`, `description`, `author`, and `type=actor`.
+   - Set `required=YourPlugin.esp` (optional but recommended).
+   - Set `enabled=true` if you want it active by default (or enable it in MCM later).
+3) Set `actors=N`, then add `[Actor1]...[ActorN]` sections.
+4) In each `[ActorN]`, set `id=PluginName:FormID` (hex FormID without `0x`; commas allowed).
+5) Edit the per-actor settings you need (durations, pain scales, pregnancy chance, etc.).
 
 After saving the INI, enable the add-on in the BeeingFemale MCM if it is not enabled by default.
