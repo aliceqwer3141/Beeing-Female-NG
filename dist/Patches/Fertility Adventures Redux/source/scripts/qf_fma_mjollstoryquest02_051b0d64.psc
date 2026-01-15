@@ -63,7 +63,7 @@ Function Fragment_0()
 ;Startup phase
 ;Aerin will sit at home for a few days and pout
 RegisterForSingleUpdateGameTime(72)
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -137,8 +137,8 @@ Event OnUpdateGameTime()
 	EndIf
 EndEvent
 
-Event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-	If (Sender as Actor) == Mjoll
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+	If (akMother as Actor) == Mjoll
 		FMA_MjollStoryQuest02.SetStage(20)
 	EndIf
 EndEvent

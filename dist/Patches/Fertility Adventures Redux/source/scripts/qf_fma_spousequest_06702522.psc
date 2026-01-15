@@ -7,7 +7,7 @@ Function Fragment_0()
 ;BEGIN CODE
 ;Quest is started
 
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 RegisterForModEvent("FertilityModeConception", "OnFertilityModeConception")
 ;END CODE
 EndFunction
@@ -22,7 +22,7 @@ endEvent
 
 
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 
 endEvent
 

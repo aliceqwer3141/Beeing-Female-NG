@@ -29,7 +29,7 @@ ReferenceAlias Property PlayerSpouse  Auto
 Function StartPolling()
 	RegisterForSingleUpdateGameTime(24)
 	Debug.Notification("Started polling")
-	RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 EndFunction
 
 Event OnUpdateGameTime()
@@ -91,12 +91,12 @@ EndFunction
 
 
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 
-	AddPayee(Sender as actor)
+	AddPayee(akMother as actor)
 
-	;If ((Sender as Actor).IsInFaction(FMA_PlayerParentFaction) || (Sender as Actor).IsInFaction(FMA_PlayerPregFaction)) && (Sender as Actor).IsInFaction(PlayerMarriedFaction) == 0
-	;	AddPayee(Sender as actor)
+	;If ((akMother as Actor).IsInFaction(FMA_PlayerParentFaction) || (akMother as Actor).IsInFaction(FMA_PlayerPregFaction)) && (akMother as Actor).IsInFaction(PlayerMarriedFaction) == 0
+	;	AddPayee(akMother as actor)
 	;Endif
 endEvent
 

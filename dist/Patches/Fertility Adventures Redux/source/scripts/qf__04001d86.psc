@@ -11,7 +11,7 @@ ReferenceAlias Property Alias_CurrentFather Auto
 Function Fragment_1()
 ;BEGIN CODE
 ;tracked actor has conceived for the first time
-;RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+;RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -80,7 +80,7 @@ EndFunction
 Function Fragment_0()
 ;BEGIN CODE
 ;tracked actor is not pregnant and has never been pregnant
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 RegisterForModEvent("FertilityModeConception", "OnFertilityModeConception")
 ;RegisterForSleep()
 ;END CODE
@@ -102,8 +102,8 @@ Quest Property FMA_FatherFinderQuest  Auto
 Faction Property FMA_AnnouncementBlockerFaction  Auto  
 Faction Property FMA_RecentBirthFaction  Auto  
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-If (Sender as actor) == TrackedActor
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+If (akMother as actor) == TrackedActor
 	(Alias_CurrentFather.GetReference() as actor).AddtoFaction(FMA_PlayerParentFaction)
 	Alias_CurrentFather.Clear()
 EndIf
