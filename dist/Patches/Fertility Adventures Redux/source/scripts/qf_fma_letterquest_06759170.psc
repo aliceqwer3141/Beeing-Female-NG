@@ -57,7 +57,7 @@ Book Property FMA_GenericAnnouncementLetter  Auto
 
 FormList Property FMA_AnnouncementQueueList  Auto  
 
-Faction Property _JSW_SUB_TrackedFemFaction  Auto  
+Faction Property TrackedFemFaction  Auto  
 
 
 Quest Property WICourier  Auto  

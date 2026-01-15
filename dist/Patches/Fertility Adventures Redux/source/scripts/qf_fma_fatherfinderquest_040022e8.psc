@@ -27,19 +27,28 @@ Function Fragment_16()
 ;Quest Started
 
 ;Register for when the player gives birth
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 
 ;Find the father
-int index = Storage.TrackedActors.Find(PlayerRef)
-actor father = Storage.CurrentFatherForm[index] as actor
-Alias_TrueFather.ForceRefTo(Father)
+actor father
+int fatherCount = StorageUtil.FormListCount(PlayerRef, "FW.ChildFather")
+if fatherCount > 0
+	father = StorageUtil.FormListGet(PlayerRef, "FW.ChildFather", 0) as Actor
+endif
 
-If Father.IsDead()
-    Debug.Notification("The father of your child is dead")
-    SetStage(100)
+If (father)
+    Alias_TrueFather.ForceRefTo(father)
+    If Father.IsDead()
+     Debug.Notification("The father of your child is dead")
+     SetStage(100)
+    Else
+     SetObjectiveDisplayed(10)
+    EndIf
 Else
-    SetObjectiveDisplayed(10)
+    Debug.Notification("The father of your child is missing")
+     SetStage(100)
 EndIf
+
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -63,14 +72,12 @@ EndFunction
 ;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-    If (Sender as Actor) == PlayerRef
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+    If (akMother as Actor) == PlayerRef
         FMA_FatherFinderQuest.SetStage(100)
     EndIf
 EndEvent
 
-
-_JSW_BB_Storage Property Storage  Auto
 
 Actor Property PlayerRef  Auto  
 

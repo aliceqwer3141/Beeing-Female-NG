@@ -4,7 +4,7 @@ Quest Property FMA_PlayerTrackingQuest  Auto
 Quest Property FMA_FatherFinderQuest  Auto  
 
 Event OnEffectStart(Actor akTarget, Actor akCaster)
-    If akTarget.GetFactionRank(_JSW_SUB_TrackedFemFaction) <= 0
+    If akTarget.GetFactionRank(TrackedFemFaction) <= 0
         Debug.MessageBox("The liquid leaves a minor burning sensation on your tongue. You are not pregnant.")
     Else
         Debug.MessageBox("The liquid leaves a lingering sweetness on your tongue. You are pregnant.")
@@ -13,4 +13,4 @@ Event OnEffectStart(Actor akTarget, Actor akCaster)
 endEvent
 
 
-Faction Property _JSW_SUB_TrackedFemFaction  Auto  
+Faction Property TrackedFemFaction  Auto  

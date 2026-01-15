@@ -1,8 +1,8 @@
 Scriptname	FMA_HandlerQuestScript	extends	Quest  
 
 
-GlobalVariable	Property	PollingInterval					Auto
-GlobalVariable	Property	PregnancyDuration				Auto
+;GlobalVariable	Property	PollingInterval					Auto
+;GlobalVariable	Property	PregnancyDuration				Auto
 
 Actor			Property	PlayerRef						Auto
 Actor[]			Property	QuestStarters					Auto	Hidden
@@ -38,8 +38,8 @@ event	PlayerLoadedGame()
 
 	RegisterForModEvent("FM_ActorFactionsSet", "FAUpdateCycle")
 
-	RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
-	RegisterForModEvent("FertilityModeConception", "OnFertilityModeConception")
+	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
+	RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
 
 	;RegisterForSingleUpdateGameTime(24)
 endEvent
@@ -59,44 +59,40 @@ endEvent
 
 
 
-event OnFertilityModeConception(string eventName, Form akSender, string motherName, string fatherName, int iTrackingIndex)
+event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 
-	; akSender is the woman in question and can be cast to an Actor object
-	; motherName is the display name of akSender
-	; fatherName is the display name of the current father
-	; iTrackingIndex is the woman's location in the tracking arrays
+	; akMother is the woman in question and can be cast to an Actor object
+	; akFather0..2 are the fathers (if known)
 
-
-	If (fatherName == PlayerRef.GetDisplayName())
-		(akSender as Actor).SetFactionRank(FMA_PlayerPregFaction, 1)
-		FMA_AnnouncementQueueList.AddForm(akSender as Actor)
+	If (akFather0 == PlayerRef) || (akFather1 == PlayerRef) || (akFather2 == PlayerRef)
+		(akMother as Actor).SetFactionRank(FMA_PlayerPregFaction, 1)
+		FMA_AnnouncementQueueList.AddForm(akMother as Actor)
 	EndIf
 
 endEvent  
 
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 
-	;sender is the woman in question and can be cast to an Actor object
-	;actorIndex is the woman's location in the tracking arrays
+	; akMother is the woman in question and can be cast to an Actor object
 
 	;Removal of factions used to control pregnancy related dialogue.
 
 	; subhuman- don't even bother checking if they're in faction first, just do it.   Won't throw errors.
-	If (Sender as Actor).GetFactionRank(FMA_PlayerPregFaction) == 1
-		(Sender as Actor).SetFactionRank(FMA_PlayerParentFaction, 1)
+	If (akMother as Actor).GetFactionRank(FMA_PlayerPregFaction) == 1
+		(akMother as Actor).SetFactionRank(FMA_PlayerParentFaction, 1)
 	Endif
 
-	FMA_AnnouncementQueueList.RemoveAddedForm(Sender as Actor)
+	FMA_AnnouncementQueueList.RemoveAddedForm(akMother as Actor)
 
-	(Sender as Actor).RemovefromFaction(FMA_PlayerPregFaction)
-	(Sender as Actor).RemovefromFaction(FMA_AnnouncementBlockerFaction)
+	(akMother as Actor).RemovefromFaction(FMA_PlayerPregFaction)
+	(akMother as Actor).RemovefromFaction(FMA_AnnouncementBlockerFaction)
 
 
 endEvent
 
 
 
-Faction Property _JSW_SUB_TrackedFemFaction  Auto  
+Faction Property TrackedFemFaction  Auto  
 
 Quest Property FMA_LetterQuest  Auto  

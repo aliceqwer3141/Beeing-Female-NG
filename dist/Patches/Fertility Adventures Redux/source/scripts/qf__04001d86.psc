@@ -118,7 +118,7 @@ EndIf
 endEvent  
 
 Event OnSleepStop(bool abInterrupted)
-    If (FMA_FatherFinderQuest.GetStage() != 100) && (TrackedActor.GetFactionRank(_JSW_SUB_TrackedFemFaction) >= 33)
+    If (FMA_FatherFinderQuest.GetStage() != 100) && (TrackedActor.GetFactionRank(TrackedFemFaction) >= 33)
         Debug.Messagebox("The size of your belly made getting out of bed silghtly awkward today. There's no denying it; you are pregnant. You should find the father.")
         FMA_FatherFinderQuest.SetStage(0)
         UnRegisterForSleep()
@@ -129,7 +129,7 @@ EndEvent
 
 Faction Property FMA_ChildAnnouncementBlockerFaction  Auto  
 
-Faction Property _JSW_SUB_TrackedFemFaction  Auto  
+Faction Property TrackedFemFaction  Auto  
 
 
 Faction Property FMA_PlayerParentFaction  Auto  
