@@ -57,11 +57,20 @@ event	PlayerLoadedGame()
 endEvent
 
 function HandleBeeingFemaleState(Actor mother, int st)
-	Debug.Trace("[FMA] HandleBeeingFemaleState mother=" + mother + " state=" + st)
 	if mother == none
 		return
 	endif
 
+	if st < 0
+		if st == -1
+			st = 8
+		else
+			Debug.Trace("[FMA] HandleBeeingFemaleState invalid state=" + st + " mother=" + mother.GetLeveledActorBase().getName())
+			return
+		endif
+	endif
+
+	Debug.Trace("[FMA] HandleBeeingFemaleState mother=" + mother.GetLeveledActorBase().getName() + " state=" + st)
 	Bool isPregnancyState = (st >= 4) && (st <= 7)
 	if isPregnancyState
 		; Conception/pregnancy handling.
@@ -69,13 +78,14 @@ function HandleBeeingFemaleState(Actor mother, int st)
 		int fatherCount = StorageUtil.FormListCount(mother, "FW.ChildFather")
 		if fatherCount > 0
 			father = StorageUtil.FormListGet(mother, "FW.ChildFather", 0) as Actor
+			Debug.Trace("[FMA] HandleBeeingFemaleState  mother=" + mother.GetLeveledActorBase().getName() + " father: " + father.GetLeveledActorBase().getName()  + " state=" + st)
 		endif
 
 		UpdateBeeingFemaleQuestStage(mother, st)
 		UpdateBeeingFemaleFactions(mother, father)
 	elseIf (st < 4) || (st == 8)
 		; Labor/end handling.
-		Debug.Trace("[FMA] BeeingFemale labor/end mother=" + mother + " state=" + st)
+		Debug.Trace("[FMA] BeeingFemale labor/end mother=" + mother.GetLeveledActorBase().getName() + " state=" + st)
 		mother.RemovefromFaction(FMA_NonPlayerPregFaction)
 		mother.RemovefromFaction(FMA_GenericPregFaction)
 		mother.RemovefromFaction(FMA_AnnouncementBlockerFaction)
@@ -97,7 +107,7 @@ Event	OnUpdateGameTime()
 			float lastConception = StorageUtil.GetFloatValue(tracked, "FW.LastConception", 0.0)
 			if (lastConception > 0.0)
 				int pregnantDay = (today - (lastConception as int))
-				Debug.Trace("[FMA] Update tracked=" + tracked + " lastConception=" + lastConception + " pregnantDay=" + pregnantDay)
+				Debug.Trace("[FMA] Update tracked=" + tracked.GetLeveledActorBase().getName() + " lastConception=" + lastConception + " pregnantDay=" + pregnantDay)
 				if (pregnantDay >= QuestStartThreshold)
 					; The actor is pregnant, check if she's a quest starter
 					int starterIndex = QuestStarters.Find(tracked)
@@ -121,7 +131,7 @@ Event	OnUpdateGameTime()
 		endif
         n += 1
     EndWhile
-    RegisterForSingleUpdateGameTime(6)
+    RegisterForSingleUpdateGameTime(3)
 
 EndEvent
 
@@ -136,7 +146,8 @@ function RegisterForBeeingFemale()
 		return
 	endif
 
-	RegisterForModEvent("BeeingFemale", "OnBeeingFemaleEvent")
+	RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
+	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 	SyncBeeingFemaleQuestStarters()
 endFunction
 
@@ -146,11 +157,14 @@ function SyncBeeingFemaleQuestStarters()
 	endif
 
 	int i = QuestStarters.Length
+	Debug.Trace("[FMA] SyncBeeingFemaleQuestStarters QuestStarters.Length: " + i)
 	while i > 0
 		i -= 1
 		Actor mother = QuestStarters[i]
 		if mother
-			HandleBeeingFemaleState(mother, mother.GetFactionRank(BeeingFemaleParentFaction))
+			Debug.Trace("[FMA] SyncBeeingFemaleQuestStarters mother: " + mother.GetLeveledActorBase().getName())
+			int currentState = StorageUtil.GetIntValue(mother, "FW.CurrentState", -2)
+			HandleBeeingFemaleState(mother, currentState)
 		endif
 	endWhile
 endFunction
@@ -160,7 +174,7 @@ endFunction
 function UpdateBeeingFemaleQuestStage(Actor mother, int st)
 	int starterIndex = QuestStarters.Find(mother)
 	if starterIndex == -1
-		Debug.Trace("[FMA] UpdateBeeingFemaleQuestStage skipped, not a quest starter: " + mother)
+		Debug.Trace("[FMA] UpdateBeeingFemaleQuestStage skipped, not a quest starter: " + mother.GetLeveledActorBase().getName())
 		return
 	endif
 
@@ -204,29 +218,44 @@ endFunction
 function UpdateBeeingFemaleFactions(Actor mother, Actor father)
 	int starterIndex = QuestStarters.Find(mother)
 	if starterIndex == -1
+		Debug.Trace("[FMA] AddtoFaction(FMA_GenericPregFaction):" + mother.GetLeveledActorBase().GetName())
 		mother.AddtoFaction(FMA_GenericPregFaction)
 	endIf
 
-	if (father != PlayerRef) && (mother != PlayerRef)
+	if (father && father != PlayerRef) && (mother && mother != PlayerRef)
+		Debug.Trace("[FMA] AddtoFaction(FMA_NonPlayerPregFaction):" + mother.GetLeveledActorBase().GetName())
 		mother.AddtoFaction(FMA_NonPlayerPregFaction)
 	endIf
 endFunction
 
-event OnBeeingFemaleEvent(string eventName, string argString, float argNum, form sender)
+event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 	if !BeeingFemaleActive || BeeingFemaleParentFaction == none
 		return
 	endif
-	if argString != "stateChanged"
-		return
-	endif
 
-	Actor mother = Game.GetForm(argNum as int) as Actor
+	Actor mother = akMother as Actor
 	if mother == none
 		return
 	endif
 
-	Debug.Trace("[FMA] BeeingFemale event stateChanged mother=" + mother + " state=" + mother.GetFactionRank(BeeingFemaleParentFaction))
-	HandleBeeingFemaleState(mother, mother.GetFactionRank(BeeingFemaleParentFaction))
+	int currentState = StorageUtil.GetIntValue(mother, "FW.CurrentState", -2)
+	Debug.Trace("[FMA] BeeingFemaleConception mother=" + mother.GetLeveledActorBase().getName() + " state=" + currentState)
+	HandleBeeingFemaleState(mother, currentState)
+endEvent
+
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+	if !BeeingFemaleActive || BeeingFemaleParentFaction == none
+		return
+	endif
+
+	Actor mother = akMother as Actor
+	if mother == none
+		return
+	endif
+
+	int currentState = StorageUtil.GetIntValue(mother, "FW.CurrentState", -2)
+	Debug.Trace("[FMA] BeeingFemaleLabor mother=" + mother.GetLeveledActorBase().getName() + " state=" + currentState)
+	HandleBeeingFemaleState(mother, currentState)
 endEvent
 
 FWSystem function GetBeeingFemaleSystem()
