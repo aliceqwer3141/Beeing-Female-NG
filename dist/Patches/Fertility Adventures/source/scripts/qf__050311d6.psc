@@ -6,7 +6,7 @@ Scriptname QF__050311D6 Extends Quest Hidden
 Function Fragment_1()
 ;BEGIN CODE
 ;tracked actor has conceived and is now pregnant
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -94,8 +94,8 @@ Faction Property FMA_AnnouncementBlockerFaction  Auto
 Faction Property FMA_RecentBirthFaction  Auto  
 Faction Property FMA_PlayerParentFaction  Auto  
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-    If (Sender as Actor) == TrackedActor
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+    If (akMother as Actor) == TrackedActor
 
         TrackedActor.AddToFaction(FMA_RecentBirthFaction)
         If TrackedActor.IsInFaction(FMA_AnnouncementBlockerFaction)

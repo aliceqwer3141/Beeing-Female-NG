@@ -27,7 +27,7 @@ EndFunction
 Function Fragment_3()
 ;BEGIN CODE
 ;Player is currently pregnant with the NPCs child
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -63,8 +63,8 @@ Actor Property TrackedFather  Auto
 Faction Property FMA_AnnouncementBlockerFaction  Auto  
 Actor Property PlayerRef  Auto  
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-    If (Sender as Actor) == PlayerRef
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+    If (akMother as Actor) == PlayerRef
         Reset()
         SetStage(0)
     Endif

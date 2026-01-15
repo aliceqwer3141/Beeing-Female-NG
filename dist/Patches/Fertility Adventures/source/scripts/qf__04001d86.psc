@@ -44,7 +44,7 @@ EndFunction
 Function Fragment_1()
 ;BEGIN CODE
 ;tracked actor has conceived for the first time
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -99,8 +99,8 @@ Quest Property FMA_FatherFinderQuest  Auto
 Faction Property FMA_AnnouncementBlockerFaction  Auto  
 Faction Property FMA_RecentBirthFaction  Auto  
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-    If (Sender as Actor) == TrackedActor
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+    If (akMother as Actor) == TrackedActor
 
         TrackedActor.AddToFaction(FMA_RecentBirthFaction)
         TrackedActor.RemoveFromFaction(FMA_ChildAnnouncementBlockerFaction)

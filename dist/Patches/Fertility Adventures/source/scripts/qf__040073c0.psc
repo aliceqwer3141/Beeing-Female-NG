@@ -14,7 +14,7 @@ EndFunction
 Function Fragment_1()
 ;BEGIN CODE
 ;tracked actor has conceived for the first time
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -160,7 +160,7 @@ EndFunction
 Function Fragment_11()
 ;BEGIN CODE
 ;tracked actor has conceived again
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -177,8 +177,8 @@ EndFunction
 
 Actor Property trackedActor  Auto  
 
-event OnFertilityModeLabor(string eventName, Form sender, int actorIndex)
-    If (Sender as Actor) == TrackedActor
+event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+    If (akMother as Actor) == TrackedActor
         SetStage(100)
         TrackedActor.AddToFaction(FMA_RecentBirthFaction)
     Endif

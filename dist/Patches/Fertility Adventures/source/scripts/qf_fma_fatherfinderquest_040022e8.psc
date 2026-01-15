@@ -13,7 +13,7 @@ EndFunction
 ;BEGIN FRAGMENT Fragment_4
 Function Fragment_4()
 ;BEGIN CODE
-RegisterForModEvent("FertilityModeLabor", "OnFertilityModeLabor")
+RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 
 ; begin code changed/added by subhuman
 Actor father
