@@ -29,7 +29,7 @@
                         </plugin> 
                     </plugins> 
                 </group>
-                <group name="SPID" type="SelectAny"> 
+                <group name="Patches" type="SelectAny"> 
                     <plugins order="Explicit"> 
                         <plugin name="SPID item distribution"> 
                             <description>Use SPID item distribution list for BeeingFemale objects. Recommended.</description>
@@ -41,10 +41,6 @@
                                 <type name="Optional"/> 
                             </typeDescriptor> 
                         </plugin>
-                    </plugins> 
-                </group>
-                <group name="Patches" type="SelectAny"> 
-                    <plugins order="Explicit"> 
                         <plugin name="P.A.I.A Expansion (Pregnancy and Inflation animations)"> 
                             <description>Patches P.A.I.A Expansion to support BeeingFemale factions</description>
                             <image path="Fomod_resources\fw.jpg" />
@@ -55,8 +51,32 @@
                                 <type name="Optional"/> 
                             </typeDescriptor> 
                         </plugin>
+                    </plugins> 
+                </group>
+                <group name="Fertility Adventures" type="SelectAtMostOne"> 
+                    <plugins order="Explicit">
+                        <plugin name="Fertility Adventures Redux"> 
+                            <description>Patches Fertility Adventures Redux for BeeingFemale NG. Recommended.</description>
+                            <image path="Fomod_resources\fw.jpg" />
+                            <files> 
+                                <folder source="Patches\Fertility Adventures Redux" destination="" priority="0" /> 
+                            </files>
+                            <typeDescriptor> 
+								<dependencyType> 
+									<defaultType name="Optional"/> 
+									<patterns> 
+										<pattern> 
+											<dependencies operator="Or">
+												<fileDependency file="Fertility Adventures.esp" state="Active"/>
+											</dependencies>
+											<type name="Optional"/>
+										</pattern> 
+									</patterns> 
+								</dependencyType> 
+							</typeDescriptor>  
+                        </plugin>
                          <plugin name="Fertility Adventures"> 
-                            <description>Patches Fertility Adventures BeeingFemale</description>
+                            <description>Patches Fertility Adventures for BeeingFemale NG</description>
                             <image path="Fomod_resources\fw.jpg" />
                             <files> 
                                 <folder source="Patches\Fertility Adventures" destination="" priority="0" /> 
