@@ -81,7 +81,7 @@ Function Fragment_0()
 ;BEGIN CODE
 ;tracked actor is not pregnant and has never been pregnant
 RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
-RegisterForModEvent("FertilityModeConception", "OnFertilityModeConception")
+RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
 ;RegisterForSleep()
 ;END CODE
 EndFunction
@@ -110,8 +110,8 @@ EndIf
 
 endEvent
 
-event OnFertilityModeConception(string eventName, Form akSender, string motherName, string fatherName, int iTrackingIndex)
-If (akSender as actor) == TrackedActor
+event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
+If (akMother as actor) == TrackedActor
 	RegisterForSleep()
 EndIf
 

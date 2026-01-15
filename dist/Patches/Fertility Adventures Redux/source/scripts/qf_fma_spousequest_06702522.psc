@@ -8,7 +8,7 @@ Function Fragment_0()
 ;Quest is started
 
 RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
-RegisterForModEvent("FertilityModeConception", "OnFertilityModeConception")
+RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
 ;END CODE
 EndFunction
 ;END FRAGMENT
@@ -16,7 +16,7 @@ EndFunction
 ;END FRAGMENT CODE - Do not edit anything between this and the begin comment
 
 
-event OnFertilityModeConception(string eventName, Form akSender, string motherName, string fatherName, int iTrackingIndex)
+event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, Form akFather1, Form akFather2)
 
 endEvent  
 
