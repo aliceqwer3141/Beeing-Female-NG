@@ -1358,10 +1358,16 @@ Function UpdateWeight(Float afAddedWeight)
 EndFunction
 
 Function ResetBelly()
-	if cfg.VisualScaling == 5
+	int visualScaling = cfg.VisualScaling
+	bool hasSLIF = Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+	if visualScaling == 4 && !hasSLIF
+		visualScaling = 5
+	endif
+
+	if visualScaling == 5
 		ClearBodyMorphs()
-	elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-		if cfg.VisualScaling == 4 ; SLIF
+	elseif hasSLIF
+		if visualScaling == 4 ; SLIF
 			FillHerUpUpdateNotes(0, 0)
 		else
 			UpdateNodesSLIF(0, 0)
@@ -1382,24 +1388,30 @@ Function ResetBelly()
 EndFunction
 
 function TestScale(float Scale=1.0)
-	if cfg.VisualScaling == 5
+	int visualScaling = cfg.VisualScaling
+	bool hasSLIF = Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+	if visualScaling == 4 && !hasSLIF
+		visualScaling = 5
+	endif
+
+	if visualScaling == 5
 		UpdateBodyMorphs(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
-	elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-		if cfg.VisualScaling == 4 ; SLIF
+	elseif hasSLIF
+		if visualScaling == 4 ; SLIF
 			FillHerUpUpdateNotes(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		else
 			UpdateNodesSLIF(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		endIf
-	Elseif cfg.VisualScaling > 0
-		if cfg.VisualScaling < 3
-			If cfg.VisualScaling == 1
+	Elseif visualScaling > 0
+		if visualScaling < 3
+			If visualScaling == 1
 				if lastTypeOfScaling == 2
 					UpdateNodes2(0, 0)
 				elseif lastTypeOfScaling == 3
 					UpdateWeight(0.0)
 				endif
 				UpdateNodes(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
-			Else;If cfg.VisualScaling == 2
+			Else;If visualScaling == 2
 				if lastTypeOfScaling == 1
 					UpdateNodes(0, 0)
 				elseif lastTypeOfScaling == 3
@@ -1407,7 +1419,7 @@ function TestScale(float Scale=1.0)
 				endif
 				UpdateNodes2(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			endIf
-		Else;If cfg.VisualScaling == 3
+		Else;If visualScaling == 3
 			if lastTypeOfScaling == 1
 				UpdateNodes(0, 0)
 			elseif lastTypeOfScaling == 2
@@ -1433,7 +1445,13 @@ Function SetBelly(bool bForce=false)
 		endif
 	endif
 
-	If (cfg.VisualScaling > 0)
+	int visualScaling = cfg.VisualScaling
+	bool hasSLIF = Game.IsPluginInstalled("SexLab Inflation Framework.esp")
+	if visualScaling == 4 && !hasSLIF
+		visualScaling = 5
+	endif
+
+	If (visualScaling > 0)
 		Int stateID = currentState
 		
 		float ScaleBelly = 0.0
@@ -1605,26 +1623,26 @@ Function SetBelly(bool bForce=false)
 		
 		; Race specific scaling
 		
-		if cfg.VisualScaling == 5
+		if visualScaling == 5
 			UpdateBodyMorphs(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
-		elseif Game.IsPluginInstalled("SexLab Inflation Framework.esp")
-			if cfg.VisualScaling == 4 ; SLIF
+		elseif hasSLIF
+			if visualScaling == 4 ; SLIF
 				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current belly scale is " + ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current breast scale is " + ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				FillHerUpUpdateNotes(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			else
 				UpdateNodesSLIF(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			endIf
-		elseif cfg.VisualScaling > 0
-			if cfg.VisualScaling < 3
-				If cfg.VisualScaling == 1
+		elseif visualScaling > 0
+			if visualScaling < 3
+				If visualScaling == 1
 					if lastTypeOfScaling == 2
 						UpdateNodes2(0, 0)
 					elseif lastTypeOfScaling == 3
 						UpdateWeight(0.0)
 					endif
 					UpdateNodes(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
-				Else;If cfg.VisualScaling == 2
+				Else;If visualScaling == 2
 					if lastTypeOfScaling == 1
 						UpdateNodes(0, 0)
 					elseif lastTypeOfScaling == 3
@@ -1632,7 +1650,7 @@ Function SetBelly(bool bForce=false)
 					endif
 					UpdateNodes2(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 				endIf
-			Else;If cfg.VisualScaling == 3
+			Else;If visualScaling == 3
 				if lastTypeOfScaling == 1
 					UpdateNodes(0, 0)
 				elseif lastTypeOfScaling == 2
@@ -1644,7 +1662,7 @@ Function SetBelly(bool bForce=false)
 			EndIf
 		endIf
 		
-		lastTypeOfScaling = cfg.VisualScaling
+		lastTypeOfScaling = visualScaling
 	Else;if lastTypeOfScaling != System.cfg.VisualScaling
 		if lastTypeOfScaling == cfg.VisualScaling ;Tkc (Loverslab): optimization
 		else;if lastTypeOfScaling != System.cfg.VisualScaling
