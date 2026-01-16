@@ -23,7 +23,7 @@ Spell			Property	FMA_UpdateSpell					Auto	; subhuman- new spell, when added to p
 FormList Property FMA_AnnouncementQueueList  Auto  
 
 FWSystem		BeeingFemaleSystem
-Float			Property	TrackedUpdateIntervalHours = 6.0	Auto	Hidden
+Float			Property	TrackedUpdateIntervalHours = 3.0	Auto	Hidden
 
 
 
@@ -42,6 +42,7 @@ event	PlayerLoadedGame()
 
 	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 	RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
+	RegisterForModEvent("BeeingFemale", "OnBeeingFemaleStateChange")
 
 	RegisterForSingleUpdateGameTime(TrackedUpdateIntervalHours)
 endEvent
@@ -189,6 +190,16 @@ event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form 
 endEvent
 
 
+
+event OnBeeingFemaleStateChange(string eventName, string strArg, float numArg, Form sender)
+	Actor target = sender as Actor
+	if target
+		int stateId = numArg as int
+		if (stateId == 4) || (stateId == 5) || (stateId == 6) || (stateId == 8) || (stateId == 20)
+			UpdateTrackedFemaleRank(target)
+		endif
+	endif
+endEvent
 
 Faction Property TrackedFemFaction  Auto  
 
