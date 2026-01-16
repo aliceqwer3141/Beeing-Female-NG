@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<SliderSetInfo version="1">
+    <SliderSet name="Sanitary napkin 3BA">
+        <DataFolder>Sanitary napkin 3BA</DataFolder>
+        <SourceFile>Sanitary napkin 3BA.nif</SourceFile>
+        <OutputPath>meshes\BeeingFemale</OutputPath>
+        <OutputFile GenWeights="true" PreventMorphFile="false" KeepZappedShapes="false">Panty</OutputFile>
+        <Shape target="Panty">Panty</Shape>
+        <Slider name="AppleCheeks" invert="false" small="0" big="0">
+            <Data name="PantyAppleCheeks" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyAppleCheeks</Data>
+        </Slider>
+        <Slider name="Back" invert="false" small="0" big="0">
+            <Data name="PantyBack" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBack</Data>
+        </Slider>
+        <Slider name="BackArch" invert="false" small="0" big="0">
+            <Data name="PantyBackArch" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBackArch</Data>
+        </Slider>
+        <Slider name="Belly" invert="false" small="0" big="0">
+            <Data name="PantyBelly" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBelly</Data>
+        </Slider>
+        <Slider name="BellyUnder_v2" invert="false" small="0" big="0">
+            <Data name="PantyBellyUnder_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBellyUnder_v2</Data>
+        </Slider>
+        <Slider name="BigBelly" invert="false" small="0" big="0">
+            <Data name="PantyBigBelly" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBigBelly</Data>
+        </Slider>
+        <Slider name="BigButt" invert="false" small="0" big="0">
+            <Data name="PantyBigButt" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBigButt</Data>
+        </Slider>
+        <Slider name="BigTorso" invert="false" small="0" big="0">
+            <Data name="PantyBigTorso" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBigTorso</Data>
+        </Slider>
+        <Slider name="BreastsSmall" invert="false" small="0" big="0">
+            <Data name="PantyBreastsSmall" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBreastsSmall</Data>
+        </Slider>
+        <Slider name="BreastsSmall2" invert="false" small="0" big="0">
+            <Data name="PantyBreastsSmall2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyBreastsSmall2</Data>
+        </Slider>
+        <Slider name="Butt" invert="false" small="0" big="0">
+            <Data name="PantyButt" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButt</Data>
+        </Slider>
+        <Slider name="ButtSaggy_v2" invert="false" small="0" big="0">
+            <Data name="PantyButtSaggy_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtSaggy_v2</Data>
+        </Slider>
+        <Slider name="ButtClassic" invert="false" small="0" big="0">
+            <Data name="PantyButtClassic" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtClassic</Data>
+        </Slider>
+        <Slider name="ButtCrack" invert="false" small="0" big="0">
+            <Data name="PantyButtCrack" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtCrack</Data>
+        </Slider>
+        <Slider name="ButtShape2" invert="false" small="0" big="0">
+            <Data name="PantyButtShape2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtShape2</Data>
+        </Slider>
+        <Slider name="ButtSmall" invert="false" small="0" big="0">
+            <Data name="PantyButtSmall" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtSmall</Data>
+        </Slider>
+        <Slider name="ButtUnderFold" invert="false" small="0" big="0">
+            <Data name="PantyButtUnderFold" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtUnderFold</Data>
+        </Slider>
+        <Slider name="ButtPressed_v2" invert="false" small="0" big="0">
+            <Data name="PantyButtPressed_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtPressed_v2</Data>
+        </Slider>
+        <Slider name="ButtNarrow_v2" invert="false" small="0" big="0">
+            <Data name="PantyButtNarrow_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyButtNarrow_v2</Data>
+        </Slider>
+        <Slider name="ChestDepth" invert="false" small="0" big="0">
+            <Data name="PantyChestDepth" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyChestDepth</Data>
+        </Slider>
+        <Slider name="ChubbyButt" invert="false" small="0" big="0">
+            <Data name="PantyChubbyButt" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyChubbyButt</Data>
+        </Slider>
+        <Slider name="ChubbyLegs" invert="false" small="0" big="0">
+            <Data name="PantyChubbyLegs" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyChubbyLegs</Data>
+        </Slider>
+        <Slider name="ChubbyWaist" invert="false" small="0" big="0">
+            <Data name="PantyChubbyWaist" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyChubbyWaist</Data>
+        </Slider>
+        <Slider name="CrotchBack" invert="false" small="0" big="0">
+            <Data name="PantyCrotchBack" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyCrotchBack</Data>
+        </Slider>
+        <Slider name="Groin" invert="false" small="0" big="0">
+            <Data name="PantyGroin" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyGroin</Data>
+        </Slider>
+        <Slider name="HipBone" invert="false" small="0" big="0">
+            <Data name="PantyHipBone" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHipBone</Data>
+        </Slider>
+        <Slider name="HipForward" invert="false" small="0" big="0">
+            <Data name="PantyHipForward" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHipForward</Data>
+        </Slider>
+        <Slider name="Hips" invert="false" small="0" big="0">
+            <Data name="PantyHips" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHips</Data>
+        </Slider>
+        <Slider name="HipUpperWidth" invert="false" small="0" big="0">
+            <Data name="PantyHipUpperWidth" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHipUpperWidth</Data>
+        </Slider>
+        <Slider name="HipCarved" invert="false" small="0" big="0">
+            <Data name="PantyHipCarved" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHipCarved</Data>
+        </Slider>
+        <Slider name="HipNarrow_v2" invert="false" small="0" big="0">
+            <Data name="PantyHipNarrow_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyHipNarrow_v2</Data>
+        </Slider>
+        <Slider name="LegsThin" invert="false" small="0" big="0">
+            <Data name="PantyLegsThin" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLegsThin</Data>
+        </Slider>
+        <Slider name="MuscleAbs" invert="false" small="0" big="0">
+            <Data name="PantyMuscleAbs" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyMuscleAbs</Data>
+        </Slider>
+        <Slider name="MuscleButt" invert="false" small="0" big="0">
+            <Data name="PantyMuscleButt" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyMuscleButt</Data>
+        </Slider>
+        <Slider name="MuscleLegs" invert="false" small="0" big="0">
+            <Data name="PantyMuscleLegs" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyMuscleLegs</Data>
+        </Slider>
+        <Slider name="MuscleMoreAbs_v2" invert="false" small="0" big="0">
+            <Data name="PantyMuscleMoreAbs_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyMuscleMoreAbs_v2</Data>
+        </Slider>
+        <Slider name="MuscleMoreLegs_v2" invert="false" small="0" big="0">
+            <Data name="PantyMuscleMoreLegs_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyMuscleMoreLegs_v2</Data>
+        </Slider>
+        <Slider name="PregnancyBelly" invert="false" small="0" big="0">
+            <Data name="PantyPregnancyBelly" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyPregnancyBelly</Data>
+        </Slider>
+        <Slider name="RoundAss" invert="false" small="0" big="0">
+            <Data name="PantyRoundAss" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyRoundAss</Data>
+        </Slider>
+        <Slider name="SlimThighs" invert="false" small="0" big="0">
+            <Data name="PantySlimThighs" target="Panty" local="true">Sanitary napkin 3BA.osd\PantySlimThighs</Data>
+        </Slider>
+        <Slider name="Thighs" invert="false" small="0" big="0">
+            <Data name="PantyThighs" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyThighs</Data>
+        </Slider>
+        <Slider name="ThighOutsideThicc_v2" invert="false" small="0" big="0">
+            <Data name="PantyThighOutsideThicc_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyThighOutsideThicc_v2</Data>
+        </Slider>
+        <Slider name="ThighInsideThicc_v2" invert="false" small="0" big="0">
+            <Data name="PantyThighInsideThicc_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyThighInsideThicc_v2</Data>
+        </Slider>
+        <Slider name="ThighFBThicc_v2" invert="false" small="0" big="0">
+            <Data name="PantyThighFBThicc_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyThighFBThicc_v2</Data>
+        </Slider>
+        <Slider name="LegSpread_v2" invert="false" small="0" big="0">
+            <Data name="PantyLegSpread_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLegSpread_v2</Data>
+        </Slider>
+        <Slider name="TummyTuck" invert="false" small="0" big="0">
+            <Data name="PantyTummyTuck" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyTummyTuck</Data>
+        </Slider>
+        <Slider name="UNPHip_v2" invert="false" small="0" big="0">
+            <Data name="PantyUNPHip_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyUNPHip_v2</Data>
+        </Slider>
+        <Slider name="Waist" invert="false" small="0" big="0">
+            <Data name="PantyWaist" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyWaist</Data>
+        </Slider>
+        <Slider name="WaistHeight" invert="false" small="0" big="0">
+            <Data name="PantyWaistHeight" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyWaistHeight</Data>
+        </Slider>
+        <Slider name="WideWaistLine" invert="false" small="0" big="0">
+            <Data name="PantyWideWaistLine" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyWideWaistLine</Data>
+        </Slider>
+        <Slider name="7BLeg_v2" invert="false" small="0" big="0">
+            <Data name="Panty7BLeg_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\Panty7BLeg_v2</Data>
+        </Slider>
+        <Slider name="7B Lower" invert="false" small="0" big="0">
+            <Data name="Panty7B Lower" target="Panty" local="true">Sanitary napkin 3BA.osd\Panty7B Lower</Data>
+        </Slider>
+        <Slider name="VanillaSSEHi" invert="false" small="0" big="0">
+            <Data name="PantyVanillaSSEHi" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyVanillaSSEHi</Data>
+        </Slider>
+        <Slider name="VanillaSSELo" invert="false" small="0" big="0">
+            <Data name="PantyVanillaSSELo" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyVanillaSSELo</Data>
+        </Slider>
+        <Slider name="OldBaseShape" invert="false" small="0" big="0">
+            <Data name="PantyOldBaseShape" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyOldBaseShape</Data>
+        </Slider>
+        <Slider name="Innieoutie" invert="false" small="0" big="0">
+            <Data name="PantyInnieoutie" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyInnieoutie</Data>
+        </Slider>
+        <Slider name="LabiaTightUp" invert="false" small="0" big="0">
+            <Data name="PantyLabiaTightUp" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaTightUp</Data>
+        </Slider>
+        <Slider name="Labiapuffyness" invert="false" small="0" big="0">
+            <Data name="PantyLabiapuffyness" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiapuffyness</Data>
+        </Slider>
+        <Slider name="LabiaMorePuffyness_v2" invert="false" small="0" big="0">
+            <Data name="PantyLabiaMorePuffyness_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaMorePuffyness_v2</Data>
+        </Slider>
+        <Slider name="Labiaprotrude2" invert="false" small="0" big="0">
+            <Data name="PantyLabiaprotrude2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaprotrude2</Data>
+        </Slider>
+        <Slider name="Labiaspread" invert="false" small="0" big="0">
+            <Data name="PantyLabiaspread" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaspread</Data>
+        </Slider>
+        <Slider name="LabiaCrumpled_v2" invert="false" small="0" big="0">
+            <Data name="PantyLabiaCrumpled_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaCrumpled_v2</Data>
+        </Slider>
+        <Slider name="LabiaNeat_v2" invert="false" small="0" big="0">
+            <Data name="PantyLabiaNeat_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaNeat_v2</Data>
+        </Slider>
+        <Slider name="LabiaBulgogi_v2" invert="false" small="0" big="0">
+            <Data name="PantyLabiaBulgogi_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyLabiaBulgogi_v2</Data>
+        </Slider>
+        <Slider name="VaginaHole" invert="false" small="0" big="0">
+            <Data name="PantyVaginaHole" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyVaginaHole</Data>
+        </Slider>
+        <Slider name="Cutepuffyness" invert="false" small="0" big="0">
+            <Data name="PantyCutepuffyness" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyCutepuffyness</Data>
+        </Slider>
+        <Slider name="CBPC" invert="false" small="0" big="0">
+            <Data name="PantyCBPC" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyCBPC</Data>
+        </Slider>
+        <Slider name="CrotchGap" invert="false" small="0" big="0">
+            <Data name="PantyCrotchGap" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyCrotchGap</Data>
+        </Slider>
+        <Slider name="AnalLoose_v2" invert="false" small="0" big="0">
+            <Data name="PantyAnalLoose_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyAnalLoose_v2</Data>
+        </Slider>
+        <Slider name="AnalPosition_v2" invert="false" small="0" big="0">
+            <Data name="PantyAnalPosition_v2" target="Panty" local="true">Sanitary napkin 3BA.osd\PantyAnalPosition_v2</Data>
+        </Slider>
+    </SliderSet>
+</SliderSetInfo>
