@@ -1,4 +1,5 @@
 Scriptname	FMA_HandlerQuestScript	extends	Quest  
+import StorageUtil
 
 
 ;GlobalVariable	Property	PollingInterval					Auto
@@ -21,6 +22,9 @@ Quest[]			Property	Quests							Auto	Hidden	; the CK won't try to autofill hidde
 Spell			Property	FMA_UpdateSpell					Auto	; subhuman- new spell, when added to player forces your arrays to update
 FormList Property FMA_AnnouncementQueueList  Auto  
 
+FWSystem		BeeingFemaleSystem
+Float			Property	TrackedUpdateIntervalHours = 6.0	Auto	Hidden
+
 
 
 event	GoForInit()
@@ -36,12 +40,10 @@ event	PlayerLoadedGame()
 	UnregisterForAllModEvents()	;	probably unnecessary, but since we're going to reregister it doesn't hurt to make sure
 								;	nothing is accidentally carried over
 
-	RegisterForModEvent("FM_ActorFactionsSet", "FAUpdateCycle")
-
 	RegisterForModEvent("BeeingFemaleLabor", "OnBeeingFemaleLabor")
 	RegisterForModEvent("BeeingFemaleConception", "OnBeeingFemaleConception")
 
-	;RegisterForSingleUpdateGameTime(24)
+	RegisterForSingleUpdateGameTime(TrackedUpdateIntervalHours)
 endEvent
 
 
@@ -54,6 +56,99 @@ endEvent
 	;RegisterForSingleUpdateGameTime(24)
 ;EndEvent
 
+
+Event OnUpdateGameTime()
+	UpdateTrackedFemaleFactions()
+	RegisterForSingleUpdateGameTime(TrackedUpdateIntervalHours)
+EndEvent
+
+function UpdateTrackedFemaleFactions()
+	int trackedCount = StorageUtil.FormListCount(none, "FW.SavedNPCs")
+	int i = 0
+	while i < trackedCount
+		Actor mother = StorageUtil.FormListGet(none, "FW.SavedNPCs", i) as Actor
+		if mother && !mother.IsDead()
+			UpdateTrackedFemaleRank(mother)
+		endif
+		i += 1
+	endWhile
+endFunction
+
+function UpdateTrackedFemaleRank(Actor mother)
+	if mother == none
+		return
+	endif
+
+	int stateId = StorageUtil.GetIntValue(mother, "FW.CurrentState", -1)
+	if stateId == -1
+		mother.RemovefromFaction(TrackedFemFaction)
+		return
+	endif
+
+	; State IDs: 0 pre-ovulation, 1 ovulation, 2 luteal, 3 menstruation,
+	; 4/5/6 trimesters, 7 ovulation blocked, 8 recovery, 20 full-term pregnancy.
+	; Rank formulas:
+	; - Pregnancy (4/5/6/20): ((now - LastConception) / PregnancyDuration) * 100, clamped 0..127
+	; - Recovery (8): rank = -85 - recoveryProgress, where recoveryProgress is 0..36
+	; - Cycle (0/1/2/3/7): rank = (stateId * -10) - 5
+	int rank = 0
+	float now = Utility.GetCurrentGameTime()
+
+	if (stateId == 4) || (stateId == 5) || (stateId == 6) || (stateId == 20)
+		float lastConception = StorageUtil.GetFloatValue(mother, "FW.LastConception", 0.0)
+		float duration = GetBeeingFemalePregnancyDuration(mother)
+		if duration <= 0.0
+			duration = 1.0
+		endif
+		int pct = (((now - lastConception) / duration) * 100.0) as int
+		if pct < 0
+			pct = 0
+		endif
+		if pct > 127
+			pct = 127
+		endif
+		rank = pct
+	elseIf stateId == 8
+		float stateEnter = StorageUtil.GetFloatValue(mother, "FW.StateEnterTime", 0.0)
+		float duration = GetBeeingFemaleStateDuration(8, mother)
+		if duration <= 0.0
+			duration = 1.0
+		endif
+		int recoveryProgress = (((now - stateEnter) / duration) * 36.0) as int
+		if recoveryProgress < 0
+			recoveryProgress = 0
+		endif
+		if recoveryProgress > 36
+			recoveryProgress = 36
+		endif
+		rank = -85 - recoveryProgress
+	elseIf (stateId == 0) || (stateId == 1) || (stateId == 2) || (stateId == 3) || (stateId == 7)
+		rank = (stateId * -10) - 5
+	else
+		rank = 0
+	endif
+
+	mother.SetFactionRank(TrackedFemFaction, rank)
+endFunction
+
+float function GetBeeingFemaleStateDuration(int stateId, Actor mother)
+	FWSystem sys = GetBeeingFemaleSystem()
+	if sys == none
+		return 0.0
+	endif
+	return sys.getStateDuration(stateId, mother)
+endFunction
+
+float function GetBeeingFemalePregnancyDuration(Actor mother)
+	return GetBeeingFemaleStateDuration(4, mother) + GetBeeingFemaleStateDuration(5, mother) + GetBeeingFemaleStateDuration(6, mother)
+endFunction
+
+FWSystem function GetBeeingFemaleSystem()
+	if BeeingFemaleSystem == none
+		BeeingFemaleSystem = Game.GetFormFromFile(0x04000D62, "BeeingFemale.esm") as FWSystem
+	endif
+	return BeeingFemaleSystem
+endFunction
 
 
 
@@ -69,6 +164,7 @@ event OnBeeingFemaleConception(Form akMother, int aiChildCount, Form akFather0, 
 		FMA_AnnouncementQueueList.AddForm(akMother as Actor)
 	EndIf
 
+	UpdateTrackedFemaleRank(akMother as Actor)
 endEvent  
 
 
@@ -88,6 +184,7 @@ event OnBeeingFemaleLabor(Form akMother, int aiChildCount, Form akFather0, Form 
 	(akMother as Actor).RemovefromFaction(FMA_PlayerPregFaction)
 	(akMother as Actor).RemovefromFaction(FMA_AnnouncementBlockerFaction)
 
+	UpdateTrackedFemaleRank(akMother as Actor)
 
 endEvent
 

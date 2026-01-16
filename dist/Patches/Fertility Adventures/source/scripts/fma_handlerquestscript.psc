@@ -103,7 +103,7 @@ Event	OnUpdateGameTime()
 	Debug.Trace("[FMA] OnUpdateGameTime today=" + today + " trackedCount=" + trackedCount)
     while (n < trackedCount)
 		Actor tracked = StorageUtil.FormListGet(none, "FW.SavedNPCs", n) as Actor
-		if tracked && !tracked.IsDead() && tracked.Is3DLoaded()
+		if tracked && !tracked.IsDead()
 			float lastConception = StorageUtil.GetFloatValue(tracked, "FW.LastConception", 0.0)
 			if (lastConception > 0.0)
 				int pregnantDay = (today - (lastConception as int))
