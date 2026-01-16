@@ -1195,12 +1195,20 @@ EndFunction
 
 Function UpdateNodesSLIF(Float afAddedBellySize, Float afAddedBreastSize)
 	If cfg.BellyScale;/==true/;
+		if afAddedBellySize > 0.001
 		SLIF_inflate(ActorRef, "slif_belly", afAddedBellySize + 1)
+		else
+			SLIF_unregisterNode(ActorRef, "slif_belly")
+		endif
 	Else
 		SLIF_unregisterNode(ActorRef, "slif_belly")
 	EndIf
 	If cfg.BreastScale;/==true/;
+		if afAddedBreastSize > 0.001
 		SLIF_inflate(ActorRef, "slif_breast", afAddedBreastSize + 1)
+		else
+			SLIF_unregisterNode(ActorRef, "slif_breast")
+		endif
 	Else
 		SLIF_unregisterNode(ActorRef, "slif_breast")
 	EndIf
