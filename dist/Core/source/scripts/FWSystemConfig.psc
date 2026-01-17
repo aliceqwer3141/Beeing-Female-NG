@@ -4506,7 +4506,7 @@ State SliderMaleVirility
 	Event OnSliderOpenST()
 		SetSliderDialogStartValue((MaleVirilityRecovery * 24) as int)
 		SetSliderDialogDefaultValue((MaleVirilityRecoveryDef * 24) as int)
-		SetSliderDialogRange(1, 48)
+		SetSliderDialogRange(0, 48)
 		SetSliderDialogInterval(1)
 	EndEvent
 	
