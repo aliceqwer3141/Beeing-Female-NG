@@ -4,6 +4,7 @@ int property CFG_PosX auto hidden
 int property CFG_PosY auto hidden
 bool property CFG_Enabled auto hidden
 int property CFG_Alpha auto hidden
+float property CFG_Scale = 0.5 auto hidden
 string property CFG_HAnchor auto hidden
 string property CFG_VAnchor auto hidden
 
@@ -127,6 +128,7 @@ event OnWidgetReset()
 	parent.OnWidgetReset()
 	updateConfig()
 	UpdateContent()
+	UpdateWidgetScale()
 endEvent
 
 event OnWidgetLoad()
@@ -157,6 +159,17 @@ function showWidget()
 		UI.InvokeBool(HUD_MENU, WidgetRoot + ".setVisible", true)
 		FadeTo(CFG_Alpha, 0.2)
 	endif
+endFunction
+
+function UpdateWidgetScale()
+	if Ready
+		float scale = CFG_Scale
+		if scale <= 0.0
+			scale = 1.0
+		endif
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._xscale", scale * 100.0)
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._yscale", scale * 100.0)
+	endIf
 endFunction
 
 float function GetWidth()

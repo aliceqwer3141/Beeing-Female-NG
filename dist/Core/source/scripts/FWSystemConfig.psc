@@ -62,6 +62,7 @@ bool  Property RelevantPlayer = true auto Hidden
 bool  Property RelevantFollower = true auto Hidden
 bool  Property RelevantNPC = true auto Hidden
 int   Property KeyStateWidget = 9 auto Hidden
+bool  Property WidgetAlwaysActive = false auto hidden
 bool  Property PlayAnimations = true auto hidden
 ; Menstual Cycle & Conception Element values
 int   Property FollicularDuration = 5 Auto Hidden
@@ -148,6 +149,7 @@ bool RelevantPlayerDef = true
 bool RelevantFollowerDef = true
 bool RelevantNPCDef = true
 int KeyStateWidgetDef = 9
+bool WidgetAlwaysActiveDef = false
 bool PlayAnimationsDef = false
 ; Menstual Cycle & Conception Element Default values
 int FollicularDurationDef = 5;11
@@ -616,6 +618,7 @@ bool function IsProfile(string File)
 		bool tmpRelevantFollower = JsonUtil.GetIntValue(s, "GENERAL_RelevantFollower", FWUtility.SwitchInt(RelevantFollower,1,0))==1
 		bool tmpRelevantNPC = JsonUtil.GetIntValue(s, "GENERAL_RelevantNPC", FWUtility.SwitchInt(RelevantNPC,1,0))==1
 		bool tmpPlayAnimations = JsonUtil.GetIntValue(s, "GENERAL_PlayAnimations", FWUtility.SwitchInt(PlayAnimations,1,0))==1
+		bool tmpWidgetAlwaysActive = JsonUtil.GetIntValue(s, "SYSTEM_WidgetAlwaysActive", FWUtility.SwitchInt(WidgetAlwaysActive,1,0))==1
 		
 		bool tmpabortus = JsonUtil.GetIntValue(s, "PREGNANCY_Abortus", FWUtility.SwitchInt(abortus,1,0))==1
 		bool tmpVisualScalingKind = JsonUtil.GetIntValue(s, "PREGNANCY_VisualScalingKind", VisualScalingKind)
@@ -637,6 +640,7 @@ bool function IsProfile(string File)
 			tmpRelevantFollower==RelevantFollower && \
 			tmpRelevantNPC==RelevantNPC && \
 			tmpPlayAnimations==PlayAnimations && \
+			tmpWidgetAlwaysActive==WidgetAlwaysActive && \
 			tmpabortus==abortus && \
 			tmpVisualScalingKind==VisualScalingKind && \
 			tmpBellyScale==BellyScale && \
@@ -721,6 +725,7 @@ function LoadProfile(string File)
 	RelevantFollower = JsonUtil.GetIntValue(s, "GENERAL_RelevantFollower", FWUtility.SwitchInt(RelevantFollower,1,0))==1
 	RelevantNPC = JsonUtil.GetIntValue(s, "GENERAL_RelevantNPC", FWUtility.SwitchInt(RelevantNPC,1,0))==1
 	KeyStateWidget = JsonUtil.GetIntValue(s, "GENERAL_HotKey", KeyStateWidget)
+	WidgetAlwaysActive = JsonUtil.GetIntValue(s, "SYSTEM_WidgetAlwaysActive", FWUtility.SwitchInt(WidgetAlwaysActive,1,0))==1
 	PlayAnimations = JsonUtil.GetIntValue(s, "GENERAL_PlayAnimations", FWUtility.SwitchInt(PlayAnimations,1,0))==1
 	
 	ImpregnateLoreFriendly = JsonUtil.GetIntValue(s, "GENERAL_ImpregnateLoreFriendly", FWUtility.SwitchInt(ImpregnateLoreFriendly, 1, 0)) == 1
@@ -780,6 +785,7 @@ function LoadProfile(string File)
 	NPCMenstrualMood = JsonUtil.GetIntValue(s, "NPC_MenstrualMood", FWUtility.SwitchInt(NPCMenstrualMood,1,0))==1
 	NPCMenstrualNoTalk = JsonUtil.GetIntValue(s, "NPC_MenstrualNoTalk", FWUtility.SwitchInt(NPCMenstrualNoTalk,1,0))==1
 	NPCBornChild = JsonUtil.GetIntValue(s, "NPC_BornChild", FWUtility.SwitchInt(NPCBornChild,1,0))==1
+	NPCHaveItems = JsonUtil.GetIntValue(s, "NPC_HaveItems", FWUtility.SwitchInt(NPCHaveItems,1,0))==1
 	
 	; Children
 	ChildrenMayCry = JsonUtil.GetIntValue(s, "CHILDREN_MayCry", FWUtility.SwitchInt(ChildrenMayCry,1,0))==1
@@ -808,6 +814,29 @@ function LoadProfile(string File)
 	; Cheat / Debug
 	UpdateInterval = JsonUtil.GetFloatValue(s, "SYSTEM_UpdateInterval", UpdateInterval)
 	UpdateIntervalEnabled = JsonUtil.GetIntValue(s, "SYSTEM_UpdateIntervalEnabled", FWUtility.SwitchInt(UpdateIntervalEnabled,1,0))==1
+
+	UpdateAllWidgetLayout()
+	if WidgetAlwaysActive
+		if(StateWidget;/!=none/;)
+			StateWidget.showWidget()
+		endif
+		if(ContraceptionWidget;/!=none/;)
+			ContraceptionWidget.showWidget()
+		endif
+		if(BabyHealthWidget;/!=none/;)
+			BabyHealthWidget.showWidget()
+		endif
+	else
+		if(StateWidget;/!=none/;)
+			StateWidget.hideWidget()
+		endif
+		if(ContraceptionWidget;/!=none/;)
+			ContraceptionWidget.hideWidget()
+		endif
+		if(BabyHealthWidget;/!=none/;)
+			BabyHealthWidget.hideWidget()
+		endif
+	endif
 endFunction
 
 string function SaveProfile(string FileName="")
@@ -829,6 +858,7 @@ string function SaveProfile(string FileName="")
 	JsonUtil.SetIntValue(s, "GENERAL_RelevantFollower", FWUtility.SwitchInt(RelevantFollower,1,0))
 	JsonUtil.SetIntValue(s, "GENERAL_RelevantNPC", FWUtility.SwitchInt(RelevantNPC,1,0))==1
 	JsonUtil.SetIntValue(s, "GENERAL_HotKey", KeyStateWidget)
+	JsonUtil.SetIntValue(s, "SYSTEM_WidgetAlwaysActive", FWUtility.SwitchInt(WidgetAlwaysActive,1,0))
 	JsonUtil.SetIntValue(s, "GENERAL_PlayAnimations", FWUtility.SwitchInt(PlayAnimations,1,0))
 
 	JsonUtil.SetIntValue(s, "GENERAL_ImpregnateLoreFriendly", FWUtility.SwitchInt(ImpregnateLoreFriendly, 1, 0))
@@ -888,6 +918,7 @@ string function SaveProfile(string FileName="")
 	JsonUtil.SetIntValue(s, "NPC_MenstrualMood", FWUtility.SwitchInt(NPCMenstrualMood,1,0))
 	JsonUtil.SetIntValue(s, "NPC_MenstrualNoTalk", FWUtility.SwitchInt(NPCMenstrualNoTalk,1,0))
 	JsonUtil.SetIntValue(s, "NPC_BornChild", FWUtility.SwitchInt(NPCBornChild,1,0))
+	JsonUtil.SetIntValue(s, "NPC_HaveItems", FWUtility.SwitchInt(NPCHaveItems,1,0))
 	
 	; Children
 	JsonUtil.SetIntValue(s, "CHILDREN_MayCry", FWUtility.SwitchInt(ChildrenMayCry,1,0))
@@ -940,6 +971,8 @@ function LoadWidgetProfile(string ProfileName="")
 		StateWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "StateWidget", "PositionY", StateWidget.CFG_PosY)
 		StateWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "StateWidget", "Enabled", StateWidget.CFG_Enabled)
 		StateWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "StateWidget", "Alpha", StateWidget.CFG_Alpha)
+		StateWidget.CFG_Scale = 1.0
+		StateWidget.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "StateWidget", "Scale", StateWidget.CFG_Scale)
 		StateWidget.CFG_FillDirection = FWUtility.getIniCString("HUD", WidgetProfile, "StateWidget", "FillDirection", StateWidget.CFG_FillDirection)
 		StateWidget.CFG_Color = FWUtility.getIniCInt("HUD", WidgetProfile, "StateWidget", "Color", StateWidget.CFG_Color)
 		StateWidget.CFG_DarkColor = FWUtility.getIniCInt("HUD", WidgetProfile, "StateWidget", "DarkColor", StateWidget.CFG_DarkColor)
@@ -957,6 +990,8 @@ function LoadWidgetProfile(string ProfileName="")
 		ContraceptionWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "ContraceptionWidget", "PositionY", ContraceptionWidget.CFG_PosY)
 		ContraceptionWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "ContraceptionWidget", "Enabled", ContraceptionWidget.CFG_Enabled)
 		ContraceptionWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "ContraceptionWidget", "Alpha", ContraceptionWidget.CFG_Alpha)
+		ContraceptionWidget.CFG_Scale = 1.0
+		ContraceptionWidget.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "ContraceptionWidget", "Scale", ContraceptionWidget.CFG_Scale)
 		ContraceptionWidget.CFG_FillDirection = FWUtility.getIniCString("HUD", WidgetProfile, "ContraceptionWidget", "FillDirection", ContraceptionWidget.CFG_FillDirection)
 		ContraceptionWidget.CFG_Color = FWUtility.getIniCInt("HUD", WidgetProfile, "ContraceptionWidget", "Color", ContraceptionWidget.CFG_Color)
 		ContraceptionWidget.CFG_DarkColor = FWUtility.getIniCInt("HUD", WidgetProfile, "ContraceptionWidget", "DarkColor", ContraceptionWidget.CFG_DarkColor)
@@ -967,13 +1002,15 @@ function LoadWidgetProfile(string ProfileName="")
 	endif
 	
 	if(BabyHealthWidget;/!=none/;)
-		BabyHealthWidget.CFG_HAnchor = FWUtility.getIniCString("HUD", WidgetProfile, "IconWidget", "HAnchor", BabyHealthWidget.CFG_HAnchor)
-		BabyHealthWidget.CFG_VAnchor = FWUtility.getIniCString("HUD", WidgetProfile, "IconWidget", "VAnchor", BabyHealthWidget.CFG_VAnchor)
+		BabyHealthWidget.CFG_HAnchor = FWUtility.getIniCString("HUD", WidgetProfile, "BabyHealthWidget", "HAnchor", BabyHealthWidget.CFG_HAnchor)
+		BabyHealthWidget.CFG_VAnchor = FWUtility.getIniCString("HUD", WidgetProfile, "BabyHealthWidget", "VAnchor", BabyHealthWidget.CFG_VAnchor)
 		Utility.WaitMenuMode(0.1)
-		BabyHealthWidget.CFG_PosX = FWUtility.getIniCInt("HUD", WidgetProfile, "IconWidget", "PositionX", BabyHealthWidget.CFG_PosX)
-		BabyHealthWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "IconWidget", "PositionY", BabyHealthWidget.CFG_PosY)
-		BabyHealthWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "IconWidget", "Enabled", BabyHealthWidget.CFG_Enabled)
-		BabyHealthWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "IconWidget", "Alpha", BabyHealthWidget.CFG_Alpha)
+		BabyHealthWidget.CFG_PosX = FWUtility.getIniCInt("HUD", WidgetProfile, "BabyHealthWidget", "PositionX", BabyHealthWidget.CFG_PosX)
+		BabyHealthWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "BabyHealthWidget", "PositionY", BabyHealthWidget.CFG_PosY)
+		BabyHealthWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "BabyHealthWidget", "Enabled", BabyHealthWidget.CFG_Enabled)
+		BabyHealthWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "BabyHealthWidget", "Alpha", BabyHealthWidget.CFG_Alpha)
+		BabyHealthWidget.CFG_Scale = 1.0
+		BabyHealthWidget.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "BabyHealthWidget", "Scale", BabyHealthWidget.CFG_Scale)
 	else
 		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  BabyHealthWidget configuration")
 	endif
@@ -986,6 +1023,8 @@ function LoadWidgetProfile(string ProfileName="")
 		PantyWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "PantyWidget", "PositionY", PantyWidget.CFG_PosY)
 		PantyWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "PantyWidget", "Enabled", PantyWidget.CFG_Enabled)
 		PantyWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "PantyWidget", "Alpha", PantyWidget.CFG_Alpha)
+		PantyWidget.CFG_Scale = 1.0
+		PantyWidget.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "PantyWidget", "Scale", PantyWidget.CFG_Scale)
 	else
 		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  PantyWidget configuration")
 	endif
@@ -998,6 +1037,8 @@ function LoadWidgetProfile(string ProfileName="")
 		Progress.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "ProgressWidget", "PositionY", Progress.CFG_PosY)
 		Progress.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "ProgressWidget", "Enabled", Progress.CFG_Enabled)
 		Progress.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "ProgressWidget", "Alpha", Progress.CFG_Alpha)
+		Progress.CFG_Scale = 1.0
+		Progress.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "ProgressWidget", "Scale", Progress.CFG_Scale)
 	else
 		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  Progress configuration")
 	endif
@@ -1010,8 +1051,60 @@ function LoadWidgetProfile(string ProfileName="")
 		CoupleWidget.CFG_PosY = FWUtility.getIniCInt("HUD", WidgetProfile, "CoupleWidget", "PositionY", CoupleWidget.CFG_PosY)
 		CoupleWidget.CFG_Enabled = FWUtility.getIniCBool("HUD", WidgetProfile, "CoupleWidget", "Enabled", CoupleWidget.CFG_Enabled)
 		CoupleWidget.CFG_Alpha = FWUtility.getIniCInt("HUD", WidgetProfile, "CoupleWidget", "Alpha", CoupleWidget.CFG_Alpha)
+		CoupleWidget.CFG_Scale = 1.0
+		CoupleWidget.CFG_Scale = FWUtility.getIniCFloat("HUD", WidgetProfile, "CoupleWidget", "Scale", CoupleWidget.CFG_Scale)
 	else
 		FW_log.WriteLog("FWSystemConfig::LoadWidgetProfile() - Failed to load  CoupleWidget configuration")
+	endif
+
+	if(StateWidget;/!=none/;)
+		StateWidget.UpdateContent()
+		StateWidget.UpdateWidgetScale()
+	endif
+	if(ContraceptionWidget;/!=none/;)
+		ContraceptionWidget.UpdateContent()
+		ContraceptionWidget.UpdateWidgetScale()
+	endif
+	if(BabyHealthWidget;/!=none/;)
+		BabyHealthWidget.UpdateContent()
+		BabyHealthWidget.UpdateWidgetScale()
+	endif
+	if(PantyWidget;/!=none/;)
+		PantyWidget.UpdateContent()
+		PantyWidget.UpdateWidgetScale()
+	endif
+	if(Progress;/!=none/;)
+		Progress.UpdateWidgetScale()
+	endif
+	if(CoupleWidget;/!=none/;)
+		CoupleWidget.UpdateContent()
+		CoupleWidget.UpdateWidgetScale()
+	endif
+endFunction
+
+function UpdateAllWidgetLayout()
+	if(StateWidget;/!=none/;)
+		StateWidget.UpdateContent()
+		StateWidget.UpdateWidgetScale()
+	endif
+	if(ContraceptionWidget;/!=none/;)
+		ContraceptionWidget.UpdateContent()
+		ContraceptionWidget.UpdateWidgetScale()
+	endif
+	if(BabyHealthWidget;/!=none/;)
+		BabyHealthWidget.UpdateContent()
+		BabyHealthWidget.UpdateWidgetScale()
+	endif
+	if(PantyWidget;/!=none/;)
+		PantyWidget.UpdateContent()
+		PantyWidget.UpdateWidgetScale()
+	endif
+	if(Progress;/!=none/;)
+		Progress.UpdateWidgetScale()
+	endif
+	if(CoupleWidget;/!=none/;)
+		CoupleWidget.UpdateContent()
+		CoupleWidget.UpdateWidgetScale()
 	endif
 endFunction
 
@@ -2146,7 +2239,15 @@ Event OnPageReset(string page)
 		endif
 		
 		AddHeaderOption("$FW_MENU_SETTINGS_Key")
+		AddHeaderOption("$FW_MENU_PAGE_Widgets")
 		AddKeyMapOptionST("KeyMapShowState", "$FW_MENU_SETTINGS_ShowStatesKey", KeyStateWidget)
+		if FWUtility.GetFileCount("HUD","ini")>1
+			AddMenuOptionST("MenuWidgetProfile", "$FW_MENU_SYSTEM_WidgetProfile", WidgetProfile,OPTION_FLAG_NONE)
+		else
+			AddMenuOptionST("MenuWidgetProfile", "$FW_MENU_SYSTEM_WidgetProfile", WidgetProfileDef,OPTION_FLAG_DISABLED)
+		endif
+		AddToggleOptionST("ToggleWidgetAlwaysActive", "$FW_MENU_SYSTEM_WidgetAlwaysActive", WidgetAlwaysActive)
+		AddToggleOptionST("ToggleCoupleWidget", "$FW_MENU_CHEAT_CoupleMaker", CoupleWidget.enabled)
 		
 		; Right column
 		SetCursorPosition(1)
@@ -3182,8 +3283,6 @@ Event OnPageReset(string page)
 				AddTextOptionST("TextSpawnChildren", "$FW_MENU_CHEAT_SpawnChildren", "")
 			endif
 			
-			AddToggleOptionST("ToggleCoupleWidget", "$FW_MENU_CHEAT_CoupleMaker", CoupleWidget.enabled)
-		
 			; Right column
 			SetCursorPosition(1)
 		
@@ -3411,11 +3510,6 @@ Event OnPageReset(string page)
 			AddMenuOptionST("MenuProfileLoad", "$FW_MENU_SYSTEM_ProfileLoad", "",OPTION_FLAG_DISABLED)
 		endif
 		AddTextOptionST("TextProfileSave", "$FW_MENU_SYSTEM_ProfileSave", "")
-		if FWUtility.GetFileCount("HUD","ini")>1
-			AddMenuOptionST("MenuWidgetProfile", "$FW_MENU_SYSTEM_WidgetProfile", WidgetProfile,OPTION_FLAG_NONE)
-		else
-			AddMenuOptionST("MenuWidgetProfile", "$FW_MENU_SYSTEM_WidgetProfile", WidgetProfileDef,OPTION_FLAG_DISABLED)
-		endif
 		PageResetJobID=47
 		
 		; Compatiblity
@@ -3515,6 +3609,7 @@ Event OnPageReset(string page)
 		else
 			AddTextOption("Estrus Dwemer Addon", cTxt[3], OPTION_FLAG_DISABLED)
 		endIf
+		
 	EndIf
 	
 	PageResetJobID=0
@@ -6574,6 +6669,46 @@ state KeyMapShowState
 	event OnHighlightST()
 		SetInfoText("$FW_MENUTXT_SETTINGS_ShowStatesKey")
 	endEvent
+EndState
+
+
+
+
+state ToggleWidgetAlwaysActive
+	Event OnSelectST()
+		WidgetAlwaysActive = (! WidgetAlwaysActive)
+		SetToggleOptionValueST(WidgetAlwaysActive)
+		if WidgetAlwaysActive
+			if(StateWidget;/!=none/;)
+				StateWidget.showWidget()
+			endif
+			if(ContraceptionWidget;/!=none/;)
+				ContraceptionWidget.showWidget()
+			endif
+			if(BabyHealthWidget;/!=none/;)
+				BabyHealthWidget.showWidget()
+			endif
+		else
+			if(StateWidget;/!=none/;)
+				StateWidget.hideWidget()
+			endif
+			if(ContraceptionWidget;/!=none/;)
+				ContraceptionWidget.hideWidget()
+			endif
+			if(BabyHealthWidget;/!=none/;)
+				BabyHealthWidget.hideWidget()
+			endif
+		endif
+	EndEvent
+	
+	Event OnDefaultST()
+		WidgetAlwaysActive = WidgetAlwaysActiveDef
+		SetToggleOptionValueST(WidgetAlwaysActive)
+	EndEvent
+	
+	Event OnHighlightST()
+		SetInfoText("$FW_MENUTXT_SYSTEM_WidgetAlwaysActive")
+	EndEvent
 EndState
 
 state ToggleOnActiveMagicEffects ;Added by Bane 02/07/2019

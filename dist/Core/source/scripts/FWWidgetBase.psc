@@ -5,6 +5,7 @@ int property CFG_PosX auto hidden
 int property CFG_PosY auto hidden
 bool property CFG_Enabled auto hidden
 int property CFG_Alpha auto hidden
+float property CFG_Scale = 1.0 auto hidden
 
 ;string sCFG_HAnchor
 string property CFG_HAnchor
@@ -193,6 +194,10 @@ event OnWidgetReset()
 	startTime = 0.0
 	updateConfig()
 	UpdateContent()
+	UpdateWidgetScale()
+	if cfg && cfg.WidgetAlwaysActive && CFG_Enabled
+		showWidget()
+	endIf
 endEvent
 
 event OnWidgetLoad()
@@ -234,6 +239,17 @@ function updateConfig()
 	endif
 endFunction
 
+function UpdateWidgetScale()
+	if Ready
+		float scale = CFG_Scale
+		if scale <= 0.0
+			scale = 1.0
+		endif
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._xscale", scale * 100.0)
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._yscale", scale * 100.0)
+	endIf
+endFunction
+
 Event BeeingFemaleEvent(string eventName, string strArg, float numArg, Form sender)
 	if eventName=="BeeingFemale" && strArg=="ResetWidgets"
 		UnregisterForUpdate()
@@ -253,6 +269,9 @@ Event BeeingFemaleEvent(string eventName, string strArg, float numArg, Form send
 		startTime = 0.0
 		updateConfig()
 		UpdateContent()
+		if cfg && cfg.WidgetAlwaysActive && CFG_Enabled
+			showWidget()
+		endIf
 	endif
 endEvent
 
@@ -362,6 +381,9 @@ function Flash()
 endFunction
 
 function hideWidget()
+	if cfg && cfg.WidgetAlwaysActive && CFG_Enabled
+		return
+	endIf
 	if self.GetType() == 77
 		UnregisterForUpdate()
 	endif

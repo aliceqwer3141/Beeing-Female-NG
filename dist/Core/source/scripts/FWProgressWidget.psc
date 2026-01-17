@@ -4,6 +4,7 @@ int property CFG_PosX auto hidden
 int property CFG_PosY auto hidden
 bool property CFG_Enabled auto hidden
 int property CFG_Alpha auto hidden
+float property CFG_Scale = 1.0 auto hidden
 string property CFG_HAnchor auto hidden
 string property CFG_VAnchor auto hidden
 
@@ -33,7 +34,7 @@ string property ICN_Voice = "Voice" autoreadonly
 string property ICN_Wait = "Wait" autoreadonly
 string property ICN_Checked = "Checked" autoreadonly
 string property ICN_Failed = "Failed" autoreadonly
-
+FWSystem property System auto
 
 string _swfName = ""
 string _scriptName = ""
@@ -186,6 +187,7 @@ event OnWidgetReset()
 	HAnchor = CFG_HAnchor
 	VAnchor = CFG_VAnchor
 	parent.OnWidgetReset()
+	UpdateWidgetScale()
 	;if _shown==true
 	;	Alpha = 100.0
 	;else
@@ -210,6 +212,17 @@ endFunction
 
 function hideWidget()
 	Shown = false
+endFunction
+
+function UpdateWidgetScale()
+	if Ready
+		float scale = CFG_Scale
+		if scale <= 0.0
+			scale = 1.0
+		endif
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._xscale", scale * 100.0)
+		UI.SetFloat(HUD_MENU, WidgetRoot + "._yscale", scale * 100.0)
+	endIf
 endFunction
 
 float function GetWidth()
