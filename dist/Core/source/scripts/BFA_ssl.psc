@@ -144,9 +144,9 @@ Event OnSexLabOrgasm(string hookName, string argString, float argNum, form sende
 	endif
 	if (animation.PositionCount > 1)
 		;Find first male actor and proceed as with Separate orgasm
-		Actor firstOrgasmingMale = GetMaleActorFromList(ssl_controller.Positions)
-		If (firstOrgasmingMale)
-			OrgasmSeparate(ssl_controller, animation, firstOrgasmingMale)
+		Actor firstOrgasmingDonor = GetSpermDonorFromList(ssl_controller.Positions)
+		If (firstOrgasmingDonor)
+			OrgasmSeparate(ssl_controller, animation, firstOrgasmingDonor)
 		EndIf
 	endIf
 EndEvent
@@ -188,6 +188,19 @@ Event OnSexLabOrgasmSeparate(Form ActorRef, Int thread)
 		endIf
 	endIf
 EndEvent
+
+Actor Function GetSpermDonorFromList(Actor[] actorList)
+	Int i = 0
+	While i < actorList.Length
+		Actor cur = actorList[i]
+		int gender = SexLab.GetGender(cur)
+		if gender == 0 || gender == 2
+			return cur
+		endif
+		i += 1
+	EndWhile
+	return none
+EndFunction
 
 Function OrgasmSeparate(sslThreadController ssl_controller, sslBaseAnimation animation, Actor currentOrgasmingActor)
 
