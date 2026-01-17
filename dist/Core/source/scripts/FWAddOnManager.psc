@@ -4494,6 +4494,11 @@ endFunction
 Faction SexLabForbiddenActors			; // FormID: 0x049068 in SexLab.esm
 Function RaceExcludeFromSLandBF(actor TargetActor, actor ParentActor)
 	bool bool_AddToForbidden = true
+
+	if TargetActor == PlayerRef
+		FW_log.WriteLog("ExcludeFromSLandBF: TargetActor is PlayerRef. Skipping forbidden flags.")
+		return
+	endif
 	
 	if(TargetActor)
 		if(ParentActor)
