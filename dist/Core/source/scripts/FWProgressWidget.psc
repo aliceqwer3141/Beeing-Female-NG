@@ -34,7 +34,6 @@ string property ICN_Voice = "Voice" autoreadonly
 string property ICN_Wait = "Wait" autoreadonly
 string property ICN_Checked = "Checked" autoreadonly
 string property ICN_Failed = "Failed" autoreadonly
-FWSystem property System auto
 
 string _swfName = ""
 string _scriptName = ""
