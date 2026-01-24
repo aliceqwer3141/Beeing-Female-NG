@@ -369,6 +369,25 @@ int function GetVersion()
 	return FWVersion.GetMCMVersion()
 endFunction
 
+bool function IsChildRaceLabel(race r)
+	if r == none
+		return false
+	endif
+	if r.IsChildRace()
+		return true
+	endif
+	string raceName = r.GetName()
+	if raceName;/!=""/;
+		if StringUtil.Find(raceName, "Child") >= 0
+			return true
+		endif
+		if StringUtil.Find(raceName, "child") >= 0
+			return true
+		endif
+	endif
+	return false
+endFunction
+
 function OnLoadGame()
 	bTestPerkMode=false
 	bTestPerkRan=false
@@ -2607,7 +2626,7 @@ Event OnPageReset(string page)
 							if r.HasKeyword(keywordBeast)
 								strR+="[Beast]"
 							endif
-							if r.IsChildRace()
+							if IsChildRaceLabel(r)
 								strR+="<font color='#ff0000'>[Child]</font>"
 							endif
 							if r.HasKeyword(keywordCreature)
@@ -2640,7 +2659,7 @@ Event OnPageReset(string page)
 								if r.HasKeyword(keywordBeast)
 									strR+="[Beast]"
 								endif
-								if r.IsChildRace()
+								if IsChildRaceLabel(r)
 									strR+="<font color='#ff0000'>[Child]</font>"
 								endif
 								if r.HasKeyword(keywordCreature)
@@ -2732,7 +2751,7 @@ Event OnPageReset(string page)
 							if abr.HasKeyword(keywordBeast)
 								strR += "[Beast]"
 							endif
-							if abr.IsChildRace()
+							if IsChildRaceLabel(abr)
 								strR += "<font color='#ff0000'>[Child]</font>"
 							endif
 							if abr.HasKeyword(keywordCreature)
@@ -2766,7 +2785,7 @@ Event OnPageReset(string page)
 								if abr.HasKeyword(keywordBeast)
 									strR += "[Beast]"
 								endif
-								if abr.IsChildRace()
+								if IsChildRaceLabel(abr)
 									strR += "<font color='#ff0000'>[Child]</font>"
 								endif
 								if abr.HasKeyword(keywordCreature)
