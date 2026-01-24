@@ -3,7 +3,8 @@
 
 template <> short GetPrivateProfile(const char* clsnm, const char* rcrdnm, short def, const char* ini)
 {
-	return GetPrivateProfileInt(clsnm, rcrdnm, def, ini);
+	const UINT value = GetPrivateProfileInt(clsnm, rcrdnm, def, ini);
+	return static_cast<short>(value);
 }
 
 template <> unsigned GetPrivateProfile(const char* clsnm, const char* rcrdnm, unsigned def, const char* ini)
@@ -29,7 +30,7 @@ template <> double GetPrivateProfile(const char* clsnm, const char* rcrdnm, doub
 
 template <> float GetPrivateProfile(const char* clsnm, const char* rcrdnm, float def, const char* ini)
 {
-	return GetPrivateProfile<double>(clsnm, rcrdnm, def, ini);
+	return static_cast<float>(GetPrivateProfile<double>(clsnm, rcrdnm, def, ini));
 }
 
 /*template <> bool GetPrivateProfile(const char* clsnm, const char* rcrdnm, bool def, const char* ini)

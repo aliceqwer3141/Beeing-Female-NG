@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstring>
 #include <string>
 #include <sstream>
@@ -473,11 +474,56 @@ namespace FWUtility {
 
 
 	TESForm* GetFormFromString(StaticFunctionTag* base, BSFixedString fstr) {
+		(void)base;
 		std::string objString = fstr.data();
 		if (objString == "0")
 			return nullptr;
+		const size_t colonPos = objString.find(':');
+		if (colonPos != std::string::npos) {
+			const std::string modName = objString.substr(0, colonPos);
+			std::string idStr = objString.substr(colonPos + 1);
+			if (modName.empty() || idStr.empty()) {
+				return nullptr;
+			}
+			if (idStr.size() > 1 && idStr[0] == '0' && (idStr[1] == 'x' || idStr[1] == 'X')) {
+				idStr = idStr.substr(2);
+			}
+			char* endptr = nullptr;
+			const UInt32 rawID = static_cast<UInt32>(std::strtoul(idStr.c_str(), &endptr, 16));
+			if (endptr == idStr.c_str() || (endptr && *endptr != '\0')) {
+				return nullptr;
+			}
+
+			const BSFixedString resolved = GetModFromString(nullptr, BSFixedString(modName.c_str()), true);
+			const char* resolvedName = resolved.data();
+			if (!resolvedName || resolvedName[0] == '\0') {
+				return nullptr;
+			}
+
+			auto* dataHandler = DataHandler::GetSingleton();
+			if (!dataHandler) {
+				return nullptr;
+			}
+			const ModInfo* modInfo = dataHandler->LookupModByName(resolvedName);
+			if (!modInfo) {
+				return nullptr;
+			}
+
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 index = modInfo->GetCompileIndex();
+				formID = (index << 24) | (rawID & 0x00FFFFFF);
+			}
+			return TESForm::LookupByID(formID);
+		}
 		std::vector<std::string> var;
 		split(objString, '_', var);
+		if (var.size() < 2) {
+			return nullptr;
+		}
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
@@ -491,30 +537,80 @@ namespace FWUtility {
 
 		std::string id = var[var.size() - 1];
 
+		auto* dataHandler = DataHandler::GetSingleton();
+		if (!dataHandler) {
+			return nullptr;
+		}
+		char* endptr = nullptr;
+		const UInt32 rawID = static_cast<UInt32>(strtoul(id.c_str(), &endptr, 16)) & 0x00FFFFFF;
+		if (endptr == id.c_str() || (endptr && *endptr != '\0')) {
+			return nullptr;
+		}
+
 		const ModInfo* modInfo = nullptr;
 		// Check for .esp extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
+		modInfo = dataHandler->LookupModByName(esp.c_str());
 		if (modInfo) {
-			UInt8 indexEsp = modInfo->GetCompileIndex();
-			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsp = modInfo->GetCompileIndex();
+				formID = (indexEsp << 24) | rawID;
+			}
+			TESForm* frmEsp = TESForm::LookupByID(formID);
 			if (frmEsp != nullptr)
 				return frmEsp;
 		}
 
 		// Check for .esm extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
+		modInfo = dataHandler->LookupModByName(esm.c_str());
 		if (modInfo) {
-			UInt8 indexEsm = modInfo->GetCompileIndex();
-			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsm = modInfo->GetCompileIndex();
+				formID = (indexEsm << 24) | rawID;
+			}
+			TESForm* frmEsm = TESForm::LookupByID(formID);
 			if (frmEsm != nullptr)
 				return frmEsm;
 		}
 
-		// Check with including extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
+		// Check for .esl extention
+		std::string esl = mod;
+		esl.append(".esl");
+		modInfo = dataHandler->LookupModByName(esl.c_str());
 		if (modInfo) {
-			UInt8 index = modInfo->GetCompileIndex();
-			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsl = modInfo->GetCompileIndex();
+				formID = (indexEsl << 24) | rawID;
+			}
+			TESForm* frmEsl = TESForm::LookupByID(formID);
+			if (frmEsl != nullptr) {
+				return frmEsl;
+			}
+		}
+
+		// Check with including extention
+		modInfo = dataHandler->LookupModByName(mod.c_str());
+		if (modInfo) {
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 index = modInfo->GetCompileIndex();
+				formID = (index << 24) | rawID;
+			}
+			TESForm* frm = TESForm::LookupByID(formID);
 			if (frm != nullptr)
 				return frm;
 		}
@@ -523,6 +619,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString GetModFromString(StaticFunctionTag* base, BSFixedString fstr, bool bExt) {
+		(void)base;
 		std::string objString = fstr.data();
 		if (objString == "0")
 			return BSFixedString("");
@@ -686,11 +783,15 @@ namespace FWUtility {
 	}
 
 	UInt32 GetFormIDFromString(StaticFunctionTag* base, BSFixedString fstr) {
+		(void)base;
 		std::string objString = fstr.data();
 		if (objString == "0")
 			return 0;
 		std::vector<std::string> var;
 		split(objString, '_', var);
+		if (var.size() < 2) {
+			return 0;
+		}
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
@@ -704,47 +805,100 @@ namespace FWUtility {
 
 		std::string id = var[var.size() - 1];
 
+		auto* dataHandler = DataHandler::GetSingleton();
+		if (!dataHandler) {
+			return 0;
+		}
+		char* endptr = nullptr;
+		const UInt32 rawID = static_cast<UInt32>(strtoul(id.c_str(), &endptr, 16)) & 0x00FFFFFF;
+		if (endptr == id.c_str() || (endptr && *endptr != '\0')) {
+			return 0;
+		}
+
 		const ModInfo* modInfo = nullptr;
 		// Check for .esp extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
+		modInfo = dataHandler->LookupModByName(esp.c_str());
 		if (modInfo) {
-			UInt8 indexEsp = modInfo->GetCompileIndex();
-			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsp = modInfo->GetCompileIndex();
+				formID = (indexEsp << 24) | rawID;
+			}
+			TESForm* frmEsp = TESForm::LookupByID(formID);
 			if (frmEsp != nullptr) {
-				return frmEsp->formID;
+				return formID;
 			}
 		}
 
 		// Check for .esm extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
+		modInfo = dataHandler->LookupModByName(esm.c_str());
 		if (modInfo) {
-			UInt8 indexEsm = modInfo->GetCompileIndex();
-			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsm = modInfo->GetCompileIndex();
+				formID = (indexEsm << 24) | rawID;
+			}
+			TESForm* frmEsm = TESForm::LookupByID(formID);
 			if (frmEsm != nullptr) {
-				return frmEsm->formID;
+				return formID;
+			}
+		}
+
+		// Check for .esl extention
+		std::string esl = mod;
+		esl.append(".esl");
+		modInfo = dataHandler->LookupModByName(esl.c_str());
+		if (modInfo) {
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 indexEsl = modInfo->GetCompileIndex();
+				formID = (indexEsl << 24) | rawID;
+			}
+			TESForm* frmEsl = TESForm::LookupByID(formID);
+			if (frmEsl != nullptr) {
+				return formID;
 			}
 		}
 
 		// Check with including extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
+		modInfo = dataHandler->LookupModByName(mod.c_str());
 		if (modInfo) {
-			UInt8 index = modInfo->GetCompileIndex();
-			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
+			UInt32 formID = 0;
+			if (modInfo->IsLight()) {
+				const UInt32 lightIndex = modInfo->GetPartialIndex();
+				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+			} else {
+				const UInt32 index = modInfo->GetCompileIndex();
+				formID = (index << 24) | rawID;
+			}
+			TESForm* frm = TESForm::LookupByID(formID);
 			if (frm != nullptr) {
-				return frm->formID;
+				return formID;
 			}
 		}
 		return 0;
 	}
 
 	BSFixedString GetStringFromForm(StaticFunctionTag* base, TESForm* frm) {
+		(void)base;
 		if (frm == NULL) return BSFixedString("");
 		const auto* file = frm->GetFile(0);
 		if (!file) return BSFixedString("");
 		std::string str = std::string(file->GetFilename());
 
-		int lastindex = str.find_last_of(".");
-		str = str.substr(0, lastindex);
+		const size_t lastindex = str.find_last_of(".");
+		if (lastindex != std::string::npos) {
+			str = str.substr(0, lastindex);
+		}
 
 		str.append("_");
 		str.append(Hex_str(frm->formID & 0xFFFFFF, 0));
@@ -753,6 +907,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString GetModFromForm(StaticFunctionTag* base, TESForm* frm, bool bExt) {
+		(void)base;
 		if (frm == NULL) return BSFixedString("");
 		const auto* file = frm->GetFile(0);
 		if (!file) return BSFixedString("-3");
@@ -765,6 +920,584 @@ namespace FWUtility {
 		}
 
 		return BSFixedString(str.c_str());
+	}
+
+	std::vector<RE::Actor*> ActorArrayResize(StaticFunctionTag* base, std::vector<RE::Actor*> oldArray, SInt32 newSize) {
+		(void)base;
+		if (newSize < 1) {
+			newSize = 1;
+		} else if (newSize > 128) {
+			newSize = 128;
+		}
+
+		std::vector<RE::Actor*> result(static_cast<std::size_t>(newSize), nullptr);
+		const std::size_t copyCount = (result.size() < oldArray.size()) ? result.size() : oldArray.size();
+		for (std::size_t i = 0; i < copyCount; ++i) {
+			result[i] = oldArray[i];
+		}
+		return result;
+	}
+
+	std::vector<RE::Actor*> ActorArrayUnique(StaticFunctionTag* base, std::vector<RE::Actor*> actors) {
+		(void)base;
+		if (actors.size() < 2) {
+			return actors;
+		}
+		const std::size_t c = actors.size();
+		SInt32 newLen = static_cast<SInt32>(c);
+		for (std::size_t i = 0; i + 1 < c; ++i) {
+			if (!actors[i]) {
+				continue;
+			}
+			bool found = false;
+			for (std::size_t j = i + 1; j < c; ++j) {
+				if (actors[i] == actors[j]) {
+					found = true;
+					break;
+				}
+			}
+			if (found) {
+				actors[i] = nullptr;
+				newLen -= 1;
+			}
+		}
+		if (newLen < 1) {
+			newLen = 1;
+		} else if (newLen > 128) {
+			newLen = 128;
+		}
+		std::vector<RE::Actor*> result(static_cast<std::size_t>(newLen), nullptr);
+		std::size_t ni = 0;
+		for (std::size_t i = 0; i < c && ni < result.size(); ++i) {
+			if (actors[i]) {
+				result[ni] = actors[i];
+				ni += 1;
+			}
+		}
+		return result;
+	}
+
+	std::vector<RE::Actor*> ActorArrayAppend(StaticFunctionTag* base, std::vector<RE::Actor*> oldArray, RE::Actor* append, SInt32 count) {
+		(void)base;
+		if (count <= 0) {
+			return oldArray;
+		}
+		if (oldArray.size() > 127) {
+			return oldArray;
+		}
+		const std::size_t maxSize = 128;
+		const std::size_t available = maxSize - oldArray.size();
+		std::size_t toAdd = static_cast<std::size_t>(count);
+		if (toAdd > available) {
+			toAdd = available;
+		}
+		if (toAdd == 0) {
+			return oldArray;
+		}
+		oldArray.reserve(oldArray.size() + toAdd);
+		for (std::size_t i = 0; i < toAdd; ++i) {
+			oldArray.push_back(append);
+		}
+		return oldArray;
+	}
+
+	std::vector<RE::Actor*> RemoveDuplicatedActors(StaticFunctionTag* base, std::vector<RE::Actor*> list) {
+		(void)base;
+		const std::size_t c = list.size();
+		for (std::size_t i = 0; i + 1 < c; ++i) {
+			if (!list[i]) {
+				continue;
+			}
+			for (std::size_t j = i + 1; j < c; ++j) {
+				if (list[i] == list[j]) {
+					list[j] = nullptr;
+				}
+			}
+		}
+		SInt32 newLen = 0;
+		for (std::size_t i = 0; i < c; ++i) {
+			if (list[i]) {
+				newLen += 1;
+			}
+		}
+		if (newLen < 1) {
+			newLen = 1;
+		} else if (newLen > 128) {
+			newLen = 128;
+		}
+		std::vector<RE::Actor*> result(static_cast<std::size_t>(newLen), nullptr);
+		std::size_t idx = 0;
+		for (std::size_t i = 0; i < c && idx < result.size(); ++i) {
+			if (list[i]) {
+				result[idx] = list[i];
+				idx += 1;
+			}
+		}
+		return result;
+	}
+
+	std::vector<float> FloatArrayAppend(StaticFunctionTag* base, std::vector<float> oldArray, float append) {
+		(void)base;
+		if (oldArray.size() > 127) {
+			return oldArray;
+		}
+		oldArray.push_back(append);
+		return oldArray;
+	}
+
+	std::vector<float> FloatArrayResize(StaticFunctionTag* base, std::vector<float> oldArray, SInt32 newSize) {
+		(void)base;
+		if (newSize < 1) {
+			newSize = 1;
+		} else if (newSize > 128) {
+			newSize = 128;
+		}
+		std::vector<float> result(static_cast<std::size_t>(newSize), 0.0f);
+		const std::size_t copyCount = (result.size() < oldArray.size()) ? result.size() : oldArray.size();
+		for (std::size_t i = 0; i < copyCount; ++i) {
+			result[i] = oldArray[i];
+		}
+		return result;
+	}
+
+	std::vector<SInt32> IntArrayAppend(StaticFunctionTag* base, std::vector<SInt32> oldArray, SInt32 append) {
+		(void)base;
+		if (oldArray.size() > 127) {
+			return oldArray;
+		}
+		oldArray.push_back(append);
+		return oldArray;
+	}
+
+	std::vector<RE::Actor*> ActorArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<RE::Actor*>(static_cast<std::size_t>(size), nullptr);
+	}
+
+	std::vector<RE::TESNPC*> ActorBaseArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<RE::TESNPC*>(static_cast<std::size_t>(size), nullptr);
+	}
+
+	std::vector<RE::TESForm*> FormArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<RE::TESForm*>(static_cast<std::size_t>(size), nullptr);
+	}
+
+	std::vector<bool> BoolArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<bool>(static_cast<std::size_t>(size), false);
+	}
+
+	std::vector<float> FloatArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<float>(static_cast<std::size_t>(size), 0.0f);
+	}
+
+	std::vector<SInt32> IntArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<SInt32>(static_cast<std::size_t>(size), 0);
+	}
+
+	std::vector<BSFixedString> StringArray(StaticFunctionTag* base, SInt32 size) {
+		(void)base;
+		if (size < 1) {
+			size = 1;
+		} else if (size > 128) {
+			size = 128;
+		}
+		return std::vector<BSFixedString>(static_cast<std::size_t>(size), BSFixedString(""));
+	}
+
+	std::vector<RE::TESForm*> FormArrayConcat(StaticFunctionTag* base, std::vector<RE::TESForm*> f1, std::vector<RE::TESForm*> f2) {
+		(void)base;
+		if (f1.empty()) {
+			return f2;
+		}
+		if (f2.empty()) {
+			return f1;
+		}
+		std::size_t f1l = f1.size();
+		std::size_t f2l = f2.size();
+		std::size_t n = f1l + f2l;
+		if (n > 128) {
+			if (f1l >= 128) {
+				f2l = 0;
+			} else {
+				f2l = 128 - f1l;
+			}
+			n = f1l + f2l;
+		}
+		if (n < 1) {
+			n = 1;
+		}
+		std::vector<RE::TESForm*> result(n, nullptr);
+		for (std::size_t i = 0; i < f1l && i < result.size(); ++i) {
+			result[i] = f1[i];
+		}
+		for (std::size_t i = 0; i < f2l && (i + f1l) < result.size(); ++i) {
+			result[i + f1l] = f2[i];
+		}
+		return result;
+	}
+
+	BSFixedString GetNames(StaticFunctionTag* base, std::vector<RE::Actor*> actors) {
+		(void)base;
+		std::string tmp;
+		bool first = true;
+		for (auto* actor : actors) {
+			if (!actor) {
+				continue;
+			}
+			auto* baseForm = actor->GetActorBase();
+			if (!baseForm) {
+				continue;
+			}
+			const char* name = baseForm->GetName();
+			if (!name || name[0] == '\0') {
+				continue;
+			}
+			if (!first) {
+				tmp.append(", ");
+			}
+			tmp.append(name);
+			first = false;
+		}
+		return BSFixedString(tmp.c_str());
+	}
+
+	BSFixedString GetActorListNames(StaticFunctionTag* base, std::vector<RE::Actor*> actors, bool preferDisplayName) {
+		(void)base;
+		std::string result;
+		for (std::size_t i = 0; i < actors.size(); ++i) {
+			auto* actor = actors[i];
+			if (!actor) {
+				continue;
+			}
+
+			const char* name = nullptr;
+			const char* displayName = actor->GetDisplayFullName();
+			auto* baseForm = actor->GetActorBase();
+			const char* baseName = baseForm ? baseForm->GetName() : nullptr;
+
+			if (preferDisplayName) {
+				if (displayName && displayName[0] != '\0') {
+					name = displayName;
+				} else if (baseName && baseName[0] != '\0') {
+					name = baseName;
+				} else {
+					name = actor->GetName();
+				}
+			} else {
+				if (baseName && baseName[0] != '\0') {
+					name = baseName;
+				} else if (displayName && displayName[0] != '\0') {
+					name = displayName;
+				} else {
+					name = actor->GetName();
+				}
+			}
+
+			if (!name || name[0] == '\0') {
+				continue;
+			}
+
+			if (!result.empty()) {
+				result.append(", ");
+			}
+			result.append(name);
+		}
+		return BSFixedString(result.c_str());
+	}
+
+	BSFixedString GetPercentage(StaticFunctionTag* base, float percentage, SInt32 decimal, bool bDecimalBase) {
+		(void)base;
+		if (percentage < 0.0001f) {
+			return BSFixedString("< 1");
+		}
+
+		auto floorInt = [](float value) -> SInt32 {
+			return static_cast<SInt32>(std::floor(value));
+		};
+
+		if (bDecimalBase) {
+			if (decimal >= 0 && decimal < 4) {
+				if (decimal == 0) {
+					return BSFixedString(std::to_string(floorInt(percentage * 100.0f)).c_str());
+				} else if (decimal == 1) {
+					const auto whole = floorInt(percentage * 100.0f);
+					const auto frac = floorInt(percentage * 1000.0f) % 10;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 2) {
+					const auto whole = floorInt(percentage * 100.0f);
+					const auto frac = floorInt(percentage * 10000.0f) % 100;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 3) {
+					const auto whole = floorInt(percentage * 100.0f);
+					const auto frac = floorInt(percentage * 100000.0f) % 1000;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				}
+			}
+		} else {
+			if (decimal >= 0 && decimal < 6) {
+				if (decimal == 0) {
+					return BSFixedString(std::to_string(floorInt(percentage)).c_str());
+				} else if (decimal == 1) {
+					const auto whole = floorInt(percentage);
+					const auto frac = floorInt(percentage * 10.0f) % 10;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 2) {
+					const auto whole = floorInt(percentage);
+					const auto frac = floorInt(percentage * 100.0f) % 100;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 3) {
+					const auto whole = floorInt(percentage);
+					const auto frac = floorInt(percentage * 1000.0f) % 1000;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 4) {
+					const auto whole = floorInt(percentage);
+					const auto frac = floorInt(percentage * 10000.0f) % 10000;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				} else if (decimal == 5) {
+					const auto whole = floorInt(percentage);
+					const auto frac = floorInt(percentage * 100000.0f) % 100000;
+					return BSFixedString((std::to_string(whole) + "." + std::to_string(frac)).c_str());
+				}
+			}
+		}
+
+		return BSFixedString("");
+	}
+
+	BSFixedString GetTimeString(StaticFunctionTag* base, float timeValue, bool shortFormat, BSFixedString negativeText) {
+		(void)base;
+		std::string sign;
+		if (timeValue < 0.0f) {
+			if (negativeText.data() && negativeText.data()[0] != '\0') {
+				return negativeText;
+			}
+			sign = "-";
+			timeValue = -timeValue;
+		}
+
+		std::string timeString;
+
+		SInt32 val = static_cast<SInt32>(timeValue);
+		if (val != 0) {
+			timeString += std::to_string(val);
+			if (shortFormat) {
+				timeString += "d ";
+			} else if (val == 1) {
+				timeString += "day ";
+			} else {
+				timeString += "days ";
+			}
+		}
+		timeValue = (timeValue - static_cast<float>(val)) * 24.0f;
+
+		val = static_cast<SInt32>(timeValue);
+		if (val != 0) {
+			timeString += std::to_string(val);
+			if (shortFormat) {
+				timeString += "h ";
+			} else if (val == 1) {
+				timeString += "hour ";
+			} else {
+				timeString += "hours ";
+			}
+		}
+		timeValue = (timeValue - static_cast<float>(val)) * 60.0f;
+
+		val = static_cast<SInt32>(timeValue);
+		if (val != 0) {
+			timeString += std::to_string(val);
+			if (shortFormat) {
+				timeString += "m";
+			} else if (val == 1) {
+				timeString += "minute";
+			} else {
+				timeString += "minutes";
+			}
+		}
+
+		return BSFixedString((sign + timeString).c_str());
+	}
+
+	BSFixedString GetVersionString(StaticFunctionTag* base, BSFixedString modDesc) {
+		(void)base;
+		const char* descCstr = modDesc.data();
+		if (!descCstr || descCstr[0] == '\0') {
+			return BSFixedString("Undefined");
+		}
+
+		const std::string desc(descCstr);
+		const size_t descLen = desc.size();
+		size_t vpos = 0;
+
+		auto isDigit = [](unsigned char ch) -> bool {
+			return std::isdigit(ch) != 0;
+		};
+
+		while (true) {
+			const size_t found = desc.find("ersion", vpos);
+			if (found == std::string::npos) {
+				break;
+			}
+			if (found > 0 && (desc[found - 1] == 'V' || desc[found - 1] == 'v')) {
+				size_t pos = found + 6;
+				while (pos < descLen && desc[pos] != ':' && desc[pos] != ' ') {
+					++pos;
+				}
+				const size_t startpos = pos;
+				while (pos < descLen && (isDigit(static_cast<unsigned char>(desc[pos])) || desc[pos] == '.')) {
+					++pos;
+				}
+				if (pos <= startpos) {
+					vpos = found + 1;
+					continue;
+				}
+				const size_t endpos = pos - 1;
+				const size_t length = endpos - startpos;
+				if (endpos + 1 < descLen && desc[endpos + 1] == 'b') {
+					return BSFixedString((std::string("Beta ") + desc.substr(startpos, length)).c_str());
+				}
+				return BSFixedString(desc.substr(startpos, length).c_str());
+			}
+			vpos = found + 1;
+		}
+
+		return BSFixedString("Undefined");
+	}
+
+	bool AreModsInstalled(StaticFunctionTag* base, std::vector<BSFixedString> modNames) {
+		(void)base;
+		auto* dataHandler = DataHandler::GetSingleton();
+		if (!dataHandler) {
+			return false;
+		}
+
+		auto hasExt = [](const std::string& value, const char* ext) -> bool {
+			const size_t extLen = std::strlen(ext);
+			if (value.size() < extLen) {
+				return false;
+			}
+			return value.compare(value.size() - extLen, extLen, ext) == 0;
+		};
+
+		auto isInstalled = [&](const std::string& name) -> bool {
+			if (name.empty()) {
+				return false;
+			}
+			if (hasExt(name, ".esm") || hasExt(name, ".esp") || hasExt(name, ".esl")) {
+				if (dataHandler->LookupModByName(name.c_str())) {
+					return true;
+				}
+			}
+			if (dataHandler->LookupModByName((name + ".esm").c_str())) {
+				return true;
+			}
+			if (dataHandler->LookupModByName((name + ".esp").c_str())) {
+				return true;
+			}
+			if (dataHandler->LookupModByName((name + ".esl").c_str())) {
+				return true;
+			}
+			if (dataHandler->LookupModByName(name.c_str())) {
+				return true;
+			}
+			return false;
+		};
+
+		for (const auto& modName : modNames) {
+			const char* cstr = modName.data();
+			if (!cstr || cstr[0] == '\0') {
+				continue;
+			}
+			if (!isInstalled(cstr)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	BSFixedString ArrayReplace(StaticFunctionTag* base, BSFixedString text, std::vector<BSFixedString> replace) {
+		(void)base;
+		std::string result = text.data() ? text.data() : "";
+		for (std::size_t i = replace.size(); i > 0; --i) {
+			const auto idx = i - 1;
+			std::string key = "{" + std::to_string(idx) + "}";
+			const char* rep = replace[idx].data();
+			std::string value = rep ? rep : "";
+			result = ReplaceAll(result, key, value);
+		}
+		return BSFixedString(result.c_str());
+	}
+
+	float FloatModulo(StaticFunctionTag* base, float value, float modValue) {
+		(void)base;
+		if (modValue <= 0.0f) {
+			return value;
+		}
+		return std::fmod(value, modValue);
+	}
+
+	BSFixedString GetModFromID(StaticFunctionTag* base, RE::TESForm* form, bool fileExtension) {
+		(void)base;
+		if (!form) {
+			return BSFixedString("unknown");
+		}
+
+		const RE::TESFile* file = form->GetFile(0);
+		if (!file) {
+			if (auto* actor = form->As<RE::Actor>()) {
+				if (auto* baseForm = actor->GetActorBase()) {
+					file = baseForm->GetFile(0);
+				}
+			}
+		}
+
+		if (!file) {
+			return BSFixedString("unknown");
+		}
+
+		std::string name(file->GetFilename());
+		if (!fileExtension) {
+			const size_t lastindex = name.find_last_of('.');
+			if (lastindex != std::string::npos) {
+				name = name.substr(0, lastindex);
+			}
+		}
+		return BSFixedString(name.c_str());
 	}
 
 	std::string ws2s(std::wstring const& text) {
@@ -959,9 +1692,9 @@ namespace FWUtility {
 		std::string dir2 = dir;
 		dir2.append("*.*");
 		HANDLE hFind = FindFirstFile(dir2.c_str(), &FindData);
-		int count = 0;
-		int FNameLen = 0;
-		long FSize = 0;
+		UInt32 count = 0;
+		size_t FNameLen = 0;
+		long long FSize = 0;
 		if (&FindData) {
 			do {
 				std::string x = FindData.cFileName;
@@ -977,7 +1710,7 @@ namespace FWUtility {
 					try {
 						fs.open(FileName, std::ifstream::binary);
 						fs.seekg(0, std::ifstream::end);
-						FSize += fs.tellg();
+						FSize += static_cast<long long>(fs.tellg());
 						fs.close();
 					}
 					catch (std::exception*) {
@@ -996,17 +1729,17 @@ namespace FWUtility {
 		std::string res = Hex_str(count, 3);
 		res.append(Hex_str((count % 13) + 2, 1));
 		res.append("-");
-		res.append(Hex_str(FNameLen % 11, 1));
-		res.append(Hex_str(FNameLen % 14, 1));
-		res.append(Hex_str((FNameLen % 9) + 3, 1));
+		res.append(Hex_str(static_cast<long>(FNameLen % 11), 1));
+		res.append(Hex_str(static_cast<long>(FNameLen % 14), 1));
+		res.append(Hex_str(static_cast<long>((FNameLen % 9) + 3), 1));
 		res.append("-");
-		res.append(Hex_str(FNameLen % 2100, 3));
+		res.append(Hex_str(static_cast<long>(FNameLen % 2100), 3));
 		res.append("-");
-		res.append(Hex_str((FSize % 11) + 5, 1));
-		res.append(Hex_str((FSize % 10) + 6, 1));
-		res.append(Hex_str((FSize % 230) + 11, 2));
+		res.append(Hex_str(static_cast<long>((FSize % 11) + 5), 1));
+		res.append(Hex_str(static_cast<long>((FSize % 10) + 6), 1));
+		res.append(Hex_str(static_cast<long>((FSize % 230) + 11), 2));
 		res.append("-");
-		res.append(Hex_str(FSize % 8388500, 6));
+		res.append(Hex_str(static_cast<long>(FSize % 8388500), 6));
 		return BSFixedString(res.c_str());
 	}
 
@@ -1161,10 +1894,11 @@ namespace FWUtility {
 	}
 	std::string HexDigit(long value, long max, int shift) {
 		long x = 0;
-		if (shift < 1)
-			x = value && max;
-		else
-			x = logical_right_shift(value && max, shift);
+		if (shift < 1) {
+			x = value & max;
+		} else {
+			x = logical_right_shift(value & max, shift);
+		}
 		switch (x) {
 		case 0: return "0";
 		case 1: return "1";
@@ -1198,12 +1932,13 @@ namespace FWUtility {
 			dir.append("/");
 		dir.append("*.").append(extantion.data());
 		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
-		int count = 0;
-		if (&FindData) {
-			count++;
-			while (FindNextFile(hFind, &FindData))
-				count++;
+		if (hFind == INVALID_HANDLE_VALUE) {
+			return 0;
 		}
+		UInt32 count = 0;
+		do {
+			count++;
+		} while (FindNextFile(hFind, &FindData));
 		FindClose(hFind);
 		return count;
 	}
@@ -1216,18 +1951,19 @@ namespace FWUtility {
 			dir.append("/");
 		dir.append("*.").append(extantion.data());
 		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
-		int count = 0;
-		if (&FindData) {
-			do {
-				if (ID == count) {
-					//std::string x = FindData.cFileName;
-					//return BSFixedString(x.c_str());
-					FindClose(hFind);
-					return BSFixedString(FindData.cFileName);
-				}
-				count++;
-			} while (FindNextFile(hFind, &FindData));
+		if (hFind == INVALID_HANDLE_VALUE) {
+			return "";
 		}
+		UInt32 count = 0;
+		do {
+			if (ID == count) {
+				//std::string x = FindData.cFileName;
+				//return BSFixedString(x.c_str());
+				FindClose(hFind);
+				return BSFixedString(FindData.cFileName);
+			}
+			count++;
+		} while (FindNextFile(hFind, &FindData));
 		FindClose(hFind);
 		return "";
 	}
@@ -1965,6 +2701,31 @@ namespace FWUtility {
 		registry->RegisterFunction("GetStringFromForm", "FWUtility", &FWUtility::GetStringFromForm);
 
 		registry->RegisterFunction("GetModFromForm", "FWUtility", &FWUtility::GetModFromForm);
+
+		registry->RegisterFunction("ActorArrayResize", "FWUtility", &FWUtility::ActorArrayResize);
+		registry->RegisterFunction("ActorArrayUnique", "FWUtility", &FWUtility::ActorArrayUnique);
+		registry->RegisterFunction("ActorArrayAppend", "FWUtility", &FWUtility::ActorArrayAppend);
+		registry->RegisterFunction("removeDuplicatedActors", "FWUtility", &FWUtility::RemoveDuplicatedActors);
+		registry->RegisterFunction("FloatArrayAppend", "FWUtility", &FWUtility::FloatArrayAppend);
+		registry->RegisterFunction("FloatArrayResize", "FWUtility", &FWUtility::FloatArrayResize);
+		registry->RegisterFunction("IntArrayAppend", "FWUtility", &FWUtility::IntArrayAppend);
+		registry->RegisterFunction("ActorArray", "FWUtility", &FWUtility::ActorArray);
+		registry->RegisterFunction("ActorBaseArray", "FWUtility", &FWUtility::ActorBaseArray);
+		registry->RegisterFunction("FormArray", "FWUtility", &FWUtility::FormArray);
+		registry->RegisterFunction("BoolArray", "FWUtility", &FWUtility::BoolArray);
+		registry->RegisterFunction("FloatArray", "FWUtility", &FWUtility::FloatArray);
+		registry->RegisterFunction("IntArray", "FWUtility", &FWUtility::IntArray);
+		registry->RegisterFunction("StringArray", "FWUtility", &FWUtility::StringArray);
+		registry->RegisterFunction("FormArrayConcat", "FWUtility", &FWUtility::FormArrayConcat);
+		registry->RegisterFunction("GetNames", "FWUtility", &FWUtility::GetNames);
+		registry->RegisterFunction("getActorListNames", "FWUtility", &FWUtility::GetActorListNames);
+		registry->RegisterFunction("GetPercentage", "FWUtility", &FWUtility::GetPercentage);
+		registry->RegisterFunction("GetTimeString", "FWUtility", &FWUtility::GetTimeString);
+		registry->RegisterFunction("GetVersionString", "FWUtility", &FWUtility::GetVersionString);
+		registry->RegisterFunction("AreModsInstalled", "FWUtility", &FWUtility::AreModsInstalled);
+		registry->RegisterFunction("ArrayReplace", "FWUtility", &FWUtility::ArrayReplace);
+		registry->RegisterFunction("floatModulo", "FWUtility", &FWUtility::FloatModulo);
+		registry->RegisterFunction("GetModFromID", "FWUtility", &FWUtility::GetModFromID);
 
 		return true;
 	}
