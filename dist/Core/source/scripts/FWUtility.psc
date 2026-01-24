@@ -101,36 +101,7 @@ bool function IsModInstalled(string ModName) global
 endFunction
 
 string function ModFile(string ModName) global
-	;/int c = Game.GetModCount()
-	while c>0
-		c-=1
-		string m = Game.GetModName(c)
-		if m==ModName || m==ModName+".esp" || m==ModName+".esm"
-			return m
-		endif
-	endWhile/;	
-	;;;;; ;Tkc (Loverslab): optimization. standart detection
-	if !(Game.IsPluginInstalled(ModName))
-		if !(Game.IsPluginInstalled(ModName+".esp"))
-			if !(Game.IsPluginInstalled(ModName+".esm"))
-				if !(Game.IsPluginInstalled(ModName + ".esl"))
-				else
-					return ModName + ".esl"
-				endIf
-			else;if Game.IsPluginInstalled(ModName+".esm")
-				;debug.trace("BF: Utility > ModFile > return =" + ModName+".esm")	
-				return ModName+".esm"
-			endif
-		else;if Game.IsPluginInstalled(ModName+".esp")
-			;debug.trace("BF: Utility > ModFile > return =" + ModName+".esp")	
-			return ModName+".esp"
-		endif
-	else;if Game.IsPluginInstalled(ModName)
-		;debug.trace("BF: Utility > ModFile > return =" + ModName)	
-		return ModName
-	endif
-	;;;;;
-	return ""
+	return GetModFromString(ModName, true)
 endFunction
 
 string function GetJsonFile(form frm) global

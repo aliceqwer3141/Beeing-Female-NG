@@ -3502,10 +3502,6 @@ Event OnPageReset(string page)
 				mc=0
 			endif
 		endwhile/;
-		;;;;; ;Tkc (Loverslab): optimization. standart detection
-		if FWUtility.ModFile("BeeingFemale.esp")
-			BFVersion=BFVersion + " DEV"
-		endif
 		
 		AddHeaderOption("$FW_MENU_SYSTEM_Version")
 		AddTextOption("$FW_MENU_SYSTEM_VersionBF", FWVersion.GetVersionString())

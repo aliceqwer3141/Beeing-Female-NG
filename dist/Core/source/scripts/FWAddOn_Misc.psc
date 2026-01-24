@@ -301,13 +301,13 @@ function SetFloat(string name, float value)
 endFunction
 
 FWSystem function GetSystem()
-	return Game.GetFormFromFile(0xD62,FWUtility.ModFile("BeeingFemale")) as FWSystem
+	return Game.GetFormFromFile(0xD62,"BeeingFemale.esm") as FWSystem
 endFunction
 
 FWSystemConfig function GetConfig()
-	return Game.GetFormFromFile(0x1828,FWUtility.ModFile("BeeingFemale")) as FWSystemConfig
+	return Game.GetFormFromFile(0x1828,"BeeingFemale.esm") as FWSystemConfig
 endFunction
 
 FWController function GetController()
-	return Game.GetFormFromFile(0x182a,FWUtility.ModFile("BeeingFemale")) as FWController
+	return Game.GetFormFromFile(0x182a,"BeeingFemale.esm") as FWController
 endFunction

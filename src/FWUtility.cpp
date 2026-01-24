@@ -13,6 +13,7 @@
 #include <vector>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
 #include <string>
 #include <sstream>
 
@@ -101,6 +102,7 @@ namespace FWUtility {
 
 
 	SInt32 ScriptStringCount(StaticFunctionTag* base, BSFixedString src) {
+		(void)base;
 		std::ifstream fs;
 
 		// Generating file name
@@ -137,6 +139,10 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
@@ -151,6 +157,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString ScriptUser(StaticFunctionTag* base, BSFixedString src) {
+		(void)base;
 		std::ifstream fs;
 
 		// Generating file name
@@ -170,12 +177,17 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
 			std::string fUserName = ScriptFile_GetString(fs);
 			std::string fMachineName = ScriptFile_GetString(fs);
 			unsigned short StringTableCount = ScriptFile_GetShort(fs);
+			(void)StringTableCount;
 			fs.close();
 			return BSFixedString(fUserName.c_str());
 		}
@@ -183,6 +195,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString ScriptSource(StaticFunctionTag* base, BSFixedString src) {
+		(void)base;
 		std::ifstream fs;
 
 		// Generating file name
@@ -202,12 +215,17 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
 			std::string fUserName = ScriptFile_GetString(fs);
 			std::string fMachineName = ScriptFile_GetString(fs);
 			unsigned short StringTableCount = ScriptFile_GetShort(fs);
+			(void)StringTableCount;
 			fs.close();
 			return BSFixedString(fSourceFileName.c_str());
 		}
@@ -215,6 +233,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString ScriptMashine(StaticFunctionTag* base, BSFixedString src) {
+		(void)base;
 		std::ifstream fs;
 
 		// Generating file name
@@ -234,12 +253,17 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
 			std::string fUserName = ScriptFile_GetString(fs);
 			std::string fMachineName = ScriptFile_GetString(fs);
 			unsigned short StringTableCount = ScriptFile_GetShort(fs);
+			(void)StringTableCount;
 			fs.close();
 			return BSFixedString(fMachineName.c_str());
 		}
@@ -247,6 +271,7 @@ namespace FWUtility {
 	}
 
 	BSFixedString ScriptStringGet(StaticFunctionTag* base, BSFixedString src, SInt32 Num) {
+		(void)base;
 		if (Num < 0) {
 			return BSFixedString("");
 		}
@@ -269,6 +294,10 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
@@ -290,6 +319,7 @@ namespace FWUtility {
 	}
 
 	bool ScriptHasString(StaticFunctionTag* base, BSFixedString src, BSFixedString searchStr) {
+		(void)base;
 		std::string sStr = searchStr.data();
 		const char* cStr = sStr.c_str();
 		std::ifstream fs;
@@ -334,6 +364,10 @@ namespace FWUtility {
 			unsigned char fMajor = ScriptFile_GetByte(fs);
 			unsigned char fMinor = ScriptFile_GetByte(fs);
 			unsigned short fGameID = ScriptFile_GetShort(fs);
+			(void)fMagic;
+			(void)fMajor;
+			(void)fMinor;
+			(void)fGameID;
 			//unsigned long fCompileTime = ScriptFile_GetLong(fs);
 			fs.seekg(16, std::ios::beg);
 			std::string fSourceFileName = ScriptFile_GetString(fs);
@@ -492,59 +526,163 @@ namespace FWUtility {
 		std::string objString = fstr.data();
 		if (objString == "0")
 			return BSFixedString("");
+
+		auto* dataHandler = DataHandler::GetSingleton();
+		if (!dataHandler) {
+			return BSFixedString("");
+		}
+
+		auto stripExt = [](const std::string& name) {
+			const size_t pos = name.find_last_of('.');
+			if (pos == std::string::npos) {
+				return name;
+			}
+			return name.substr(0, pos);
+		};
+
+		auto hasExt = [](const std::string& value, const char* ext) -> bool {
+			const size_t extLen = std::strlen(ext);
+			if (value.size() < extLen) {
+				return false;
+			}
+			return value.compare(value.size() - extLen, extLen, ext) == 0;
+		};
+
+		auto resolveModName = [&](const std::string& name) -> BSFixedString {
+			const ModInfo* modInfo = nullptr;
+			if (hasExt(name, ".esm") || hasExt(name, ".esp") || hasExt(name, ".esl")) {
+				modInfo = dataHandler->LookupModByName(name.c_str());
+				if (modInfo) {
+					auto filename = modInfo->GetFilename();
+					std::string result(filename.data(), filename.size());
+					if (!bExt) {
+						result = stripExt(result);
+					}
+					return BSFixedString(result.c_str());
+				}
+			}
+
+			modInfo = dataHandler->LookupModByName((name + ".esm").c_str());
+			if (modInfo) {
+				auto filename = modInfo->GetFilename();
+				std::string result(filename.data(), filename.size());
+				if (!bExt) {
+					result = stripExt(result);
+				}
+				return BSFixedString(result.c_str());
+			}
+
+			modInfo = dataHandler->LookupModByName((name + ".esp").c_str());
+			if (modInfo) {
+				auto filename = modInfo->GetFilename();
+				std::string result(filename.data(), filename.size());
+				if (!bExt) {
+					result = stripExt(result);
+				}
+				return BSFixedString(result.c_str());
+			}
+
+			modInfo = dataHandler->LookupModByName((name + ".esl").c_str());
+			if (modInfo) {
+				auto filename = modInfo->GetFilename();
+				std::string result(filename.data(), filename.size());
+				if (!bExt) {
+					result = stripExt(result);
+				}
+				return BSFixedString(result.c_str());
+			}
+
+			modInfo = dataHandler->LookupModByName(name.c_str());
+			if (modInfo) {
+				auto filename = modInfo->GetFilename();
+				std::string result(filename.data(), filename.size());
+				if (!bExt) {
+					result = stripExt(result);
+				}
+				return BSFixedString(result.c_str());
+			}
+
+			return BSFixedString("");
+		};
+
 		std::vector<std::string> var;
 		split(objString, '_', var);
+		if (var.size() < 2) {
+			return resolveModName(objString);
+		}
 		std::string mod = "";
 		int i = 0;
 		for (i = 0; i < var.size() - 1; i++) {
 			if (i > 0) mod.append("_");
 			mod.append(var[i]);
 		}
-		std::string esm = mod;
-		std::string esp = mod;
-		esm.append(".esm");
-		esp.append(".esp");
-
 		std::string id = var[var.size() - 1];
+		const UInt32 rawID = static_cast<UInt32>(strtoul(id.c_str(), nullptr, 16)) & 0x00FFFFFF;
+
+		auto formExistsInMod = [&](const ModInfo* info) -> bool {
+			if (!info) {
+				return false;
+			}
+			if (info->IsLight()) {
+				const UInt32 lightIndex = info->GetPartialIndex();
+				if (((rawID >> 12) & 0xFFF) != lightIndex) {
+					return false;
+				}
+				const UInt32 formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
+				return TESForm::LookupByID(formID) != nullptr;
+			} else {
+				const UInt32 index = info->GetCompileIndex();
+				const UInt32 formID = (index << 24) | rawID;
+				return TESForm::LookupByID(formID) != nullptr;
+			}
+		};
+
+		auto tryReturn = [&](const ModInfo* info) -> BSFixedString {
+			if (!formExistsInMod(info)) {
+				return BSFixedString("");
+			}
+			auto filename = info->GetFilename();
+			std::string name(filename.data(), filename.size());
+			if (!bExt) {
+				name = stripExt(name);
+			}
+			return BSFixedString(name.c_str());
+		};
 
 		const ModInfo* modInfo = nullptr;
-		// Check for .esp extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esp.c_str());
-		if (modInfo) {
-			UInt8 indexEsp = modInfo->GetCompileIndex();
-			TESForm* frmEsp = TESForm::LookupByID((((UInt32)indexEsp) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsp != nullptr) {
-				if (bExt) esp.append(".esp");
-				return BSFixedString(esp.c_str());
-			}
-		}
-		
-		// Check for .esm extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(esm.c_str());
-		if (modInfo) {
-			UInt8 indexEsm = modInfo->GetCompileIndex();
-			TESForm* frmEsm = TESForm::LookupByID((((UInt32)indexEsm) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frmEsm != nullptr) {
-				if (bExt) esm.append(".esm");
-				return BSFixedString(esm.c_str());
+		if (hasExt(mod, ".esm") || hasExt(mod, ".esp") || hasExt(mod, ".esl")) {
+			modInfo = dataHandler->LookupModByName(mod.c_str());
+			auto res = tryReturn(modInfo);
+			if (res.data()[0] != '\0') {
+				return res;
 			}
 		}
 
-		// Check with including extention
-		modInfo = DataHandler::GetSingleton()->LookupModByName(mod.c_str());
-		if (modInfo) {
-			UInt8 index = modInfo->GetCompileIndex();
-			TESForm* frm = TESForm::LookupByID((((UInt32)index) << 24) | strtol(id.c_str(), NULL, 16));
-			if (frm != nullptr) {
-				if (!bExt) {
-					int lastindex = mod.find_last_of(".");
-					mod = mod.substr(0, lastindex);
-				}
-				return BSFixedString(mod.c_str());
-			}
+		modInfo = dataHandler->LookupModByName((mod + ".esm").c_str());
+		auto res = tryReturn(modInfo);
+		if (res.data()[0] != '\0') {
+			return res;
 		}
 
-		return BSFixedString("NULL");
+		modInfo = dataHandler->LookupModByName((mod + ".esp").c_str());
+		res = tryReturn(modInfo);
+		if (res.data()[0] != '\0') {
+			return res;
+		}
+
+		modInfo = dataHandler->LookupModByName((mod + ".esl").c_str());
+		res = tryReturn(modInfo);
+		if (res.data()[0] != '\0') {
+			return res;
+		}
+
+		modInfo = dataHandler->LookupModByName(mod.c_str());
+		res = tryReturn(modInfo);
+		if (res.data()[0] != '\0') {
+			return res;
+		}
+
+		return BSFixedString("");
 	}
 
 	UInt32 GetFormIDFromString(StaticFunctionTag* base, BSFixedString fstr) {
