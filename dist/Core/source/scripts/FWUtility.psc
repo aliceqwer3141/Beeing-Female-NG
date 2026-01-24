@@ -109,7 +109,7 @@ Form Function GetFormFromStringSE(string s) global
 	return result
 endFunction
 
-string function GetModFromString(string s, bool bExtension = false) global native ; returns the Mod Name from a FormString ("" if not found)
+string function GetModFromString(string s, bool bExtension = false) global native ; returns the plugin name for s (example: GetModFromString("BFACreatureChildActorsSE_ESPFE:848") -> "BFACreatureChildActorsSE_ESPFE.esp")
 int function GetFormIDFromString(string s) global native ; returns the Hex ID + Numeric ID from a formString (0 if not found)
 string function GetStringFromForm(form frm) global native ; returns the Form String from a form ("" if frm/file missing)
 string function GetModFromForm(form frm, bool bExtension = false) global native ; returns the mod File from a form ("" if frm missing, "-3" if no file)
