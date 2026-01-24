@@ -1094,6 +1094,25 @@ namespace FWUtility {
 		return "";
 	}
 
+	std::vector<BSFixedString> GetFileNames(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion) {
+		WIN32_FIND_DATA FindData;
+		std::vector<BSFixedString> result;
+		std::string dir = "Data/BeeingFemale/";
+		dir.append(Directory.data());
+		if (dir.substr(dir.length() - 1, 1) != "/" && dir.substr(dir.length() - 1, 1) != "\\")
+			dir.append("/");
+		dir.append("*.").append(extantion.data());
+		HANDLE hFind = FindFirstFile(dir.c_str(), &FindData);
+		if (hFind == INVALID_HANDLE_VALUE) {
+			return result;
+		}
+		do {
+			result.emplace_back(FindData.cFileName);
+		} while (FindNextFile(hFind, &FindData));
+		FindClose(hFind);
+		return result;
+	}
+
 	/*BSFixedString GetFileName(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion, UInt32 ID) {
 		std::string dir = Directory.data();
 		if(dir.substr(dir.length() - 1,1) != "/" && dir.substr(dir.length() - 1,1) != "\\")
@@ -1717,6 +1736,7 @@ namespace FWUtility {
 		registry->RegisterFunction("GetFileCount", "FWUtility", &FWUtility::GetFileCount);
 
 		registry->RegisterFunction("GetFileName", "FWUtility", &FWUtility::GetFileName);
+		registry->RegisterFunction("GetFileNames", "FWUtility", &FWUtility::GetFileNames);
 
 		registry->RegisterFunction("getTypeString", "FWUtility", &FWUtility::getTypeString);
 

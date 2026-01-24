@@ -180,7 +180,8 @@ function RefreshAddOnH(int type=127)
 	
 	ClearGlobalSettings()
 	
-	int c = FWUtility.GetFileCount("AddOn","ini")
+	string[] addOnFiles = FWUtility.GetFileNames("AddOn","ini")
+	int c = addOnFiles.length
 	
 	FW_log.WriteLog("FWAddOnManager - Number of AddOn is " + c)
 	
@@ -190,7 +191,7 @@ function RefreshAddOnH(int type=127)
 	while c>0
 		_LoadingState=0x30
 		c-=1
-		string n = FWUtility.GetFileName("AddOn","ini",c)
+		string n = addOnFiles[c]
 		
 		if(n)
 			FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn file name is " + n)

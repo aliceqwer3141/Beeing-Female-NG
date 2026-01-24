@@ -292,6 +292,7 @@ string function ScriptMashine(string script) global native
 
 int function GetFileCount(string argPath, string extention="json") global native
 string function GetFileName(string argPath, string extention="json", int fileID=0) global native
+string[] function GetFileNames(string argPath, string extention="json") global native
 bool function FileExists(string FilePath) global native
 string function getNextAutoFile(string Directory, string FileName, string Ext) global native
 

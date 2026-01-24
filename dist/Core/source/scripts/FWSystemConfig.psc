@@ -517,13 +517,14 @@ event OnUpdate()
 endEvent
 
 function LoadProfileIfExists(string File)
-	int c = FWUtility.GetFileCount("Profile","json")
+	string[] files = FWUtility.GetFileNames("Profile","json")
+	int c = files.length
 	if c>126
 		c=126
 	endif
 	while c>0
 		c -= 1
-		string f = FWUtility.GetFileName("Profile","json",c)
+		string f = files[c]
 		if(f==File || f==File+".json")
 			LoadProfile(f)
 			return
@@ -534,13 +535,14 @@ endFunction
 
 
 string function getCurrentProfile()
-	int c = FWUtility.GetFileCount("Profile","json")
+	string[] files = FWUtility.GetFileNames("Profile","json")
+	int c = files.length
 	if c>126
 		c=126
 	endif
 	while c>0
 		c -= 1
-		string f = FWUtility.GetFileName("Profile","json",c)
+		string f = files[c]
 		if IsProfile(f)
 			return f
 		endif
@@ -549,13 +551,14 @@ string function getCurrentProfile()
 endfunction
 
 bool function CurrentProfileExists()
-	int c = FWUtility.GetFileCount("Profile","json")
+	string[] files = FWUtility.GetFileNames("Profile","json")
+	int c = files.length
 	if c>126
 		c=126
 	endif
 	while c>0
 		c -= 1
-		string f = FWUtility.GetFileName("Profile","json",c)
+		string f = files[c]
 		if IsProfile(f)
 			return true
 		endif
@@ -2934,7 +2937,8 @@ Event OnPageReset(string page)
 		else
 ;			FW_log.WriteLog("FWSystemConfig - Loading AddOns...")
 			; Var Definitions
-			int iFCount=FWUtility.GetFileCount("AddOn","ini")
+			string[] addOnFiles = FWUtility.GetFileNames("AddOn","ini")
+			int iFCount = addOnFiles.length
 			int iCMisc=0
 			int iCRace=0
 			int iCCME=0
@@ -2967,7 +2971,7 @@ Event OnPageReset(string page)
 			; Read in all AddOns
 			while iFCount>0
 				iFCount-=1
-				string f=FWUtility.GetFileName("AddOn","ini",iFCount)
+				string f=addOnFiles[iFCount]
 				bool bAddOnEnabled=FWUtility.getIniCBool("AddOn",f,"AddOn","enabled",false)
 				bool bAddOnLocked=FWUtility.getIniCBool("AddOn",f,"AddOn","locked",false)
 				bool bAddOnHidden=FWUtility.getIniCBool("AddOn",f,"AddOn","hidden",false)
@@ -4034,15 +4038,17 @@ endEvent
 ; - Menu Options
 State MenuProfileLoad
 	Event OnMenuOpenST()
-		int c = FWUtility.GetFileCount("Profile","json")
+		string[] fileNames = FWUtility.GetFileNames("Profile","json")
+		int c = fileNames.length
 		if c>126
 			c=126
 		endif
 		string[] Files = FWUtility.StringArray(c+1)
 		Files[0] = "$FW_MENU_OPTIONS_None"
-		while c>0
-			c -= 1
-			Files[c+1]=FWUtility.GetFileName("Profile","json",c)
+		int i = 0
+		while i < c
+			Files[i+1] = fileNames[i]
+			i += 1
 		endWhile
 		SetMenuDialogOptions(Files)
 		SetMenuDialogStartIndex(0)
@@ -4050,9 +4056,16 @@ State MenuProfileLoad
 	
 	Event OnMenuAcceptST(int index)
 		if(index>0)
-			string FileName = FWUtility.GetFileName("Profile","json",index - 1)
+			string[] fileNames = FWUtility.GetFileNames("Profile","json")
+			int c = fileNames.length
+			if c>126
+				c=126
+			endif
+			if index <= c
+				string FileName = fileNames[index - 1]
 			SetMenuOptionValueST(FileName)
 			LoadProfile(FileName)
+			endif
 		endif
 	EndEvent
 	
@@ -4067,19 +4080,21 @@ EndState
 
 State MenuWidgetProfile
 	Event OnMenuOpenST()
-		int c = FWUtility.GetFileCount("HUD","ini")
+		string[] fileNames = FWUtility.GetFileNames("HUD","ini")
+		int c = fileNames.length
 		if c>126
 			c=126
 		endif
 		string[] Files = FWUtility.StringArray(c+1)
 		Files[0] = "$FW_MENU_OPTIONS_None"
 		int si = 0
-		while c>0
-			c -= 1
-			Files[c+1]=FWUtility.GetFileName("HUD","ini",c)
-			if Files[c+1]==WidgetProfile
-				si=c+1
+		int i = 0
+		while i < c
+			Files[i+1] = fileNames[i]
+			if Files[i+1]==WidgetProfile
+				si=i+1
 			endif
+			i += 1
 		endWhile
 		SetMenuDialogOptions(Files)
 		SetMenuDialogStartIndex(si)
@@ -4087,10 +4102,17 @@ State MenuWidgetProfile
 	
 	Event OnMenuAcceptST(int index)
 		if(index>0)
-			string FileName = FWUtility.GetFileName("HUD","ini",index - 1)
+			string[] fileNames = FWUtility.GetFileNames("HUD","ini")
+			int c = fileNames.length
+			if c>126
+				c=126
+			endif
+			if index <= c
+				string FileName = fileNames[index - 1]
 			WidgetProfile = FileName
 			SetMenuOptionValueST(FileName)
 			LoadWidgetProfile(FileName)
+			endif
 		endif
 	EndEvent
 	

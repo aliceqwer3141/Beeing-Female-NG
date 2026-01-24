@@ -50,6 +50,7 @@ namespace FWUtility {
 	//BSFixedString getLangText(StaticFunctionTag* base, BSFixedString content, BSFixedString VarName, BSFixedString DefaultValue);
 	UInt32 GetFileCount(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion);
 	BSFixedString GetFileName(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion, UInt32 ID);
+	std::vector<BSFixedString> GetFileNames(StaticFunctionTag* Base, BSFixedString Directory, BSFixedString extantion);
 
 	BSFixedString GetDirectoryHash(StaticFunctionTag* Base, BSFixedString Directory);
 	BSFixedString toLower(StaticFunctionTag* base, BSFixedString str);
