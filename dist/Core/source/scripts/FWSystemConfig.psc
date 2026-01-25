@@ -388,6 +388,17 @@ bool function IsChildRaceLabel(race r)
 	return false
 endFunction
 
+bool function IsRaceListed(race r, race[] listed, int count)
+	int idx = 0
+	while idx < count
+		if listed[idx] == r
+			return true
+		endif
+		idx += 1
+	endWhile
+	return false
+endFunction
+
 function OnLoadGame()
 	bTestPerkMode=false
 	bTestPerkRan=false
@@ -2607,6 +2618,7 @@ Event OnPageReset(string page)
 			i=0
 			int xRaces=FWUtility.getIniInt("AddOn",f,"races",0)
 			int racesListed=0
+			race[] listedRaces = new race[80]
 			;Keyword keywordVampire = Keyword.GetKeyword("Vampire")
 			;Keyword keywordBeast = Keyword.GetKeyword("IsBeastRace")
 			;Keyword keywordCreature = Keyword.GetKeyword("ActorTypeCreature")
@@ -2635,10 +2647,14 @@ Event OnPageReset(string page)
 							if r.HasKeyword(keywordCreature)
 								strR+="[Creature]"
 							endif
-							SetCursorPosition(offset+i)
-							AddTextOption(strR,"")
-							i+=1
-							racesListed+=1
+							if IsRaceListed(r, listedRaces, racesListed)
+							else
+								SetCursorPosition(offset+i)
+								AddTextOption(strR,"")
+								listedRaces[racesListed] = r
+								i+=1
+								racesListed+=1
+							endif
 						endif
 					endWhile
 				endif
@@ -2668,10 +2684,14 @@ Event OnPageReset(string page)
 								if r.HasKeyword(keywordCreature)
 									strR+="[Creature]"
 								endif
-								SetCursorPosition(offset+i)
-								AddTextOption(strR,"")
-								i+=1
-								racesListed+=1
+								if IsRaceListed(r, listedRaces, racesListed)
+								else
+									SetCursorPosition(offset+i)
+									AddTextOption(strR,"")
+									listedRaces[racesListed] = r
+									i+=1
+									racesListed+=1
+								endif
 							endif
 						endWhile
 					endif
