@@ -1,1 +1,0 @@
-﻿Scriptname FWChildActorBase extends ActorBase  

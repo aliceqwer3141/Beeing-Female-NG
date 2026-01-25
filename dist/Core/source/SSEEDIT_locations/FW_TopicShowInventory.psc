@@ -1,1 +1,0 @@
-﻿Scriptname FW_TopicShowInventory extends TopicInfo 
