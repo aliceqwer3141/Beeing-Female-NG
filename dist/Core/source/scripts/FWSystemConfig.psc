@@ -399,6 +399,7 @@ bool function IsRaceListed(race r, race[] listed, int count)
 	return false
 endFunction
 
+
 function OnLoadGame()
 	bTestPerkMode=false
 	bTestPerkRan=false
@@ -2635,6 +2636,7 @@ Event OnPageReset(string page)
 
 						if r;/!=none/; && racesListed<80 ; List a maximum of 80 races - Otherwise it may give a array overflow from MCM
 							string strR=r.GetName()
+							string formId = FWUtility.GetStringFromForm(r)
 							if r.HasKeyword(keywordVampire)
 								strR+="[Vampire]"
 							endif
@@ -2650,7 +2652,11 @@ Event OnPageReset(string page)
 							if IsRaceListed(r, listedRaces, racesListed)
 							else
 								SetCursorPosition(offset+i)
-								AddTextOption(strR,"")
+								if formId;/!=""/;
+									AddTextOption(strR, "["+formId+"]")
+								else
+									AddTextOption(strR,"")
+								endif
 								listedRaces[racesListed] = r
 								i+=1
 								racesListed+=1
@@ -2672,6 +2678,7 @@ Event OnPageReset(string page)
 							
 							if r;/!=none/; && racesListed<80 ; List a maximum of 80 races - Otherwise it may give a array overflow from MCM
 								string strR=r.GetName()+" "
+								string formId = FWUtility.GetStringFromForm(r)
 								if r.HasKeyword(keywordVampire)
 									strR+="[Vampire]"
 								endif
@@ -2687,7 +2694,11 @@ Event OnPageReset(string page)
 								if IsRaceListed(r, listedRaces, racesListed)
 								else
 									SetCursorPosition(offset+i)
-									AddTextOption(strR,"")
+									if formId;/!=""/;
+										AddTextOption(strR, "["+formId+"]")
+									else
+										AddTextOption(strR,"")
+									endif
 									listedRaces[racesListed] = r
 									i+=1
 									racesListed+=1
