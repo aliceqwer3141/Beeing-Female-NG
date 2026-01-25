@@ -129,5 +129,4 @@ SSEEDIT_locations/
   FW_TestSpell.psc
   FW_TopicDialFollow.psc
   FW_TopicShowInventory.psc
-  readme.txt
 
