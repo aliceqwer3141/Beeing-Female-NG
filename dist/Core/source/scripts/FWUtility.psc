@@ -99,18 +99,18 @@ function setIniCInt(string Type, string File, string Categorie, string Variable,
 function setIniCFloat(string Type, string File, string Categorie, string Variable, float Value) global native
 
 
-form function GetFormFromString(string s) global native ; returns the Form of a string ("Mod:Hex" or "Mod_Hex"), returns none on failure.
+form function GetFormFromString(string s) global native ; returns the Form of a string ("Mod:Hex" only), returns none on failure.
 
 Form Function GetFormFromStringSE(string s) global
 	Form result = GetFormFromString(s)
 	if !result
-		FW_log.WriteLog("FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:) or underscore (_)...")
+		FW_log.WriteLog("FWUtility - GetFormFromStringSE : Failed to get form from the string " + s + ". Please check whether it is correctly separated by colon (:)...")
 	endif
 	return result
 endFunction
 
 string function GetModFromString(string s, bool bExtension = false) global native ; returns the plugin name for s (example: GetModFromString("BFACreatureChildActorsSE_ESPFE:848") -> "BFACreatureChildActorsSE_ESPFE.esp")
-int function GetFormIDFromString(string s) global native ; returns the Hex ID + Numeric ID from a formString (0 if not found)
+int function GetFormIDFromString(string s) global native ; returns the numeric FormID from "Mod:Hex" (0 if not found)
 string function GetStringFromForm(form frm) global native ; returns the Form String from a form ("" if frm/file missing)
 string function GetModFromForm(form frm, bool bExtension = false) global native ; returns the mod File from a form ("" if frm missing, "-3" if no file)
 string function GetStringFromForms(Form[] frms) global

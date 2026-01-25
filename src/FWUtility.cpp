@@ -519,102 +519,6 @@ namespace FWUtility {
 			}
 			return TESForm::LookupByID(formID);
 		}
-		std::vector<std::string> var;
-		split(objString, '_', var);
-		if (var.size() < 2) {
-			return nullptr;
-		}
-		std::string mod = "";
-		int i = 0;
-		for (i = 0; i < var.size() - 1; i++) {
-			if (i > 0) mod.append("_");
-			mod.append(var[i]);
-		}
-		std::string esm = mod;
-		std::string esp = mod;
-		esm.append(".esm");
-		esp.append(".esp");
-
-		std::string id = var[var.size() - 1];
-
-		auto* dataHandler = DataHandler::GetSingleton();
-		if (!dataHandler) {
-			return nullptr;
-		}
-		char* endptr = nullptr;
-		const UInt32 rawID = static_cast<UInt32>(strtoul(id.c_str(), &endptr, 16)) & 0x00FFFFFF;
-		if (endptr == id.c_str() || (endptr && *endptr != '\0')) {
-			return nullptr;
-		}
-
-		const ModInfo* modInfo = nullptr;
-		// Check for .esp extention
-		modInfo = dataHandler->LookupModByName(esp.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsp = modInfo->GetCompileIndex();
-				formID = (indexEsp << 24) | rawID;
-			}
-			TESForm* frmEsp = TESForm::LookupByID(formID);
-			if (frmEsp != nullptr)
-				return frmEsp;
-		}
-
-		// Check for .esm extention
-		modInfo = dataHandler->LookupModByName(esm.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsm = modInfo->GetCompileIndex();
-				formID = (indexEsm << 24) | rawID;
-			}
-			TESForm* frmEsm = TESForm::LookupByID(formID);
-			if (frmEsm != nullptr)
-				return frmEsm;
-		}
-
-		// Check for .esl extention
-		std::string esl = mod;
-		esl.append(".esl");
-		modInfo = dataHandler->LookupModByName(esl.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsl = modInfo->GetCompileIndex();
-				formID = (indexEsl << 24) | rawID;
-			}
-			TESForm* frmEsl = TESForm::LookupByID(formID);
-			if (frmEsl != nullptr) {
-				return frmEsl;
-			}
-		}
-
-		// Check with including extention
-		modInfo = dataHandler->LookupModByName(mod.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 index = modInfo->GetCompileIndex();
-				formID = (index << 24) | rawID;
-			}
-			TESForm* frm = TESForm::LookupByID(formID);
-			if (frm != nullptr)
-				return frm;
-		}
-
 		return nullptr;
 	}
 
@@ -710,105 +614,14 @@ namespace FWUtility {
 		std::string objString = fstr.data();
 		if (objString == "0")
 			return 0;
-		std::vector<std::string> var;
-		split(objString, '_', var);
-		if (var.size() < 2) {
+		if (objString.find(':') == std::string::npos) {
 			return 0;
 		}
-		std::string mod = "";
-		int i = 0;
-		for (i = 0; i < var.size() - 1; i++) {
-			if (i > 0) mod.append("_");
-			mod.append(var[i]);
-		}
-		std::string esm = mod;
-		std::string esp = mod;
-		esm.append(".esm");
-		esp.append(".esp");
-
-		std::string id = var[var.size() - 1];
-
-		auto* dataHandler = DataHandler::GetSingleton();
-		if (!dataHandler) {
+		TESForm* frm = GetFormFromString(nullptr, fstr);
+		if (!frm) {
 			return 0;
 		}
-		char* endptr = nullptr;
-		const UInt32 rawID = static_cast<UInt32>(strtoul(id.c_str(), &endptr, 16)) & 0x00FFFFFF;
-		if (endptr == id.c_str() || (endptr && *endptr != '\0')) {
-			return 0;
-		}
-
-		const ModInfo* modInfo = nullptr;
-		// Check for .esp extention
-		modInfo = dataHandler->LookupModByName(esp.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsp = modInfo->GetCompileIndex();
-				formID = (indexEsp << 24) | rawID;
-			}
-			TESForm* frmEsp = TESForm::LookupByID(formID);
-			if (frmEsp != nullptr) {
-				return formID;
-			}
-		}
-
-		// Check for .esm extention
-		modInfo = dataHandler->LookupModByName(esm.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsm = modInfo->GetCompileIndex();
-				formID = (indexEsm << 24) | rawID;
-			}
-			TESForm* frmEsm = TESForm::LookupByID(formID);
-			if (frmEsm != nullptr) {
-				return formID;
-			}
-		}
-
-		// Check for .esl extention
-		std::string esl = mod;
-		esl.append(".esl");
-		modInfo = dataHandler->LookupModByName(esl.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 indexEsl = modInfo->GetCompileIndex();
-				formID = (indexEsl << 24) | rawID;
-			}
-			TESForm* frmEsl = TESForm::LookupByID(formID);
-			if (frmEsl != nullptr) {
-				return formID;
-			}
-		}
-
-		// Check with including extention
-		modInfo = dataHandler->LookupModByName(mod.c_str());
-		if (modInfo) {
-			UInt32 formID = 0;
-			if (modInfo->IsLight()) {
-				const UInt32 lightIndex = modInfo->GetPartialIndex();
-				formID = 0xFE000000 | (lightIndex << 12) | (rawID & 0xFFF);
-			} else {
-				const UInt32 index = modInfo->GetCompileIndex();
-				formID = (index << 24) | rawID;
-			}
-			TESForm* frm = TESForm::LookupByID(formID);
-			if (frm != nullptr) {
-				return formID;
-			}
-		}
-		return 0;
+		return frm->formID;
 	}
 
 	BSFixedString GetStringFromForm(StaticFunctionTag* base, TESForm* frm) {

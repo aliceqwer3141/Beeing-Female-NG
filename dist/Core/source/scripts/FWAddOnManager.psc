@@ -183,7 +183,7 @@ function RefreshAddOnH(int type=127)
 	string[] addOnFiles = FWUtility.GetFileNames("AddOn","ini")
 	int c = addOnFiles.length
 	
-	FW_log.WriteLog("FWAddOnManager - Number of AddOn is " + c)
+	trace("FWAddOnManager - Number of AddOn is " + c)
 	
 	_LoadingState=0x21
 	AddOnFolderHash=FWUtility.GetDirectoryHash("AddOn")
@@ -194,34 +194,34 @@ function RefreshAddOnH(int type=127)
 		string n = addOnFiles[c]
 		
 		if(n)
-			FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn file name is " + n)
+			trace("FWAddOnManager - AddOn file name is " + n)
 		
 			if FWUtility.getIniCBool("AddOn",n,"AddOn","enabled") || FWUtility.getIniCBool("AddOn",n,"AddOn","locked")
-				FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn is enabled or locked")
+				trace("FWAddOnManager - AddOn " + n + " is enabled or locked")
 			
 				_LoadingState=0x31
 				string required = FWUtility.getIniCString("AddOn",n,"AddOn","required")
 				bool bUse=true
 				if required;/!=""/; ;Tkc (Loverslab): optimization
-					FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn has requirements")
+					trace("FWAddOnManager - AddOn " + n + " has requirements")
 
 					string[] requiredA = StringUtil.Split(required,",")
 					
 					int NumOfRequired = requiredA.Length
 					int myIndex = 0
 					while(myIndex < NumOfRequired)
-						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : " + (myIndex + 1) + "th requirement is " + requiredA[myIndex])				
+						trace("FWAddOnManager - AddOn " + n + " : " + (myIndex + 1) + "th requirement is " + requiredA[myIndex])				
 						myIndex += 1
 					endWhile				
 					
 					if FWUtility.AreModsInstalled(requiredA) ;Tkc (Loverslab): optimization
-						FW_log.WriteLog("FWAddOnManager - Requirements of " + c + "th AddOn are already installed!")
+						trace("FWAddOnManager - Requirements of AddOn " + n + " are already installed!")
 					else;if FWUtility.AreModsInstalled(requiredA)==false
-						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn is failed to work due to the lack of requirements...")
+						FW_log.WriteLog("FWAddOnManager - AddOn " + n + " failed to work due to the lack of requirements. Required: " + required)
 						bUse=false
 					endif
 				else
-					FW_log.WriteLog("FWAddOnManager - Failed to load requirements of " + c + "th AddOn. Maybe it does not need requirements...")
+					FW_log.trace("FWAddOnManager - No requirements listed for AddOn " + n + ". Skipping requirements check.")
 				endif
 				_LoadingState=0x32
 				if bUse
@@ -230,10 +230,10 @@ function RefreshAddOnH(int type=127)
 					_LoadingState=0x34
 					
 					if(t)
-						FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is " + t)
+						trace("FWAddOnManager - AddOn " + n + " type is " + t)
 
 						if t=="misc" && Math.LogicalAnd(type,1)==1
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is misc")
+							trace("FWAddOnManager - AddOn " + n + " type is misc")
 							
 							_LoadingState=0x40
 							string modName=FWUtility.getIniCString("AddOn",n,"AddOn","modFile")							
@@ -242,55 +242,55 @@ function RefreshAddOnH(int type=127)
 							_LoadingState=0x42
 							;if modName!="" && FWUtility.IsModInstalled(modName) && formID>0
 							if modName;/!=""/; ;Tkc (Loverslab): optimization
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn has modName")
+								trace("FWAddOnManager - AddOn " + n + " has modName")
 							
 								if FWUtility.IsModInstalled(modName)
-									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is installed")
+									trace("FWAddOnManager - AddOn " + n + " : modName = " + modName + " is installed")
 									
 									if formID>0
 										_LoadingState=0x43
 										FWAddOn_Misc tmp=Game.GetFormFromFile(formID,modName) as FWAddOn_Misc
 										if tmp as FWAddOn_Misc;/!=none/;
-											FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : tmp = " + tmp)
+											trace("FWAddOnManager - AddOn " + n + " : tmp = " + tmp)
 											
 											sMisc[iMisc]=n
 											Misc[iMisc]=tmp
 											iMisc+=1
 										else
-											FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Failed to load tmp with FormID = " + formID)
+											FW_log.WriteLog("FWAddOnManager - AddOn " + n + " : Failed to load tmp with FormID = " + formID)
 										endif
 										_LoadingState=0x44
 									else
-										FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : FormID is not positive and hence it is invalid...")
+										FW_log.WriteLog("FWAddOnManager - AddOn " + n + " : FormID is not positive and hence it is invalid...")
 									endif
 								else
-									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : modName = " + modName + " is not installed...")
+									FW_log.WriteLog("FWAddOnManager - AddOn " + n + " : modName = " + modName + " is not installed...")
 								endif
 							else
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn does not have modName")
+								FW_log.WriteLog("FWAddOnManager - AddOn " + n + " does not have modName")
 							endif
 							_LoadingState=0x45
 						elseif t=="race" && Math.LogicalAnd(type,2)==2
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is race")
+							trace("FWAddOnManager - AddOn " + n + " type is race")
 							
 							string sRaceCount=FWUtility.getIniString("AddOn",n,"races","")							
 							int RaceCount=0
 							if sRaceCount;/!=""/; ;Tkc (Loverslab): optimization
 								RaceCount=sRaceCount as int
 								
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount = " + RaceCount)
+								trace("FWAddOnManager - AddOn " + n + " : RaceCount = " + RaceCount)
 							else
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : sRaceCount is zero")
+								trace("FWAddOnManager - AddOn " + n + " : sRaceCount is zero")
 							endif
 							if RaceCount==0
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount is zero. Running AddRaceAddOnCat...")
+								trace("FWAddOnManager - AddOn " + n + " : RaceCount is zero. Running AddRaceAddOnCat...")
 								
 								AddRaceAddOnCat(n,"AddOn")
 							else
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : RaceCount is not zero")
+								trace("FWAddOnManager - AddOn " + n + " : RaceCount is not zero")
 								
 								while RaceCount>0
-									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Running " + RaceCount + "th AddRaceAddOnCat...")
+									trace("FWAddOnManager - AddOn " + n + " : Running " + RaceCount + "th AddRaceAddOnCat...")
 									
 									AddRaceAddOnCat(n,"Race"+RaceCount)
 									RaceCount-=1
@@ -298,7 +298,7 @@ function RefreshAddOnH(int type=127)
 							endif
 							
 						elseif t=="cme" && Math.LogicalAnd(type,4)==4
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is cme")
+							trace("FWAddOnManager - AddOn " + n + " type is cme")
 							
 							_LoadingState=0x70
 							AddCME(n,"Always_FollicularPhase")
@@ -328,10 +328,10 @@ function RefreshAddOnH(int type=127)
 							_LoadingState=0x76
 							AddCME(n,"Sometimes_Trimester3")
 						elseif(t == "global")
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is global")
+							trace("FWAddOnManager - AddOn " + n + " type is global")
 							
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_RemoveSPIDitems", false))
-								FW_log.WriteLog("FWAddOnManager - Global_RemoveSPIDitems is true")
+								trace("FWAddOnManager - Global_RemoveSPIDitems is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 1)
 							endIf
 							LoadGlobalAddOnValue(n, "Global_WidgetFadeOutTime")
@@ -339,7 +339,7 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_WidgetNoFlashShowTime")
 
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisablePregnancy", false))
-								FW_log.WriteLog("FWAddOnManager - Activating Global_DisablePregnancy")	
+								trace("FWAddOnManager - Activating Global_DisablePregnancy")	
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisablePregnancy", 1)
 							endIf
 							
@@ -389,7 +389,7 @@ function RefreshAddOnH(int type=127)
 							LoadGlobalAddOnValue(n, "Global_Male_Recovery_Scale")
 							LoadGlobalAddOnValue(n, "Global_Ignore_Contraception_Prob")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Allow_Impregnation_For_Any_Period", false)
-								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
+								trace("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Allow_Impregnation_For_Any_Period")
 								
 								LoadGlobalAddOnValue(n, "Global_Sperm_Impregnation_Prob_For_Any_Period")
 								if(StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -404,7 +404,7 @@ function RefreshAddOnH(int type=127)
 
 
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_Female_Force_This_Baby", false)
-								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Female_Force_This_Baby")
+								trace("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_Female_Force_This_Baby")
 								
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_Female_Force_This_Baby", 1)
 							endif
@@ -413,75 +413,78 @@ function RefreshAddOnH(int type=127)
 							AddGlobalAddOnArrayToList(n, "Global_BabyActor_Male")
 							AddGlobalAddOnArrayToList(n, "Global_BabyActor_MalePlayer")
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_MixWithCopyActorBase", false))
-								FW_log.WriteLog("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_MixWithCopyActorBase and reading Global_ProbChildActorBorn...")
+								trace("FWAddOnManager - RefreshAddOnH : AddOn file name = " + n + ", loading data. Activating FW.AddOn.Global_MixWithCopyActorBase and reading Global_ProbChildActorBorn...")
 								
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase", 1)
 								LoadGlobalAddOnValueInt(n, "Global_ProbChildActorBorn")
 							endif
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowPCDialogue", false)
-								FW_log.WriteLog("FWAddOnManager - Global_AllowPCDialogue is true")
+								trace("FWAddOnManager - Global_AllowPCDialogue is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 1)
 							endif
 							LoadGlobalAddOnValue(n, "Global_initialScale")
 							LoadGlobalAddOnValue(n, "Global_finalScale")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisableMatureTime", false)
-								FW_log.WriteLog("FWAddOnManager - Global_DisableMatureTime is true")
+								trace("FWAddOnManager - Global_DisableMatureTime is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableMatureTime", 1)
 							else
-								FW_log.WriteLog("FWAddOnManager - Global_DisableMatureTime is false. Reading Global_MatureTimeScale...")
+								trace("FWAddOnManager - Global_DisableMatureTime is false. Reading Global_MatureTimeScale...")
 								LoadGlobalAddOnValue(n, "Global_MatureTimeScale")	
 							endif
 							LoadGlobalAddOnValueInt(n, "Global_MatureStep")
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_AllowUnrestrictedS", false)
-								FW_log.WriteLog("FWAddOnManager - Global_AllowUnrestrictedS is true")
+								trace("FWAddOnManager - Global_AllowUnrestrictedS is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_AllowUnrestrictedS", 1)
 							endif
 							if FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_ProtectedChildActor", false)
-								FW_log.WriteLog("FWAddOnManager - Global_ProtectedChildActor is true")
+								trace("FWAddOnManager - Global_ProtectedChildActor is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 1)
 							endif
 						elseif(t == "actor")
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type is actor")
+							trace("FWAddOnManager - AddOn " + n + " type is actor")
 							
 							string sActorCount = FWUtility.getIniString("AddOn", n, "actors", "")							
 							int ActorCount = 0
 							if sActorCount;/!=""/; ;Tkc (Loverslab): optimization
 								ActorCount = sActorCount as int
 								
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount = " + ActorCount)
+								trace("FWAddOnManager - AddOn " + n + " : ActorCount = " + ActorCount)
 							else
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : sActorCount is zero")
+								trace("FWAddOnManager - AddOn " + n + " : sActorCount is zero")
 							endif
 							if(ActorCount == 0)
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount is zero. Running AddActorAddOnCat...")
+								trace("FWAddOnManager - AddOn " + n + " : ActorCount is zero. Running AddActorAddOnCat...")
 								
 								AddActorAddOnCat(n, "AddOn")
 							else
-								FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : ActorCount is not zero")
+								trace("FWAddOnManager - AddOn " + n + " : ActorCount is not zero")
 								
 								while(ActorCount > 0)
-									FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn : Running " + ActorCount + "th AddActorAddOnCat...")
+									trace("FWAddOnManager - AddOn " + n + " : Running " + ActorCount + "th AddActorAddOnCat...")
 									
 									AddActorAddOnCat(n, "Actor" + ActorCount)
 									ActorCount -= 1
 								endwhile
 							endif
 						else
-							FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn type cannot be recognized in BeeingFemale...")
+							FW_log.WriteLog("FWAddOnManager - AddOn " + n + " type cannot be recognized in BeeingFemale...")
 						endif
 					else
-						FW_log.WriteLog("FWAddOnManager - Failed to load " + c + "th AddOn type...")
+						FW_log.WriteLog("FWAddOnManager - Failed to load AddOn type for " + n + "...")
 					endIf
 				else
-					FW_log.WriteLog("FWAddOnManager - " + c + "th AddOn will not be used...")
+					FW_log.WriteLog("FWAddOnManager - AddOn " + n + " will not be used...")
 				endif
 			endif
 		else
-			FW_log.WriteLog("FWAddOnManager - Failed to load " + c + "th AddOn file name...")
+			FW_log.WriteLog("FWAddOnManager - Failed to load AddOn file name at index " + c + "...")
 		endIf
 	endWhile
 endFunction
 
+Function trace(String msg, Int aiPriority = 0) Global 
+	;FW_log.trace(msg,aiPriority)
+EndFunction
 
 bool function Export(FWAddOnBase q, string Prefix="", int type=127) global
 	bool bRes=false
@@ -910,7 +913,7 @@ function AddCME(string n, string valueName)
 			spell itm = FWUtility.GetFormFromStringSE(ss[c]) as spell
 							
 			if itm;/!=none/;
-				FW_log.WriteLog("FWAddOnManager - AddCME : " + (c + 1) + "th spell in " + n + " is " + itm + ". It will be added to FW.AddOn." + valueName)
+				trace("FWAddOnManager - AddCME : " + (c + 1) + "th spell in " + n + " is " + itm + ". It will be added to FW.AddOn." + valueName)
 					
 				StorageUtil.FormListAdd(none,"FW.AddOn."+valueName,itm)
 ;			else
@@ -926,12 +929,12 @@ function AddRaceAddOnValue(race r, string n, string cat,string valueName)
 	float v=FWUtility.getIniCFloat("AddOn",n,cat,valueName,1.0)
 	
 	if v>0; && v<10
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - AddRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 ;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		
 		float oldVal = StorageUtil.GetFloatValue(r,"FW.AddOn."+valueName,1.0)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
+		trace("FWAddOnManager - AddRaceAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
 		
 		StorageUtil.SetFloatValue(r, "FW.AddOn."+valueName, (oldVal * v))
 ;	else
@@ -943,8 +946,8 @@ function LoadRaceAddOnValue(race r, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if v > 0
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 ;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 ;	else
@@ -956,8 +959,8 @@ function LoadRaceAddOnValueIncludingZero(race r, string n, string cat, string va
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if v >= 0
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -965,8 +968,8 @@ endFunction
 function LoadRaceAddOnValueAnything(race r, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
 	
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	trace("FWAddOnManager - LoadRaceAddOnValue : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	trace("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(r, "FW.AddOn." + valueName, v)
 endFunction
 
@@ -974,8 +977,8 @@ function LoadRaceAddOnValueInt(race r, string n, string cat, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, cat, valueName, -1)
 	
 	if v >= 0
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValueInt : Race = " + r + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 ;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = " + cat + " in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetIntValue(r, "FW.AddOn." + valueName, v)
 ;	else
@@ -1011,7 +1014,7 @@ function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
 						if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm) ;Tkc (Loverslab): optimization
 ;							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
+							trace("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
 							StorageUtil.FormListAdd(r,"FW.AddOn."+valueName,itm)
 						endif
 ;					else
@@ -1022,9 +1025,9 @@ function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
 				endif
 			endWhile
 		else
-			FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is not zero")
+			trace("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". For race " + r + ", FW.AddOn.Female_Force_This_Baby is not zero")
 
-			FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r)
+			trace("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in race " + r)
 			StorageUtil.FormListClear(r, "FW.AddOn." + valueName)
 
 			while c>0
@@ -1035,9 +1038,9 @@ function AddRaceAddOnArrayToList(race r, string n, string cat,string valueName)
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						trace("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
+						trace("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in race " + r)
 						if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm) ;Tkc (Loverslab): optimization
 ;							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Race = " + r + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName is already added in FW.AddOn." + valueName + " for race " + r)
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
@@ -1071,7 +1074,7 @@ function AddRaceAddOnCat(string n, string cat)
 			race r = FWUtility.GetFormFromStringSE(saRaces[c2]) as Race
 			
 			if r;/!=none/;
-				FW_log.WriteLog("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th race is " + r)
+				trace("FWAddOnManager - AddRaceAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th race is " + r)
 					
 				AddRaceAddOn(r,n,cat)
 ;			else
@@ -1088,13 +1091,13 @@ function AddRaceAddOn(race r, string n, string cat)
 	if StorageUtil.FormListHas(none,"FW.AddOn.Races",r) ;Tkc (Loverslab): optimization
 ;		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". This race is already in FW.AddOn.Races...")
 	else;if !StorageUtil.FormListHas(none,"FW.AddOn.Races",r)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Adding this race to FW.AddOn.Races")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Adding this race to FW.AddOn.Races")
 
 		StorageUtil.FormListAdd(none,"FW.AddOn.Races",r)
 	endif
 	
 	if FWUtility.getIniCBool("AddOn",n,cat,"DisablePregnancy",false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisablePregnancy for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisablePregnancy for this race")
 	
 		StorageUtil.SetIntValue(r,"FW.AddOn.DisablePregnancy",1)
 ;	else
@@ -1166,7 +1169,7 @@ function AddRaceAddOn(race r, string n, string cat)
 	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
 	LoadRaceAddOnValueIncludingZero(r, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this race")
 		
 		LoadRaceAddOnValue(r, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
 		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -1177,7 +1180,7 @@ function AddRaceAddOn(race r, string n, string cat)
 	endif
 	LoadRaceAddOnValueAnything(r, n, cat, "Sperm_Impregnation_Boost")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_NTR_baby for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Allow_NTR_baby for this race")
 		
 		LoadRaceAddOnValue(r, n, cat, "Sperm_NTR_baby_Prob")
 		if(StorageUtil.GetFloatValue(r, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
@@ -1191,7 +1194,7 @@ function AddRaceAddOn(race r, string n, string cat)
 
 
 	if FWUtility.getIniCBool("AddOn",n,cat,"Female_Force_This_Baby",false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.Female_Force_This_Baby for this race")
 		
 		StorageUtil.SetIntValue(r,"FW.AddOn.Female_Force_This_Baby",1)
 ;	else
@@ -1204,31 +1207,31 @@ function AddRaceAddOn(race r, string n, string cat)
 	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_Male")
 	AddRaceAddOnArrayToList(r,n,cat,"BabyActor_MalePlayer")
 	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.MixWithCopyActorBase for this race and reading ProbChildActorBorn...")
 		
 		StorageUtil.SetIntValue(r, "FW.AddOn.MixWithCopyActorBase", 1)
 		LoadRaceAddOnValueInt(r, n, cat, "ProbChildActorBorn")
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowPCDialogue for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.AllowPCDialogue", 1)
 	endIf
 	LoadRaceAddOnValue(r, n, cat, "initialScale")
 	LoadRaceAddOnValue(r, n, cat, "finalScale")
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisableMatureTime for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.DisableMatureTime for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.DisableMatureTime", 1)
 	else
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". FW.AddOn.DisableMatureTime is disabled for this race. Reading MatureTimeScale...")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". FW.AddOn.DisableMatureTime is disabled for this race. Reading MatureTimeScale...")
 		LoadRaceAddOnValue(r, n, cat, "MatureTimeScale")	
 	endif
 	LoadRaceAddOnValueInt(r, n, cat, "MatureStep")
 	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowUnrestrictedS for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.AllowUnrestrictedS for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.AllowUnrestrictedS", 1)
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
-		FW_log.WriteLog("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.ProtectedChildActor for this race")
+		trace("FWAddOnManager - AddRaceAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for race " + r + ". Activating FW.AddOn.ProtectedChildActor for this race")
 		StorageUtil.SetIntValue(r, "FW.AddOn.ProtectedChildActor", 1)
 	endIf
 endFunction
@@ -1394,8 +1397,8 @@ function LoadGlobalAddOnValue(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
 	
 	if v > 0
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
 ;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 ;	else
@@ -1406,24 +1409,24 @@ function LoadGlobalAddOnValueIncludingZero(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, -1)
 	
 	if(v >= 0)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 	endif
 endFunction
 function LoadGlobalAddOnValueAnything(string n, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, "AddOn", valueName, 0)
 	
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
+	trace("FWAddOnManager - LoadRaceAddOnValue : AddOn file name = " + n + ", loading data in = AddOn, and valueName = " + valueName)
+	trace("FWAddOnManager - LoadRaceAddOnValue : Data = AddOn in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(none, "FW.AddOn." + valueName, v)
 endFunction
 function LoadGlobalAddOnValueInt(string n, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, "AddOn", valueName, -1)
 	
 	if v >= 0
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : AddOn file name = " + n + ", loading data in AddOn, and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValueInt : AddOn file name = " + n + ", loading data in AddOn, and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". Loaded valueName = " + v)
 ;		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValueInt : Data = AddOn in " + n + ". valueName condition is satisfied!")
 		StorageUtil.SetIntValue(none, "FW.AddOn." + valueName, v)
 ;	else
@@ -1446,16 +1449,16 @@ function AddGlobalAddOnArrayToList(string n, string valueName)
 					if itm;/!=none/;
 						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+							trace("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
 							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
 						endif
 					endif
 				endif
 			endWhile
 		else
-			FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Global FW.AddOn.Female_Force_This_Baby is not zero")
+			trace("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Global FW.AddOn.Female_Force_This_Baby is not zero")
 
-			FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Clearing FW.AddOn." + valueName + " in global settings")
+			trace("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Clearing FW.AddOn." + valueName + " in global settings")
 			StorageUtil.FormListClear(none, "FW.AddOn." + valueName)
 
 			while(c > 0)
@@ -1464,9 +1467,9 @@ function AddGlobalAddOnArrayToList(string n, string valueName)
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						trace("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						FW_log.WriteLog("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
+						trace("FWAddOnManager - AddGlobalAddOnArrayToList : Data in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in global settings")
 						if StorageUtil.FormListHas(none, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
 							StorageUtil.FormListAdd(none, "FW.AddOn." + valueName, itm)
@@ -1495,16 +1498,16 @@ function AddActorAddOnArrayToList(actor a, string n, string cat, string valueNam
 					if itm;/!=none/;
 						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
-							FW_log.WriteLog("FWAddOnManager - AddRaceAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+							trace("FWAddOnManager - AddRaceAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
 							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
 						endif
 					endif
 				endif
 			endWhile
 		else
-			FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". For actor " + a + ", FW.AddOn.Female_Force_This_Baby is not zero")
+			trace("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". For actor " + a + ", FW.AddOn.Female_Force_This_Baby is not zero")
 
-			FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in actor " + a)
+			trace("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Clearing FW.AddOn." + valueName + " in actor " + a)
 			StorageUtil.FormListClear(a, "FW.AddOn." + valueName)
 
 			while(c > 0)
@@ -1514,9 +1517,9 @@ function AddActorAddOnArrayToList(actor a, string n, string cat, string valueNam
 					form itm = FWUtility.GetFormFromStringSE(ss[c])
 
 					if itm;/!=none/;
-						FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
+						trace("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". Loaded " + (c + 1) + "th valueName is " + itm)
 
-						FW_log.WriteLog("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
+						trace("FWAddOnManager - AddActorAddOnArrayToList : Actor = " + a + ", Data = " + cat + " in " + n + ". " + (c + 1) + "th valueName will be added to FW.AddOn." + valueName + " in actor " + a)
 						if StorageUtil.FormListHas(a, "FW.AddOn." + valueName, itm) ;Tkc (Loverslab): optimization
 						else;if StorageUtil.FormListHas(r,"FW.AddOn."+valueName,itm)==false
 							StorageUtil.FormListAdd(a, "FW.AddOn." + valueName, itm)
@@ -1531,11 +1534,11 @@ function AddActorAddOnValue(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 1.0)
 	
 	if(v > 0)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - AddActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		
 		float oldVal = StorageUtil.GetFloatValue(a, "FW.AddOn." + valueName, 1.0)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
+		trace("FWAddOnManager - AddActorAddOnValue : Data = " + cat + " in " + n + ". oldVal = " + oldVal + " will be changed to " + (oldVal * v))
 		
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, (oldVal * v))
 	endif
@@ -1544,8 +1547,8 @@ function LoadActorAddOnValueInt(actor a, string n, string cat, string valueName)
 	int v = FWUtility.getIniCInt("AddOn", n, cat, valueName, -1)
 	
 	if(v >= 0)
-		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValueInt : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadActorAddOnValueInt : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadActorAddOnValueInt : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetIntValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -1553,8 +1556,8 @@ function LoadActorAddOnValue(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if(v > 0)
-		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadActorAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadActorAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
@@ -1562,16 +1565,16 @@ function LoadActorAddOnValueIncludingZero(actor a, string n, string cat, string 
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, -1)
 	
 	if(v >= 0)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-		FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+		trace("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 		StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 	endif
 endFunction
 function LoadActorAddOnValueAnything(actor a, string n, string cat, string valueName)
 	float v = FWUtility.getIniCFloat("AddOn", n, cat, valueName, 0)
 	
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
-	FW_log.WriteLog("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
+	trace("FWAddOnManager - LoadRaceAddOnValue : Actor = " + a + ". AddOn file name = " + n + ", loading data in = " + cat + ", and valueName = " + valueName)
+	trace("FWAddOnManager - LoadRaceAddOnValue : Data = " + cat + " in " + n + ". Loaded valueName = " + v)
 	StorageUtil.SetFloatValue(a, "FW.AddOn." + valueName, v)
 endFunction
 
@@ -1586,7 +1589,7 @@ function AddActorAddOnCat(string n, string cat)
 			actor a = FWUtility.GetFormFromStringSE(saActors[c2]) as actor
 			
 			if a;/!=none/;
-				FW_log.WriteLog("FWAddOnManager - AddActorAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th actor is " + a)
+				trace("FWAddOnManager - AddActorAddOnCat : AddOn file name = " + n + ", loading data in = " + cat + ". " + (c2 + 1) + "th actor is " + a)
 					
 				AddActorAddOn(a, n, cat)
 			endif
@@ -1596,13 +1599,13 @@ endFunction
 function AddActorAddOn(actor a, string n, string cat)
 	if StorageUtil.FormListHas(none, "FW.AddOn.Actors", a) ;Tkc (Loverslab): optimization
 	else;if !StorageUtil.FormListHas(none,"FW.AddOn.Races",r)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Adding this Actor to FW.AddOn.Actors")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Adding this Actor to FW.AddOn.Actors")
 
 		StorageUtil.FormListAdd(none, "FW.AddOn.Actors", a)
 	endif
 	
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisablePregnancy", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisablePregnancy for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisablePregnancy for this actor")
 	
 		StorageUtil.SetIntValue(a, "FW.AddOn.DisablePregnancy", 1)
 	endif
@@ -1670,7 +1673,7 @@ function AddActorAddOn(actor a, string n, string cat)
 	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg2ndBreastsScale_by_FatherRace")
 	LoadActorAddOnValueIncludingZero(a, n, cat, "Modify_Preg3rdBreastsScale_by_FatherRace")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_Impregnation_For_Any_Period", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_Impregnation_For_Any_Period for this actor")
 		
 		LoadActorAddOnValue(a, n, cat, "Sperm_Impregnation_Prob_For_Any_Period")
 		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0) > 0)
@@ -1681,7 +1684,7 @@ function AddActorAddOn(actor a, string n, string cat)
 	endif
 	LoadActorAddOnValueAnything(a, n, cat, "Sperm_Impregnation_Boost")
 	if FWUtility.getIniCBool("AddOn", n, cat, "Allow_NTR_baby", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_NTR_baby for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Allow_NTR_baby for this actor")
 		
 		LoadActorAddOnValue(a, n, cat, "Sperm_NTR_baby_Prob")
 		if(StorageUtil.GetFloatValue(a, "FW.AddOn.Sperm_NTR_baby_Prob", 0) > 0)
@@ -1695,7 +1698,7 @@ function AddActorAddOn(actor a, string n, string cat)
 
 
 	if FWUtility.getIniCBool("AddOn", n, cat, "Female_Force_This_Baby", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Female_Force_This_Baby for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.Female_Force_This_Baby for this actor")
 		
 		StorageUtil.SetIntValue(a, "FW.AddOn.Female_Force_This_Baby", 1)
 	endif
@@ -1704,36 +1707,36 @@ function AddActorAddOn(actor a, string n, string cat)
 	AddActorAddOnArrayToList(a, n, cat, "BabyActor_Male")
 	AddActorAddOnArrayToList(a, n, cat, "BabyActor_MalePlayer")
 	if(FWUtility.getIniCBool("AddOn", n, cat, "MixWithCopyActorBase", false))
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.MixWithCopyActorBase for this actor and reading ProbChildActorBorn...")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.MixWithCopyActorBase for this actor and reading ProbChildActorBorn...")
 		
 		StorageUtil.SetIntValue(a, "FW.AddOn.MixWithCopyActorBase", 1)
 		LoadActorAddOnValueInt(a, n, cat, "ProbChildActorBorn")
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "AllowPCDialogue", false))
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowPCDialogue for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowPCDialogue for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.AllowPCDialogue", 1)
 	endIf
 	LoadActorAddOnValue(a, n, cat, "initialScale")
 	LoadActorAddOnValue(a, n, cat, "finalScale")
 	if FWUtility.getIniCBool("AddOn", n, cat, "DisableMatureTime", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisableMatureTime for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.DisableMatureTime for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.DisableMatureTime", 1)
 	else
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". FW.AddOn.DisableMatureTime is disabled for this actor. Reading MatureTimeScale...")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". FW.AddOn.DisableMatureTime is disabled for this actor. Reading MatureTimeScale...")
 		LoadActorAddOnValue(a, n, cat, "MatureTimeScale")	
 	endif
 	LoadActorAddOnValueInt(a, n, cat, "MatureStep")
 	if FWUtility.getIniCBool("AddOn", n, cat, "AllowUnrestrictedS", false)
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowUnrestrictedS for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.AllowUnrestrictedS for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.AllowUnrestrictedS", 1)
 	endif
 	if(FWUtility.getIniCBool("AddOn", n, cat, "ProtectedChildActor", false))
-		FW_log.WriteLog("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.ProtectedChildActor for this actor")
+		trace("FWAddOnManager - AddActorAddOn : AddOn file name = " + n + ", loading data in = " + cat + " for actor " + a + ". Activating FW.AddOn.ProtectedChildActor for this actor")
 		StorageUtil.SetIntValue(a, "FW.AddOn.ProtectedChildActor", 1)
 	endIf
 endFunction
 function ClearActorAddOns()
-	FW_log.WriteLog("FWAddOnManager - ClearActorAddOns : Clearing...")
+	trace("FWAddOnManager - ClearActorAddOns : Clearing...")
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Actors")
 	while(c > 0)
@@ -1924,7 +1927,7 @@ endFunction
 
 
 function Clear(int type=7)
-	FW_log.WriteLog("FWAddOnManager - Clear : Clearing...")
+	trace("FWAddOnManager - Clear : Clearing...")
 	AddOnFolderHash=""
 	if Math.LogicalAnd(type,1)==1
 		ClearMiscAddOns()
@@ -1938,7 +1941,7 @@ function Clear(int type=7)
 endFunction
 
 function ClearMiscAddOns()
-	FW_log.WriteLog("FWAddOnManager - ClearMiscAddOns : Clearing Misc AddOns...")
+	trace("FWAddOnManager - ClearMiscAddOns : Clearing Misc AddOns...")
 
 	Misc=new FWAddOn_Misc[128]
 	sMisc=new string[128]
@@ -1947,7 +1950,7 @@ function ClearMiscAddOns()
 endFunction
 
 function ClearCMEAddOns()
-	FW_log.WriteLog("FWAddOnManager - ClearCMEAddOns : Clearing CME AddOns...")
+	trace("FWAddOnManager - ClearCMEAddOns : Clearing CME AddOns...")
 
 	StorageUtil.FormListClear(none,"FW.AddOn.Always_FollicularPhase")
 	StorageUtil.FormListClear(none,"FW.AddOn.Always_LaborPains")
@@ -1972,7 +1975,7 @@ function ClearCMEAddOns()
 endFunction
 
 function ClearRaceAddOns()
-	FW_log.WriteLog("FWAddOnManager - ClearRaceAddOns : Clearing...")
+	trace("FWAddOnManager - ClearRaceAddOns : Clearing...")
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Races")
 	while c>0
@@ -2171,7 +2174,7 @@ endFunction
 
 
 function RecastSpell2(actor a, string s)
-	FW_log.WriteLog("FWAddOnManager - RecastSpell2 : Recasting...")
+	trace("FWAddOnManager - RecastSpell2 : Recasting...")
 
 	if StringUtil.Substring(s,0,7)=="Always_" || StringUtil.Substring(s,0,10)=="Sometimes_"
 		int i = StorageUtil.FormListCount(none,"FW.AddOn."+s)
@@ -2306,7 +2309,7 @@ endFunction
 ; 8 = Labor Pains
 ; 9 = Replanish
 function removeCME(actor a, int EffectID = -1)
-	FW_log.WriteLog("FWAddOnManager - removeCME : Removing...")
+	trace("FWAddOnManager - removeCME : Removing...")
 
 	if EffectID==-1
 		ActorRemoveSpellsS(a,"Always_FollicularPhase")
@@ -2364,7 +2367,7 @@ function removeCME(actor a, int EffectID = -1)
 endFunction
 
 function castCME(actor a, int EffectID, int NumEffects)
-	FW_log.WriteLog("FWAddOnManager - castCME : Casting...")
+	trace("FWAddOnManager - castCME : Casting...")
 
 	if EffectID==0
 		FWUtility.ActorAddSpellsS(a,"Always_FollicularPhase");
@@ -2404,7 +2407,7 @@ endFunction
 ;  8		LaborPains
 ;  9		Recovery
 function castCMEEffect(Actor akActor,int EffectID, int MaxEffectNumber)
-	FW_log.WriteLog("FWAddOnManager - castCMEEffect : Casting...")
+	trace("FWAddOnManager - castCMEEffect : Casting...")
 
 	if akActor ;Tkc (Loverslab): optimization
 	else;if akActor == none
@@ -2479,7 +2482,7 @@ bool function ActorCanBecomePregnant(actor a)
 			race abr = a.GetRace()
 			if abr
 				myResult = RaceCanBecomePregnant(abr)
-				FW_log.WriteLog("FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + myResult)
+				trace("FWAddONManager - ActorCanBecomePregnant : the actor " + a + " can become pregnant? = " + myResult)
 			endIf
 		endIf
 		return myResult
@@ -3371,10 +3374,10 @@ float Function ActorPreg1stBellyScale(actor a)
 	endIf
 	
 	if myPreg1stBellyScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg1stBellyScale = " + myPreg1stBellyScale + " for actor " + a)
 		return myPreg1stBellyScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg1stBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 0)
 	endIf
 endFunction
@@ -3397,10 +3400,10 @@ float Function ActorPreg2ndBellyScale(actor a)
 	endIf
 	
 	if myPreg2ndBellyScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg2ndBellyScale = " + myPreg2ndBellyScale + " for actor " + a)
 		return myPreg2ndBellyScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg2ndBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 1)
 	endIf
 endFunction
@@ -3423,10 +3426,10 @@ float Function ActorPreg3rdBellyScale(actor a)
 	endIf
 	
 	if myPreg3rdBellyScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg3rdBellyScale = " + myPreg3rdBellyScale + " for actor " + a)
 		return myPreg3rdBellyScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg3rdBellyScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(0, 2)
 	endIf
 endFunction
@@ -3449,10 +3452,10 @@ float Function ActorPreg1stBreastsScale(actor a)
 	endIf
 	
 	if myPreg1stBreastsScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg1stBreastsScale = " + myPreg1stBreastsScale + " for actor " + a)
 		return myPreg1stBreastsScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg1stBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 0)
 	endIf
 endFunction
@@ -3475,10 +3478,10 @@ float Function ActorPreg2ndBreastsScale(actor a)
 	endIf
 	
 	if myPreg2ndBreastsScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg2ndBreastsScale = " + myPreg2ndBreastsScale + " for actor " + a)
 		return myPreg2ndBreastsScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg2ndBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 1)
 	endIf
 endFunction
@@ -3501,10 +3504,10 @@ float Function ActorPreg3rdBreastsScale(actor a)
 	endIf
 	
 	if myPreg3rdBreastsScale > 0
-		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
+		trace("FWAddOnManager - ActorPreg3rdBreastsScale = " + myPreg3rdBreastsScale + " for actor " + a)
 		return myPreg3rdBreastsScale
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
+		trace("FWAddOnManager - ActorPreg3rdBreastsScale will follow the MCM settings for actor " + a)
 		return System.GetPhaseScale(1, 2)
 	endIf
 endFunction
@@ -3528,10 +3531,10 @@ float Function ActorMultipleBabySperm(actor a)
 	endIf
 	
 	if myMultipleBabySperm > 0
-		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
+		trace("FWAddOnManager - ActorMultipleBabySperm = " + myMultipleBabySperm + " for actor " + a)
 		return myMultipleBabySperm
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
+		trace("FWAddOnManager - ActorMultipleBabySperm is not defined for actor " + a)
 		return -1
 	endIf
 endFunction
@@ -3555,10 +3558,10 @@ float Function ActorMultipleBabyChancePerSperm(actor a)
 	endIf
 	
 	if myMultipleBabyChancePerSperm > 0
-		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
+		trace("FWAddOnManager - ActorMultipleBabyChancePerSperm = " + myMultipleBabyChancePerSperm + " for actor " + a)
 		return myMultipleBabyChancePerSperm
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
+		trace("FWAddOnManager - ActorMultipleBabyChancePerSperm is not defined for actor " + a)
 		return -1
 	endIf
 endFunction
@@ -3868,7 +3871,7 @@ ActorBase function validateBabyCustomRace(ActorBase b)
 	if childRace
 		string childRaceName = FWUtility.toLower(childRace.GetName() + MiscUtil.GetRaceEditorID(childRace))
 		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
-			FW_log.WriteLog("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
+			trace("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
 			if cfg.ShowDebugMessage
 				Debug.Messagebox("Child race is not labeled as child; falling back to default.")
 			endIf
@@ -4153,21 +4156,21 @@ int Function RaceProbChildActorBornNew(actor ParentActor, race ParentRace)
 	int myProbChildActorBorn = StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProbChildActorBorn", -1)
 	
 	if(myProbChildActorBorn > 0)
-		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the actor " + ParentActor)
+		trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the actor " + ParentActor)
 		return myProbChildActorBorn
 	else
 		myProbChildActorBorn = StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProbChildActorBorn", -1)
 		if(myProbChildActorBorn > 0)
-			FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + ParentRace)
+			trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + ParentRace)
 			return myProbChildActorBorn
 		else
 			myProbChildActorBorn = StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProbChildActorBorn", -1)
 			if(myProbChildActorBorn > 0)
-				FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for everything")
+				trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for everything")
 				return myProbChildActorBorn
 			else
 				; must be positive
-				FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + ParentRace)
+				trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + ParentRace)
 				return -1
 			endIf
 		endIf
@@ -4178,10 +4181,10 @@ int Function RaceProbChildActorBorn(race RaceID)
 	int myProbChildActorBorn = StorageUtil.GetIntValue(RaceID, "FW.AddOn.ProbChildActorBorn", -1)
 	
 	if(myProbChildActorBorn > 0)
-		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
+		trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
 		return myProbChildActorBorn
 	else	; must be positive
-		FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
+		trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
 		return -1
 	endIf
 endFunction
@@ -4497,7 +4500,7 @@ Function RaceExcludeFromSLandBF(actor TargetActor, actor ParentActor)
 	bool bool_AddToForbidden = true
 
 	if TargetActor == PlayerRef
-		FW_log.WriteLog("ExcludeFromSLandBF: TargetActor is PlayerRef. Skipping forbidden flags.")
+		trace("ExcludeFromSLandBF: TargetActor is PlayerRef. Skipping forbidden flags.")
 		return
 	endif
 	
@@ -4552,7 +4555,7 @@ endFunction
 Function AddToSLandBF(actor TargetActor)
 	if(TargetActor)
 		if(TargetActor.IsInFaction(BF_ForbiddenFaction))
-			FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is in BF_ForbiddenFaction. Removing...")
+			trace("AddToSLandBF: Actor " + TargetActor + " is in BF_ForbiddenFaction. Removing...")
 			TargetActor.RemoveFromFaction(BF_ForbiddenFaction)
 		endIf
 		if(Game.IsPluginInstalled("SexLab.esm"))
@@ -4560,10 +4563,10 @@ Function AddToSLandBF(actor TargetActor)
 
 			if(SexLabForbiddenActors)
 				if(TargetActor.IsInFaction(SexLabForbiddenActors))
-					FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is in SexLabForbiddenActors faction. Removing...")
+					trace("AddToSLandBF: Actor " + TargetActor + " is in SexLabForbiddenActors faction. Removing...")
 					TargetActor.RemoveFromFaction(SexLabForbiddenActors)
 				else
-					FW_log.WriteLog("AddToSLandBF: Actor " + TargetActor + " is not in SexLabForbiddenActors faction.")
+					trace("AddToSLandBF: Actor " + TargetActor + " is not in SexLabForbiddenActors faction.")
 				endIf
 			else
 				Debug.Messagebox("AddToSLandBF: Failed to get SexLabForbiddenActors faction from SexLab.esm. Please report to the BeeingFemaleSE_Opt mod page...")
