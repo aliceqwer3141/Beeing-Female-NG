@@ -2268,9 +2268,11 @@ Event OnPageReset(string page)
 
 		AddToggleOptionST("ToggleShowDebugMessage","$FW_MENU_ShowDebugMessage", ShowDebugMessage, OPTION_FLAG_NONE)
 		
-		AddHeaderOption("$FW_MENU_SETTINGS_Creature")
-		AddToggleOptionST("ToggleCreatureSperm", "$FW_MENU_SETTINGS_CreatureSperm", CreatureSperm, OPTION_FLAG_NONE)
-		AddToggleOptionST("ToggleAllowFFCum", "$FW_MENU_SETTINGS_AllowFFCum", AllowFFCum, OPTION_FLAG_NONE)
+		if bSexLab || bOstim
+			AddHeaderOption("$FW_MENU_SETTINGS_Creature")
+			AddToggleOptionST("ToggleCreatureSperm", "$FW_MENU_SETTINGS_CreatureSperm", CreatureSperm, OPTION_FLAG_NONE)
+			AddToggleOptionST("ToggleAllowFFCum", "$FW_MENU_SETTINGS_AllowFFCum", AllowFFCum, OPTION_FLAG_NONE)
+		endif
 		
 		AddHeaderOption("$FW_MENU_SETTINGS_Key")
 		AddHeaderOption("$FW_MENU_PAGE_Widgets")
