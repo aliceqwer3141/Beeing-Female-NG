@@ -57,13 +57,14 @@ int UI_AddOnActorsWarning
 int   Property Messages = 3 Auto Hidden
 bool  Property PlayerTimer = true Auto Hidden
 int   Property Difficulty = 0 Auto Hidden
-bool  Property CreatureSperm = true Auto Hidden
+bool  Property CreatureSperm = false Auto Hidden
 bool  Property RelevantPlayer = true auto Hidden
 bool  Property RelevantFollower = true auto Hidden
 bool  Property RelevantNPC = true auto Hidden
 int   Property KeyStateWidget = 9 auto Hidden
 bool  Property WidgetAlwaysActive = false auto hidden
 bool  Property PlayAnimations = true auto hidden
+bool  Property AllowFFCum = false auto hidden
 ; Menstual Cycle & Conception Element values
 int   Property FollicularDuration = 5 Auto Hidden
 int   Property OvulationDuration = 2 Auto Hidden
@@ -144,13 +145,14 @@ int MessagesDef = 3
 int SpellTypeDef = 0
 bool PlayerTimerDef = true
 int DifficultyDef = 0
-bool CreatureSpermDef = true
+bool CreatureSpermDef = false
 bool RelevantPlayerDef = true
 bool RelevantFollowerDef = true
 bool RelevantNPCDef = true
 int KeyStateWidgetDef = 9
 bool WidgetAlwaysActiveDef = false
 bool PlayAnimationsDef = false
+bool AllowFFCumDef = false
 ; Menstual Cycle & Conception Element Default values
 int FollicularDurationDef = 5;11
 int OvulationDurationDef = 2;4
@@ -2266,11 +2268,9 @@ Event OnPageReset(string page)
 
 		AddToggleOptionST("ToggleShowDebugMessage","$FW_MENU_ShowDebugMessage", ShowDebugMessage, OPTION_FLAG_NONE)
 		
-		if(bSexLab )
-			; Creature Sperm is only for SexLab Framework allowed
-			AddHeaderOption("$FW_MENU_SETTINGS_Creature")
-			AddToggleOptionST("ToggleCreatureSperm", "$FW_MENU_SETTINGS_CreatureSperm", CreatureSperm, iOptionBSSL)
-		endif
+		AddHeaderOption("$FW_MENU_SETTINGS_Creature")
+		AddToggleOptionST("ToggleCreatureSperm", "$FW_MENU_SETTINGS_CreatureSperm", CreatureSperm, OPTION_FLAG_NONE)
+		AddToggleOptionST("ToggleAllowFFCum", "$FW_MENU_SETTINGS_AllowFFCum", AllowFFCum, OPTION_FLAG_NONE)
 		
 		AddHeaderOption("$FW_MENU_SETTINGS_Key")
 		AddHeaderOption("$FW_MENU_PAGE_Widgets")
@@ -5845,6 +5845,22 @@ State ToggleCreatureSperm
 	
 	Event OnHighlightST()
 		SetInfoText("$FW_MENUTXT_SETTINGS_CreatureSperm")
+	EndEvent
+EndState
+
+State ToggleAllowFFCum
+	Event OnSelectST()
+		AllowFFCum = (! AllowFFCum)
+		SetToggleOptionValueST(AllowFFCum)
+	EndEvent
+	
+	Event OnDefaultST()
+		AllowFFCum = AllowFFCumDef
+		SetToggleOptionValueST(AllowFFCum)
+	EndEvent
+	
+	Event OnHighlightST()
+		SetInfoText("$FW_MENUTXT_SETTINGS_AllowFFCum")
 	EndEvent
 EndState
 

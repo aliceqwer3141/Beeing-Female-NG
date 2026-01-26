@@ -108,10 +108,15 @@ Function processPair(Actor female, Actor Male)
 			;Trace("[/SexLabOrgasmEvent]")
 			return
 		endif
-	elseif System.IsValidateFemaleActor(Male)<0
+	else
+		if !cfg.AllowFFCum
+			return
+		endif
+		if System.IsValidateFemaleActor(Male)<0
 			;Trace("   Male is not a validate Female Actor: "+System.IsValidateFemaleActor(Male))
 			;Trace("[/SexLabOrgasmEvent]")
 			return
+		endif
 	endif
 
 	int femaleSex = Female.getLeveledActorBase().GetSex()

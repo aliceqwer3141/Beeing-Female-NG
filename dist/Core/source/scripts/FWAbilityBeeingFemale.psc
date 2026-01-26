@@ -1733,6 +1733,12 @@ function castMentrualBlood()
 endFunction
 
 function EquipNapkin()
+	if !ShouldAutoEquipHygiene()
+		return
+	endif
+	if ActorRef.IsEquipped(Tampon_Normal) || ActorRef.IsEquipped(Tampon_Bloody)
+		return
+	endif
 	if GlobalMenstruating.GetValue() As int; == 1 ;Tkc (Loverslab): optimization
 		;if ActorRef.GetItemCount(System.Sanitary_Napkin_Normal)>1 && ActorRef.IsEquipped(System.Sanitary_Napkin_Normal)==false
 		if ActorRef.GetItemCount(Sanitary_Napkin_Normal)>1 ;Tkc (Loverslab): optimization
@@ -1740,6 +1746,9 @@ function EquipNapkin()
 		 else;if ActorRef.IsEquipped(System.Sanitary_Napkin_Normal)==false
 			form ax = ActorRef.GetWornForm(Sanitary_Napkin_Normal.GetSlotMask())
 			if ax;/!=none/;
+				if ax != Sanitary_Napkin_Normal && ax != Sanitary_Napkin_Bloody && ax != Tampon_Normal && ax != Tampon_Bloody
+					return
+				endif
 				ActorRef.UnequipItem(ax)
 			endif
 			ActorRef.EquipItem(Sanitary_Napkin_Bloody, false, true)
@@ -1749,6 +1758,12 @@ function EquipNapkin()
 endfunction
 
 function EquipTampon()
+	if !ShouldAutoEquipHygiene()
+		return
+	endif
+	if ActorRef.IsEquipped(Sanitary_Napkin_Normal) || ActorRef.IsEquipped(Sanitary_Napkin_Bloody)
+		return
+	endif
 	if GlobalMenstruating.GetValue() As int; == 1 ;Tkc (Loverslab): optimization
 		;if ActorRef.GetItemCount(System.Tampon_Normal)>1 && ActorRef.IsEquipped(System.Tampon_Normal)==false
 		if ActorRef.GetItemCount(Tampon_Normal)>1 ;Tkc (Loverslab): optimization
@@ -1756,6 +1771,9 @@ function EquipTampon()
 		 else;if ActorRef.IsEquipped(System.Tampon_Normal)==false
 			form ax = ActorRef.GetWornForm(Tampon_Normal.GetSlotMask())
 			if ax;/!=none/;
+				if ax != Sanitary_Napkin_Normal && ax != Sanitary_Napkin_Bloody && ax != Tampon_Normal && ax != Tampon_Bloody
+					return
+				endif
 				ActorRef.UnequipItem(ax)
 			endif
 			ActorRef.EquipItem(Tampon_Bloody, false, true)
@@ -1763,6 +1781,25 @@ function EquipTampon()
 		endif
 	endif
 endfunction
+
+bool function ShouldAutoEquipHygiene()
+	if !ActorRef
+		return false
+	endif
+	if Game.GetModByName("SexLab.esm") != 255
+		Faction sexlabAnimating = Game.GetFormFromFile(0x00E50F, "SexLab.esm") as Faction
+		if sexlabAnimating && ActorRef.IsInFaction(sexlabAnimating)
+			return false
+		endif
+	endif
+	if Game.GetModByName("OStim.esp") != 255
+		Faction ostimExcitement = Game.GetFormFromFile(0x000D93, "OStim.esp") as Faction
+		if ostimExcitement && ActorRef.IsInFaction(ostimExcitement)
+			return false
+		endif
+	endif
+	return true
+endFunction
 
 float SleepingStart
 Event OnSleepStart(float afSleepStartTime, float afDesiredSleepEndTime)

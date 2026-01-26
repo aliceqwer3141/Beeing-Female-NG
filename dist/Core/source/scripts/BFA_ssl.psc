@@ -87,11 +87,13 @@ bool function OnPainSound(actor Mother)
 endfunction
 
 bool function OnAllowFFCum(Actor WomanToAdd, Actor denor)
-	if bSexLab ;Tkc (Loverslab): optimization
-	else;if bSexLab==false
+	if !bSexLab ;Tkc (Loverslab): optimization
 		return false
 	endif
-	return SexLab.Config.AllowFFCum
+	if cfg && !cfg.AllowFFCum
+		return false
+	endif
+	return true
 endFunction
 
 
