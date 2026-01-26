@@ -180,3 +180,13 @@ Function processPair(Actor female, Actor Male)
 			Controller.AddSperm(Female, Male, amount)				
 		endif
 endfunction
+
+bool function OnAllowFFCum(Actor WomanToAdd, Actor denor)
+	if !OStim ;Tkc (Loverslab): optimization
+		return false
+	endif
+	if cfg && !cfg.AllowFFCum
+		return false
+	endif
+	return true
+endFunction
