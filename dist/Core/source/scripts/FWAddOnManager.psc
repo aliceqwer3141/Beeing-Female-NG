@@ -163,6 +163,30 @@ function OnGameLoad()
 	_LoadingState=0
 endFunction
 
+function giveStartupItems(int oldVersion=0)
+	if StorageUtil.GetIntValue(none, "FW.AddOn.Global_DisableStartupItems", 0) == 1
+		return
+	endif
+	FWSystem sys = System
+	actor p = PlayerRef
+	if p == none && sys
+		p = sys.PlayerRef
+	endif
+	if sys == none || p == none
+		return
+	endif
+	if oldVersion <=2
+		p.AddItem(sys.PlayerBooks[0],1,true)
+		p.AddItem(sys.PlayerBooks[1],1,true)
+		p.AddItem(sys.PlayerBooks[2],1,true)
+		p.AddItem(sys.PlayerBooks[3],1,true)
+	endif
+	if oldVersion <=9
+		p.AddItem(sys.StartUpScrolls[0],3,true)
+		p.AddItem(sys.StartUpScrolls[1],1,true)
+	endif
+endFunction
+
 
 function RefreshAddOn(int type=127)
 	RefreshAddOnH(type)
@@ -333,6 +357,10 @@ function RefreshAddOnH(int type=127)
 							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_RemoveSPIDitems", false))
 								trace("FWAddOnManager - Global_RemoveSPIDitems is true")
 								StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 1)
+							endIf
+							if(FWUtility.getIniCBool("AddOn", n, "AddOn", "Global_DisableStartupItems", false))
+								trace("FWAddOnManager - Global_DisableStartupItems is true")
+								StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableStartupItems", 1)
 							endIf
 							LoadGlobalAddOnValue(n, "Global_WidgetFadeOutTime")
 							LoadGlobalAddOnValue(n, "Global_WidgetFlashShowTime")
@@ -1240,6 +1268,7 @@ endFunction
 Function ClearGlobalSettings()
 	; Reset variables
 	StorageUtil.SetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems", 0)
+	StorageUtil.SetIntValue(none, "FW.AddOn.Global_DisableStartupItems", 0)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime", -1)
 	StorageUtil.SetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime", -1)
@@ -1318,6 +1347,7 @@ Function ClearGlobalSettings()
 
 	; Unset variables
 	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_RemoveSPIDitems")
+	StorageUtil.UnsetIntValue(none, "FW.AddOn.Global_DisableStartupItems")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetFadeOutTime")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetFlashShowTime")
 	StorageUtil.UnsetFloatValue(none, "FW.AddOn.Global_WidgetNoFlashShowTime")

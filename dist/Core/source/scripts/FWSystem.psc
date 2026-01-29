@@ -593,9 +593,8 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		LoadState=16
 		giveStartupSpells()
 		LoadState=17
-		giveStartupItems()
-		LoadState=18
 		initDrinkStor()
+		LoadState=18
 	endIf
 	LoadState=19
 	cfg.LoadWidgetProfile()
@@ -664,6 +663,9 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 	cfg.OnLoadGame()
 	LoadState=38
 	Manager.OnGameLoad()
+	if bFirstRun
+		giveStartupItems()
+	endif
 	;LoadState=39
 	LoadState=40
 	
@@ -889,16 +891,19 @@ function giveStartupSpells()
 endFunction
 
 function giveStartupItems(int oldVersion=0)
-	;actor PlayerActor = PlayerRef
-	if oldVersion <=2
-		PlayerRef.AddItem(PlayerBooks[0],1,true)
-		PlayerRef.AddItem(PlayerBooks[1],1,true)
-		PlayerRef.AddItem(PlayerBooks[2],1,true)
-		PlayerRef.AddItem(PlayerBooks[3],1,true)
-	endif
-	if oldVersion <=9
-		PlayerRef.AddItem(StartUpScrolls[0],3,true)
-		PlayerRef.AddItem(StartUpScrolls[1],1,true)
+	if Manager
+		Manager.giveStartupItems(oldVersion)
+	else
+		if oldVersion <=2
+			PlayerRef.AddItem(PlayerBooks[0],1,true)
+			PlayerRef.AddItem(PlayerBooks[1],1,true)
+			PlayerRef.AddItem(PlayerBooks[2],1,true)
+			PlayerRef.AddItem(PlayerBooks[3],1,true)
+		endif
+		if oldVersion <=9
+			PlayerRef.AddItem(StartUpScrolls[0],3,true)
+			PlayerRef.AddItem(StartUpScrolls[1],1,true)
+		endif
 	endif
 endFunction
 
