@@ -1,4 +1,4 @@
-﻿Scriptname FWController extends Quest
+Scriptname FWController extends Quest
 
 FWSystem property System auto
 
@@ -338,13 +338,13 @@ function ImpregnateA(actor Mother, actor[] Fathers, int NumChilds=1)
 	if xNumChilds<=0
 		xNumChilds = System.calculateNumChildren(PlayerRef)
 	endIf
-	StorageUtil.FormListClear(Mother,"FW.ChildFather")
+	FWUtility.ClearChildFathers(Mother)
 	StorageUtil.SetIntValue(Mother,"FW.NumChilds",xNumChilds)
 	While xNumChilds>0
 		xNumChilds -= 1
 		actor tFather = Fathers[Utility.RandomInt(0, cSperm - 1)]
 		if System.CheckIsLoreFriendlyMetting(Mother, tFather)
-			StorageUtil.FormListAdd(Mother,"FW.ChildFather", tFather )
+			FWUtility.AddChildFather(Mother, tFather)
 		endif
 	EndWhile
 	StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
@@ -578,7 +578,7 @@ bool function ActiveSpermImpregnationTimed(actor Mother, float Time, bool bIgnor
 						endIf
 					endWhile
 				endIf
-				StorageUtil.FormListAdd(Mother,"FW.ChildFather", a[j])
+				FWUtility.AddChildFather(Mother, a[j])
 				Fathers[numChild]=a[j]
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
@@ -683,7 +683,7 @@ bool function ActiveSpermImpregnationNoContraceptionTimed(actor Mother, float Ti
 					rnd_r-=relevantSperm[j]
 					j+=1
 				endWhile
-				StorageUtil.FormListAdd(Mother,"FW.ChildFather", a[j])
+				FWUtility.AddChildFather(Mother, a[j])
 				Fathers[numChild]=a[j]
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
@@ -718,7 +718,7 @@ bool function setNumBabys(actor Mother,int num)
 			int i=cur
 			while i<cur
 				FW_log.WriteLog("- Father for Baby "+i+" is "+father.GetLeveledActorBase().GetName())
-				StorageUtil.FormListAdd(Mother,"FW.ChildFather", father)
+				FWUtility.AddChildFather(Mother, father)
 				i+=1
 			endWhile
 			return true
@@ -730,8 +730,25 @@ bool function setNumBabys(actor Mother,int num)
 			int i=StorageUtil.FormListCount(Mother,"FW.ChildFather")
 			while i>num
 				i-=1
-				FW_log.WriteLog("- Remove Father "+i+": "+(StorageUtil.FormListGet(Mother,"FW.ChildFather", i) as actor).GetLeveledActorBase().GetName())
-				StorageUtil.FormListRemoveAt(Mother,"FW.ChildFather", i)
+				actor remFather = StorageUtil.FormListGet(Mother,"FW.ChildFather", i) as actor
+				string remFatherStr = ""
+				if StorageUtil.StringListCount(Mother,"FW.ChildFatherStr") > i
+					remFatherStr = StorageUtil.StringListGet(Mother,"FW.ChildFatherStr", i)
+				endif
+				race remFatherRace = none
+				if StorageUtil.FormListCount(Mother,"FW.ChildFatherRace") > i
+					remFatherRace = StorageUtil.FormListGet(Mother,"FW.ChildFatherRace", i) as race
+				endif
+				string remFatherRaceStr = ""
+				if remFatherRace
+					remFatherRaceStr = FWUtility.GetStringFromForm(remFatherRace)
+				endif
+				if remFather
+					FW_log.WriteLog("- Remove Father "+i+": "+remFather.GetLeveledActorBase().GetName()+" ("+remFatherStr+") ["+remFatherRaceStr+"]")
+				else
+					FW_log.WriteLog("- Remove Father "+i+": none ("+remFatherStr+") ["+remFatherRaceStr+"]")
+				endif
+				FWUtility.RemoveChildFatherAt(Mother, i)
 			endWhile
 			return true
 		endif
@@ -777,18 +794,14 @@ function WashOutSperm(actor woman, int WashOutType = 1, float Strength=1.0)
 			if STime + Data.SpermDeleteTime > Time || STime+cfg.WashOutHourDelay >= Time
 				if (chance * Strength)>=rnd
 					; Sperm was to old - remove
-					StorageUtil.FloatListRemoveAt(woman, "FW.SpermTime", c)
-					StorageUtil.FormListRemoveAt(woman, "FW.SpermName", c)
-					StorageUtil.FloatListRemoveAt(woman, "FW.SpermAmount", c)
+					FWUtility.RemoveSpermMirrorAt(woman, c)
 ;				elseif Utility.RandomInt(0,100)>34
 				elseif(Utility.RandomInt(1, 100) > 34)
 					float amount=StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 					amount-=Utility.RandomFloat(0.0,0.15 * Strength)
 					if amount < Sperm_Min_Amount_For_Impregnation
 						; To less sperm, remove
-						StorageUtil.FloatListRemoveAt(woman, "FW.SpermTime", c)
-						StorageUtil.FormListRemoveAt(woman, "FW.SpermName", c)
-						StorageUtil.FloatListRemoveAt(woman, "FW.SpermAmount", c)
+						FWUtility.RemoveSpermMirrorAt(woman, c)
 					else
 						StorageUtil.FloatListSet(woman, "FW.SpermAmount", c, amount)
 					endif
@@ -879,7 +892,7 @@ function UnimpregnateState(actor Mother, int Menstrual_Cycle_State)
 	If (StorageUtil.FormListFind(none,"FW.SavedNPCs",Mother)<0)
 		CreateFemaleActor(Mother)
 	EndIf
-	StorageUtil.FormListClear(Mother,"FW.ChildFather")
+	FWUtility.ClearChildFathers(Mother)
 	StorageUtil.SetIntValue(Mother,"FW.NumChilds",0)
 	StorageUtil.UnsetIntValue(Mother,"FW.Abortus")
 	StorageUtil.UnsetFloatValue(Mother,"FW.UnbornHealth")
@@ -972,9 +985,20 @@ function GiveBirth(actor Mother)
 		k-=1
 		
 		my_ChildFather = StorageUtil.FormListGet(Mother, "FW.ChildFather", k) as actor
-		my_ChildFather_abr = my_ChildFather.GetRace()
+		if my_ChildFather
+			my_ChildFather_abr = my_ChildFather.GetRace()
+		else
+			my_ChildFather_abr = none
+			if StorageUtil.FormListCount(Mother, "FW.ChildFatherRace") > k
+				my_ChildFather_abr = StorageUtil.FormListGet(Mother, "FW.ChildFatherRace", k) as race
+			endif
+		endIf
 
-		temp_IntervalBabyScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+		if my_ChildFather
+			temp_IntervalBabyScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
+		else
+			temp_IntervalBabyScale = 0
+		endIf
 		if(temp_IntervalBabyScale == 0)
 			temp_IntervalBabyScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_SecondsBetweenBabySpawn_by_FatherRace", 0)
 			if(temp_IntervalBabyScale == 0)
@@ -982,7 +1006,11 @@ function GiveBirth(actor Mother)
 			endIf
 		endIf
 		
-		temp_IntervalLaborScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+		if my_ChildFather
+			temp_IntervalLaborScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
+		else
+			temp_IntervalLaborScale = 0
+		endIf
 		if(temp_IntervalLaborScale == 0)
 			temp_IntervalLaborScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_SecondsBetweenLaborPains_by_FatherRace", 0)
 			if(temp_IntervalLaborScale == 0)
@@ -990,7 +1018,11 @@ function GiveBirth(actor Mother)
 			endIf
 		endIf
 		
-		temp_BirthPainDamageScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1.0)
+		if my_ChildFather
+			temp_BirthPainDamageScale = StorageUtil.GetFloatValue(my_ChildFather, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1.0)
+		else
+			temp_BirthPainDamageScale = 1.0
+		endIf
 		if(temp_BirthPainDamageScale == 1.0)
 			temp_BirthPainDamageScale = StorageUtil.GetFloatValue(my_ChildFather_abr, "FW.AddOn.Modify_Pain_GivingBirth_by_FatherRace", 1.0)
 		endIf
@@ -1130,7 +1162,11 @@ function GiveBirth(actor Mother)
 			if(my_BirthPain)
 				System.ActorAddSpellOpt(Mother,Effect_VaginalBloodBig,false,true)
 			endIf
-			System.SpawnChild(Mother,ChildFather[NumChilds])
+			race childFatherRace = none
+			if StorageUtil.FormListCount(Mother, "FW.ChildFatherRace") > NumChilds
+				childFatherRace = StorageUtil.FormListGet(Mother, "FW.ChildFatherRace", NumChilds) as race
+			endif
+			System.SpawnChild(Mother,ChildFather[NumChilds],childFatherRace)
 		else
 			System.Message("You've born a dead child...", System.MSG_ALWAYS)
 			; Child is death >.<
@@ -1157,7 +1193,7 @@ function GiveBirth(actor Mother)
 	System.Mimik(Mother, "Happy", 30)
 	
 	StorageUtil.UnsetFloatValue(Mother,"FW.UnbornHealth")
-	StorageUtil.FormListClear(Mother,"FW.ChildFather")
+	FWUtility.ClearChildFathers(Mother)
 	StorageUtil.UnsetFloatValue(Mother,"FW.AbortusTime")
 	StorageUtil.SetFloatValue(Mother,"FW.LastConception", 0.0)
 	Utility.Wait(2)
@@ -1490,7 +1526,7 @@ function AddSperm(actor Woman, actor PotentialFather, float amount = 1.0)
 		tmp_amount=Sperm_Amount_For_Delete ; Not lore friendly - sperm can't impregnate
 	endif
 	StorageUtil.FloatListAdd(Woman,"FW.SpermTime", GameDaysPassed.GetValue())
-	StorageUtil.FormListAdd(Woman,"FW.SpermName", PotentialFather)
+	FWUtility.AddSpermMirror(Woman, PotentialFather)
 	StorageUtil.FloatListAdd(Woman,"FW.SpermAmount", tmp_amount)
 	
 	; If the player is the Male Actor, show the stats widget
@@ -1538,7 +1574,7 @@ function AddSpermTimed(actor Woman, float Time, actor PotentialFather, float amo
 		tmp_amount=Sperm_Amount_For_Delete ; Not lore friendly - sperm can't impregnate
 	endif
 	StorageUtil.FloatListAdd(Woman,"FW.SpermTime", Time)
-	StorageUtil.FormListAdd(Woman,"FW.SpermName", PotentialFather)
+	FWUtility.AddSpermMirror(Woman, PotentialFather)
 	StorageUtil.FloatListAdd(Woman,"FW.SpermAmount", tmp_amount)
 	
 	; If the player is the Male Actor, show the stats widget
@@ -1558,9 +1594,7 @@ function RemoveSperm(actor Woman, actor PotentialFather)
 	while c>0
 		c-=1
 		if StorageUtil.FormListGet(Woman,"FW.SpermName",c)==PotentialFather
-			StorageUtil.FormListRemoveAt(Woman,"FW.SpermName",c)
-			StorageUtil.FloatListRemoveAt(Woman,"FW.SpermTime",c)
-			StorageUtil.FloatListRemoveAt(Woman,"FW.SpermAmount",c)
+			FWUtility.RemoveSpermMirrorAt(Woman, c)
 		EndIf
 	endWhile
 endFunction
@@ -1572,9 +1606,7 @@ function RemoveAllSperm(actor Woman)
 	If (StorageUtil.FormListFind(none,"FW.SavedNPCs",Woman)<0)
 		return
 	EndIf
-	StorageUtil.FormListClear(Woman,"FW.SpermName")
-	StorageUtil.FloatListClear(Woman,"FW.SpermTime")
-	StorageUtil.FloatListClear(Woman,"FW.SpermAmount")
+	FWUtility.ClearSpermMirror(Woman)
 endFunction
 
 
@@ -2227,7 +2259,7 @@ bool function MyActiveSpermImpregnationTimedForAnyPeriod(actor Mother, bool bIgn
 						endIf
 					endWhile
 				endIf
-				StorageUtil.FormListAdd(Mother,"FW.ChildFather", a[j])
+				FWUtility.AddChildFather(Mother, a[j])
 				Fathers[numChild]=a[j]
 			endWhile
 			StorageUtil.SetFloatValue(Mother,"FW.UnbornHealth",100.0)
@@ -3734,3 +3766,4 @@ endFunction
 
 
 ; 04.06.2019 ;Tkc (Loverslab) optimizations. added playerref to esp for this script. Other changes marked with "Tkc (Loverslab)" comment
+

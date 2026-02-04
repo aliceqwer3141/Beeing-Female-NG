@@ -93,6 +93,17 @@ function Update(actor Woman)
 	if ModEnabled.GetValue() As int != 1
 		return
 	endif
+	if Woman==none
+		return
+	endif
+	if Woman.IsDead()
+		Delete(Woman)
+		return
+	endif
+	if Woman.GetActorBase()==none
+		Delete(Woman)
+		return
+	endif
 	if StorageUtil.FormListFind(none,"FW.SavedNPCs",Woman)<0
 		Controller.CreateFemaleActor(Woman)
 	else
@@ -225,9 +236,7 @@ function UpdatePerDay(actor Woman)
 	while c>0
 		c-=1
 		if StorageUtil.FloatListGet(Woman, "FW.SpermTime", c) + SpermDeleteTime < GT
-			StorageUtil.FloatListRemoveAt(Woman, "FW.SpermTime", c)
-			StorageUtil.FormListRemoveAt(Woman, "FW.SpermName", c)
-			StorageUtil.FloatListRemoveAt(Woman, "FW.SpermAmount", c)
+			FWUtility.RemoveSpermMirrorAt(Woman, c)
 		endIf
 	endWhile
 	
@@ -255,9 +264,7 @@ bool function hasWillBecomePregnant(actor Woman)
 	while c>0
 		c-=1
 		if StorageUtil.FloatListGet(Woman, "FW.SpermTime", c) + SpermDeleteTime < GT
-			StorageUtil.FloatListRemoveAt(Woman, "FW.SpermTime", c)
-			StorageUtil.FormListRemoveAt(Woman, "FW.SpermName", c)
-			StorageUtil.FloatListRemoveAt(Woman, "FW.SpermAmount", c)
+			FWUtility.RemoveSpermMirrorAt(Woman, c)
 		endIf
 	endWhile
 endFunction
@@ -404,9 +411,7 @@ function __Update_Old(actor Woman)
 			while c>0
 				c-=1
 				if StorageUtil.FloatListGet(Woman, "FW.SpermTime", c) + SpermDeleteTime < StateEnterTime || StorageUtil.FloatListGet(Woman, "FW.SpermAmount", c)<0.1
-					StorageUtil.FloatListRemoveAt(Woman, "FW.SpermTime", c)
-					StorageUtil.FormListRemoveAt(Woman, "FW.SpermName", c)
-					StorageUtil.FloatListRemoveAt(Woman, "FW.SpermAmount", c)
+					FWUtility.RemoveSpermMirrorAt(Woman, c)
 				endIf
 			endWhile
 		endWhile
@@ -438,10 +443,8 @@ function Delete(actor Woman) global
 	StorageUtil.UnsetFloatValue(Woman,"FW.AbortusTime")
 	StorageUtil.UnsetFloatValue(Woman,"FW.UnbornHealth")
 	StorageUtil.UnsetIntValue(Woman,"FW.NumChilds")
-	StorageUtil.FormListClear(Woman,"FW.ChildFather")
-	StorageUtil.FloatListClear(Woman,"FW.SpermTime")
-	StorageUtil.FormListClear(Woman,"FW.SpermName")
-	StorageUtil.FloatListClear(Woman,"FW.SpermAmount")
+	FWUtility.ClearChildFathers(Woman)
+	FWUtility.ClearSpermMirror(Woman)
 	StorageUtil.UnsetIntValue(Woman,"FW.Flags")
 	StorageUtil.UnsetFloatValue(Woman,"FW.PainLevel")
 	StorageUtil.UnsetFloatValue(Woman,"FW.Contraception")
@@ -468,10 +471,8 @@ function ResetNpcData(bool bPlayer=false) global
 			StorageUtil.UnsetFloatValue(Woman,"FW.AbortusTime")
 			StorageUtil.UnsetFloatValue(Woman,"FW.UnbornHealth")
 			StorageUtil.UnsetIntValue(Woman,"FW.NumChilds")
-			StorageUtil.FormListClear(Woman,"FW.ChildFather")
-			StorageUtil.FloatListClear(Woman,"FW.SpermTime")
-			StorageUtil.FormListClear(Woman,"FW.SpermName")
-			StorageUtil.FloatListClear(Woman,"FW.SpermAmount")
+			FWUtility.ClearChildFathers(Woman)
+			FWUtility.ClearSpermMirror(Woman)
 			StorageUtil.UnsetIntValue(Woman,"FW.Flags")
 			StorageUtil.UnsetFloatValue(Woman,"FW.PainLevel")
 			StorageUtil.UnsetFloatValue(Woman,"FW.Contraception")

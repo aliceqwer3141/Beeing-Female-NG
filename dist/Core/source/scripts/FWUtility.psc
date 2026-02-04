@@ -129,6 +129,102 @@ string function GetStringFromForms(Form[] frms) global
 	endWhile
 	return s
 endFunction
+
+;--------------------------------------------------------------------------------
+; Mirrored list helpers (ChildFather / Sperm)
+;--------------------------------------------------------------------------------
+function AddChildFather(actor Mother, actor Father) global
+	if !Mother
+		return
+	endif
+	StorageUtil.FormListAdd(Mother, "FW.ChildFather", Father)
+	StorageUtil.StringListAdd(Mother, "FW.ChildFatherStr", GetStringFromForm(Father))
+	if Father
+		StorageUtil.FormListAdd(Mother, "FW.ChildFatherRace", Father.GetRace())
+	else
+		StorageUtil.FormListAdd(Mother, "FW.ChildFatherRace", none)
+	endif
+endFunction
+
+function RemoveChildFatherAt(actor Mother, int Index) global
+	if !Mother
+		return
+	endif
+	if StorageUtil.FormListCount(Mother, "FW.ChildFather") > Index
+		StorageUtil.FormListRemoveAt(Mother, "FW.ChildFather", Index)
+	endif
+	if StorageUtil.StringListCount(Mother, "FW.ChildFatherStr") > Index
+		StorageUtil.StringListRemoveAt(Mother, "FW.ChildFatherStr", Index)
+	endif
+	if StorageUtil.FormListCount(Mother, "FW.ChildFatherRace") > Index
+		StorageUtil.FormListRemoveAt(Mother, "FW.ChildFatherRace", Index)
+	endif
+endFunction
+
+function ClearChildFathers(actor Mother) global
+	if !Mother
+		return
+	endif
+	StorageUtil.FormListClear(Mother, "FW.ChildFather")
+	StorageUtil.StringListClear(Mother, "FW.ChildFatherStr")
+	StorageUtil.FormListClear(Mother, "FW.ChildFatherRace")
+endFunction
+
+race function GetLastChildFatherRace(actor Mother) global
+	if !Mother
+		return none
+	endif
+	int c = StorageUtil.FormListCount(Mother, "FW.ChildFatherRace")
+	if c > 0
+		return StorageUtil.FormListGet(Mother, "FW.ChildFatherRace", c - 1) as race
+	endif
+	return none
+endFunction
+
+function AddSpermMirror(actor Woman, actor Father) global
+	if !Woman
+		return
+	endif
+	StorageUtil.FormListAdd(Woman, "FW.SpermName", Father)
+	StorageUtil.StringListAdd(Woman, "FW.SpermNameStr", GetStringFromForm(Father))
+	if Father
+		StorageUtil.FormListAdd(Woman, "FW.SpermRace", Father.GetRace())
+	else
+		StorageUtil.FormListAdd(Woman, "FW.SpermRace", none)
+	endif
+endFunction
+
+function RemoveSpermMirrorAt(actor Woman, int Index) global
+	if !Woman
+		return
+	endif
+	if StorageUtil.FloatListCount(Woman, "FW.SpermTime") > Index
+		StorageUtil.FloatListRemoveAt(Woman, "FW.SpermTime", Index)
+	endif
+	if StorageUtil.FormListCount(Woman, "FW.SpermName") > Index
+		StorageUtil.FormListRemoveAt(Woman, "FW.SpermName", Index)
+	endif
+	if StorageUtil.FloatListCount(Woman, "FW.SpermAmount") > Index
+		StorageUtil.FloatListRemoveAt(Woman, "FW.SpermAmount", Index)
+	endif
+	if StorageUtil.StringListCount(Woman, "FW.SpermNameStr") > Index
+		StorageUtil.StringListRemoveAt(Woman, "FW.SpermNameStr", Index)
+	endif
+	if StorageUtil.FormListCount(Woman, "FW.SpermRace") > Index
+		StorageUtil.FormListRemoveAt(Woman, "FW.SpermRace", Index)
+	endif
+endFunction
+
+function ClearSpermMirror(actor Woman) global
+	if !Woman
+		return
+	endif
+	StorageUtil.FloatListClear(Woman, "FW.SpermTime")
+	StorageUtil.FormListClear(Woman, "FW.SpermName")
+	StorageUtil.FloatListClear(Woman, "FW.SpermAmount")
+	StorageUtil.StringListClear(Woman, "FW.SpermNameStr")
+	StorageUtil.FormListClear(Woman, "FW.SpermRace")
+endFunction
 string function GetStringFromRaces(Race[] frms) global
 	int i=0
 	string s=""

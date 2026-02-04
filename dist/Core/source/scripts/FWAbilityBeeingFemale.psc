@@ -1054,7 +1054,7 @@ function castAbortus(float Strength, bool AllowBleedOut = false)
 	
 		StorageUtil.SetIntValue(ActorRef,"FW.NumChilds",0)
 		StorageUtil.UnsetFloatValue(ActorRef,"FW.UnbornHealth")
-		StorageUtil.FormListClear(ActorRef,"FW.ChildFather")
+		FWUtility.ClearChildFathers(ActorRef)
 		StorageUtil.UnsetFloatValue(ActorRef,"FW.AbortusTime")
 		StorageUtil.UnsetIntValue(ActorRef,"FW.Abortus")
 		
@@ -1065,7 +1065,7 @@ function castAbortus(float Strength, bool AllowBleedOut = false)
 	else
 		StorageUtil.SetIntValue(ActorRef,"FW.NumChilds",0)
 		StorageUtil.UnsetFloatValue(ActorRef,"FW.UnbornHealth")
-		StorageUtil.FormListClear(ActorRef,"FW.ChildFather")
+		FWUtility.ClearChildFathers(ActorRef)
 		StorageUtil.UnsetFloatValue(ActorRef,"FW.AbortusTime")
 		StorageUtil.UnsetIntValue(ActorRef,"FW.Abortus")
 

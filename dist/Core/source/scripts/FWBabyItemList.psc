@@ -1,4 +1,4 @@
-﻿Scriptname FWBabyItemList extends Quest  
+Scriptname FWBabyItemList extends Quest  
 FWAddOnManager property Manager auto
 
 MiscObject property FallBack_MaleBabyItem Auto hidden
@@ -21,7 +21,7 @@ race property LastRace auto hidden
 Actor Property PlayerRef Auto
 FWSystemConfig property cfg auto
 
-MiscObject function getBabyItem(actor Mother, actor Father, int sex)
+MiscObject function getBabyItem(actor Mother, actor Father, int sex, Race FatherRace = none)
 	;race ParentRace = Father.GetRace()
 	;race MotherRace = Mother.GetRace()
 
@@ -30,19 +30,43 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 	Actor ParentActor
 
 	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	race tempFatherRace = none
+	if Father == none
+		if FatherRace
+			tempFatherRace = FatherRace
+		else
+			tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+		endIf
+	endIf
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
 	FW_log.WriteLog("FWBabyItemList - getBabyItem: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
-	If(myProbRandom < myChildRaceDeterminedByFather)
-		FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-
-		ParentActor = Father
-	Else
-		FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-
+	if Father == none
 		ParentActor = Mother
-	EndIF
-	ParentRace = ParentActor.GetRace()
+		race storedFatherRace = tempFatherRace
+		string storedFatherRaceStr = ""
+		if storedFatherRace
+			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+		endif
+		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
+			FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+			ParentRace = storedFatherRace
+		else
+			FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+			ParentRace = Mother.GetRace()
+		endIf
+	else
+		If(myProbRandom < myChildRaceDeterminedByFather)
+			FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+
+			ParentActor = Father
+		Else
+			FW_log.WriteLog("FWBabyItemList - getBabyItem: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+
+			ParentActor = Mother
+		EndIF
+		ParentRace = ParentActor.GetRace()
+	endIf
 	LastRace = ParentRace
 	
 	; Check Forces Babys
@@ -196,7 +220,7 @@ MiscObject function getBabyItem(actor Mother, actor Father, int sex)
 	endIf
 endFunction
 
-Armor function getBabyArmor(actor Mother, actor Father, int sex)
+Armor function getBabyArmor(actor Mother, actor Father, int sex, Race FatherRace = none)
 	;race ParentRace = Father.GetRace()
 	;race MotherRace = Mother.GetRace()
 
@@ -205,19 +229,43 @@ Armor function getBabyArmor(actor Mother, actor Father, int sex)
 	Actor ParentActor
 
 	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	race tempFatherRace = none
+	if Father == none
+		if FatherRace
+			tempFatherRace = FatherRace
+		else
+			tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+		endIf
+	endIf
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
 	FW_log.WriteLog("FWBabyItemList - getBabyArmor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
-	If(myProbRandom < myChildRaceDeterminedByFather)
-		FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-
-		ParentActor = Father
-	Else
-		FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-
+	if Father == none
 		ParentActor = Mother
-	EndIF
-	ParentRace = ParentActor.GetRace()
+		race storedFatherRace = tempFatherRace
+		string storedFatherRaceStr = ""
+		if storedFatherRace
+			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+		endif
+		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
+			FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+			ParentRace = storedFatherRace
+		else
+			FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+			ParentRace = Mother.GetRace()
+		endIf
+	else
+		If(myProbRandom < myChildRaceDeterminedByFather)
+			FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+
+			ParentActor = Father
+		Else
+			FW_log.WriteLog("FWBabyItemList - getBabyArmor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+
+			ParentActor = Mother
+		EndIF
+		ParentRace = ParentActor.GetRace()
+	endIf
 	LastRace = ParentRace
 	
 	; Check Forces Babys
@@ -373,12 +421,51 @@ endFunction
 
 
 ; my custom edit for Skyrim SE
-ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor, int sex)
+ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor, int sex, Race FatherRace = none)
 	if Mother == PlayerRef || Father == PlayerRef
-		return getPlayerBabyActorNew(Mother, Father, ParentActor, sex)
+		return getPlayerBabyActorNew(Mother, Father, ParentActor, sex, FatherRace)
 	endif
 	
-	race ParentRace = ParentActor.GetRace()
+	race storedFatherRace = none
+	if Father == none && FatherRace
+		storedFatherRace = FatherRace
+	endif
+
+	race ParentRace = none
+	if ParentActor == none
+		if Father == none
+			ParentActor = Mother
+			if storedFatherRace
+				int myProbRandom = Utility.RandomInt(0, 99)
+				int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
+				if(myProbRandom < myChildRaceDeterminedByFather)
+					ParentRace = storedFatherRace
+				else
+					ParentRace = Mother.GetRace()
+				endIf
+			else
+				ParentRace = Mother.GetRace()
+			endIf
+		else
+			int myProbRandom = Utility.RandomInt(0, 99)
+			int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
+			if(myProbRandom < myChildRaceDeterminedByFather)
+				ParentActor = Father
+			else
+				ParentActor = Mother
+			endIf
+			ParentRace = ParentActor.GetRace()
+		endIf
+	else
+		ParentRace = ParentActor.GetRace()
+		if Father == none && storedFatherRace
+			int myProbRandom = Utility.RandomInt(0, 99)
+			int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
+			if(myProbRandom < myChildRaceDeterminedByFather)
+				ParentRace = storedFatherRace
+			endif
+		endIf
+	endIf
 	LastRace = ParentRace
 	ActorBase b
 	
@@ -507,19 +594,39 @@ ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	Actor ParentActor
 
 	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	race tempFatherRace = none
+	if Father == none
+		tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+	endIf
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
 	FW_log.WriteLog("FWBabyItemList - getBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
-	If(myProbRandom < myChildRaceDeterminedByFather)
-		FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-
-		ParentActor = Father
-	Else
-		FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-
+	if Father == none
 		ParentActor = Mother
-	EndIF
-	ParentRace = ParentActor.GetRace()
+		race storedFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+		string storedFatherRaceStr = ""
+		if storedFatherRace
+			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+		endif
+		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
+			FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+			ParentRace = storedFatherRace
+		else
+			FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+			ParentRace = Mother.GetRace()
+		endIf
+	else
+		If(myProbRandom < myChildRaceDeterminedByFather)
+			FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+
+			ParentActor = Father
+		Else
+			FW_log.WriteLog("FWBabyItemList - getBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+
+			ParentActor = Mother
+		EndIF
+		ParentRace = ParentActor.GetRace()
+	endIf
 	LastRace = ParentRace
 	ActorBase b
 	
@@ -648,8 +755,11 @@ endFunction
 
 
 ; my custom edit for Skyrim SE
-ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor ParentActor, int sex)
+ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor ParentActor, int sex, Race FatherRace = none)
 	race ParentRace = ParentActor.GetRace()
+	if Father == none && FatherRace
+		ParentRace = FatherRace
+	endif
 	LastRace = ParentRace
 	ActorBase b
 	
@@ -769,19 +879,39 @@ ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
 	Actor ParentActor
 
 	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	race tempFatherRace = none
+	if Father == none
+		tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+	endIf
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
 	FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
 	
-	If(myProbRandom < myChildRaceDeterminedByFather)
-		FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-
-		ParentActor = Father
-	Else
-		FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-
+	if Father == none
 		ParentActor = Mother
-	EndIF
-	ParentRace = ParentActor.GetRace()
+		race storedFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+		string storedFatherRaceStr = ""
+		if storedFatherRace
+			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+		endif
+		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
+			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+			ParentRace = storedFatherRace
+		else
+			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+			ParentRace = Mother.GetRace()
+		endIf
+	else
+		If(myProbRandom < myChildRaceDeterminedByFather)
+			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+
+			ParentActor = Father
+		Else
+			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+
+			ParentActor = Mother
+		EndIF
+		ParentRace = ParentActor.GetRace()
+	endIf
 	LastRace = ParentRace
 	ActorBase b
 	
@@ -960,3 +1090,4 @@ ActorBase function getPlayerBabyActorByRace(race RaceID, int sex)
 		endIf
 	endIf
 endFunction
+

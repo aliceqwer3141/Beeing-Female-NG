@@ -2005,12 +2005,16 @@ function InstantBornChilds(actor a)
 		numChilds-=1
 		float rndHealth=Utility.RandomFloat(1,25)
 		if BabyHealth>rndHealth
-			SpawnChild(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor )
+			race tempFatherRace = none
+			if StorageUtil.FormListCount(a, "FW.ChildFatherRace") > numChilds
+				tempFatherRace = StorageUtil.FormListGet(a, "FW.ChildFatherRace", numChilds) as race
+			endif
+			SpawnChild(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor, tempFatherRace)
 		else
 			; Totgeburt
 		endIf
 	endWhile
-	StorageUtil.FormListClear(a,"FW.ChildFather")
+	FWUtility.ClearChildFathers(a)
 	StorageUtil.SetIntValue(a,"FW.NumChilds",0)
 	StorageUtil.UnsetIntValue(a,"FW.Abortus")
 	StorageUtil.UnsetFloatValue(a,"FW.UnbornHealth")
@@ -2278,6 +2282,10 @@ endFunction
 
 bool function canBecomePregnant(actor woman)
 	if(woman)
+		if woman.IsDead()
+			FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " is dead")
+			return false
+		endif
 		Actorbase ab = woman.GetActorBase()
 		if(ab)
 			if(ab.GetSex() == 1)
@@ -2548,7 +2556,7 @@ endfunction
 ; Baby Functions
 ;--------------------------------------------------------------------------------
 
-function SpawnChild(Actor Mother, Actor Father)
+function SpawnChild(Actor Mother, Actor Father, race FatherRace = none)
 	int BabysForTheActor = StorageUtil.GetIntValue(Mother,"FW.NumBabys",0)
 	StorageUtil.SetIntValue(Mother,"FW.NumBabys",BabysForTheActor + 1)
 	;if Mother!=PlayerRef && cfg.NPCBornChild==false
@@ -2561,6 +2569,8 @@ function SpawnChild(Actor Mother, Actor Father)
 	bool fatherIsCreature = false
 	if Father;/!=none/; ;Tkc (Loverslab): optimization
 		fatherIsCreature = Father.GetRace().HasKeyword(ActorTypeCreature)
+	elseif FatherRace
+		fatherIsCreature = FatherRace.HasKeyword(ActorTypeCreature)
 	endif
 	
 	int spawnSetting = cfg.BabySpawnNPC
@@ -2577,21 +2587,21 @@ function SpawnChild(Actor Mother, Actor Father)
 			if spawnSetting == 0
 				return;
 			else;if spawnSetting == 1 ; && (Mother == PlayerRef || Father==PlayerRef) ; Only when the player is involved there will spawn actors
-				Baby = SpawnChildActor(Mother, Father)
+				Baby = SpawnChildActor(Mother, Father, FatherRace)
 			endIf
 		else
 			if spawnSetting == 2
 				if isPlayerInvolved
 					if fatherIsCreature
-						Baby = SpawnChildActor(Mother, Father)
+						Baby = SpawnChildActor(Mother, Father, FatherRace)
 					else
-						Baby = SpawnChildItem(Mother, Father)
+						Baby = SpawnChildItem(Mother, Father, FatherRace)
 					endif
 				else
 					if fatherIsCreature
 						return
 					else
-						Baby = SpawnChildItem(Mother, Father)
+						Baby = SpawnChildItem(Mother, Father, FatherRace)
 					endif
 				endif
 			elseif spawnSetting == 3 && BabyGem;/!=none/; ;Tkc (Loverslab): optimization
@@ -2605,7 +2615,9 @@ function SpawnChild(Actor Mother, Actor Father)
 		StorageUtil.FormListAdd(none,"FW.Babys", Baby)
 	endif
 	StorageUtil.SetFloatValue(Mother,"FW.LastBornChildTime", GameDaysPassed.GetValue())
-	StorageUtil.SetFloatValue(Father,"FW.LastBornChildTime", GameDaysPassed.GetValue())
+	if Father
+		StorageUtil.SetFloatValue(Father,"FW.LastBornChildTime", GameDaysPassed.GetValue())
+	endif
 	StorageUtil.FormListAdd(Mother,"FW.BornChildFather", Father)
 	StorageUtil.FloatListAdd(Mother,"FW.BornChildTime",GameDaysPassed.GetValue())
 	Controller.UpdateParentFaction(Mother)
@@ -2613,7 +2625,7 @@ function SpawnChild(Actor Mother, Actor Father)
 	Manager.OnBabySpawn(Mother, Father)
 endFunction
 
-Armor function SpawnChildItem(Actor Mother, Actor Father)
+Armor function SpawnChildItem(Actor Mother, Actor Father, Race FatherRace = none)
 ;	Int gender = Utility.RandomInt(0, 100)
 	Int gender = Utility.RandomInt(0, 99)
 	if gender < 53
@@ -2621,13 +2633,17 @@ Armor function SpawnChildItem(Actor Mother, Actor Father)
 	else
 		gender=1
 	endif
-	Armor mo = BabyItemList.getBabyArmor(Mother, Father, gender)
+	Armor mo = BabyItemList.getBabyArmor(Mother, Father, gender, FatherRace)
 	if mo ;Tkc (Loverslab): optimization
 	else;if mo == none
 		Message(Content.NoChildItem, MSG_DEBUG)
 		return none
 	endif
-	SubSpawnChildItem(mo, gender, Mother, Father, BabyItemList.LastRace)
+	race itemParentRace = BabyItemList.LastRace
+	if itemParentRace == none
+		itemParentRace = FatherRace
+	endif
+	SubSpawnChildItem(mo, gender, Mother, Father, itemParentRace)
 	
 	showBornMessage(Mother, Father, gender)	
 	return mo
@@ -2724,7 +2740,7 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 endFunction
 
 ; my custom edit for Skyrim SE
-actor function SpawnChildActor(Actor Mother, Actor Father)
+actor function SpawnChildActor(Actor Mother, Actor Father, Race FatherRace = none)
 	bool bIsPlayerChild = false
 	if Mother==PlayerRef || Father==PlayerRef
 		bIsPlayerChild = true
@@ -2735,18 +2751,46 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 	race ParentRace
 	Actor ParentActor
 	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father)
+	race tempFatherRace = none
+	if Father == none
+		if FatherRace
+			tempFatherRace = FatherRace
+		else
+			tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
+		endIf
+	endIf
+	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
 	FW_log.WriteLog("FWSystem - SpawnChildActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
-	If(myProbRandom < myChildRaceDeterminedByFather)
-		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
-
-		ParentActor = Father
-	Else
-		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
-
+	race selectedFatherRace = none
+	if Father == none
+		race storedFatherRace = tempFatherRace
+		string storedFatherRaceStr = ""
+		if storedFatherRace
+			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+		endif
+		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
+			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+			selectedFatherRace = storedFatherRace
+		else
+			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
+		endIf
 		ParentActor = Mother
-	EndIF
-	ParentRace = ParentActor.GetRace()
+	else
+		If(myProbRandom < myChildRaceDeterminedByFather)
+			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
+
+			ParentActor = Father
+		Else
+			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
+
+			ParentActor = Mother
+		EndIF
+	endIf
+	if selectedFatherRace
+		ParentRace = selectedFatherRace
+	else
+		ParentRace = ParentActor.GetRace()
+	endIf
 
 
 ;	Int gender = Utility.RandomInt(0, 99)
@@ -2764,7 +2808,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father)
 		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
 		gender=1
 	endif
-	actorbase newChildBase = BabyItemList.getBabyActorNew(Mother, Father, ParentActor, gender)
+	actorbase newChildBase = BabyItemList.getBabyActorNew(Mother, Father, ParentActor, gender, selectedFatherRace)
 	if newChildBase ;Tkc (Loverslab): optimization
 	else;if newChildBase==none
 		return none
@@ -4004,3 +4048,4 @@ string function console_PrintRaceBaby(bool bLog, race r, string Baby)
 endFunction
 
 ; 03.06.2019 Tkc (Loverslab) optimizations: Game.GetPlayer() replaced by PlayerRef. Other changes marked with "Tkc (Loverslab)" comment
+

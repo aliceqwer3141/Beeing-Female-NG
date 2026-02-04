@@ -3400,9 +3400,14 @@ Event OnPageReset(string page)
 					cFW = StorageUtil.GetIntValue(p,"FW.NumChilds")
 					PageResetJobID=38
 					while iFW<cFW
-						actor a = StorageUtil.FormListGet(p,"FW.ChildFather",iFW) as actor
-						if a;/!=none/;
-							AddTextOption("FW.ChildFather["+iFW+"]", a.GetLeveledActorBase().GetName())
+						string aStr = StorageUtil.StringListGet(p,"FW.ChildFatherStr",iFW)
+						if aStr != ""
+							actor a = FWUtility.GetFormFromStringSE(aStr) as actor
+							if a
+								AddTextOption("FW.ChildFather["+iFW+"]", a.GetLeveledActorBase().GetName())
+							else
+								AddTextOption("FW.ChildFather["+iFW+"]", aStr)
+							endif
 						endif
 						iFW+=1
 					endWhile
@@ -3418,7 +3423,19 @@ Event OnPageReset(string page)
 					cFW=StorageUtil.FloatListCount(p,"FW.SpermTime")
 					PageResetJobID=39
 					while iFW<cFW
-						AddTextOption("FW.SpermName["+iFW+"]", (StorageUtil.FormListGet(p,"FW.SpermName",iFW) as actor).GetLeveledActorBase().GetName())
+						string sStr = StorageUtil.StringListGet(p,"FW.SpermNameStr",iFW)
+						if sStr != ""
+							actor sAct = FWUtility.GetFormFromStringSE(sStr) as actor
+							if sAct
+								AddTextOption("FW.SpermName["+iFW+"]", sAct.GetLeveledActorBase().GetName())
+							else
+								AddTextOption("FW.SpermName["+iFW+"]", sStr)
+							endif
+							race sRace = StorageUtil.FormListGet(p,"FW.SpermRace",iFW) as race
+							if sRace
+								AddTextOption("FW.SpermRace["+iFW+"]", sRace.GetName())
+							endif
+						endif
 						AddTextOption("FW.SpermTime["+iFW+"]", StorageUtil.FloatListGet(p,"FW.SpermTime",iFW))
 						AddTextOption("FW.SpermAmount["+iFW+"]", StorageUtil.FloatListGet(p,"FW.SpermAmount",iFW))
 						iFW+=1
@@ -5447,16 +5464,16 @@ State TextJobToDo
 					
 					System.Player.NumChilds = System.calculateNumChildren(PlayerRef)
 					int i = System.Player.NumChilds
-					StorageUtil.FormListClear(PlayerRef,"FW.ChildFather")
+					FWUtility.ClearChildFathers(PlayerRef)
 					StorageUtil.SetIntValue(PlayerRef,"FW.NumChilds",i)
 					While i > 0
 						i -= 1
 						actor a = donors[Utility.RandomInt(0, cSperm - 1)]
 						if (a==none)
-							Game.GetForm(System.CheatAddFather[Utility.RandomInt(0, System.CheatAddFather.Length - 1)]) as Actor
+							a = Game.GetForm(System.CheatAddFather[Utility.RandomInt(0, System.CheatAddFather.Length - 1)]) as Actor
 						endif
 						;System.Player.ChildFather[i] = donors[Utility.RandomInt(0, cSperm - 1)]
-						StorageUtil.FormListAdd(PlayerRef,"FW.ChildFather", a )
+						FWUtility.AddChildFather(PlayerRef, a)
 					EndWhile
 					
 					System.Player.changeState(4)
@@ -5469,7 +5486,7 @@ State TextJobToDo
 			
 			ElseIf jobID == 2
 				System.Player.NumChilds = 0
-				StorageUtil.FormListClear(PlayerRef,"FW.ChildFather")
+				FWUtility.ClearChildFathers(PlayerRef)
 				StorageUtil.SetIntValue(PlayerRef,"FW.NumChilds",0)
 				StorageUtil.UnsetIntValue(PlayerRef,"FW.Abortus")
 				StorageUtil.UnsetFloatValue(PlayerRef,"FW.UnbornHealth")
@@ -5508,12 +5525,12 @@ State TextNpcJobToDo
 					EndIf
 					
 					int i = System.calculateNumChildren(target)
-					StorageUtil.FormListClear(target,"FW.ChildFather")
+					FWUtility.ClearChildFathers(target)
 					StorageUtil.SetIntValue(target,"FW.NumChilds",i)
 					While i > 0
 						i -= 1
 						;System.Player.ChildFather[i] = donors[Utility.RandomInt(0, cSperm - 1)]
-						StorageUtil.FormListAdd(target,"FW.ChildFather", donors[Utility.RandomInt(0, cSperm - 1)] )
+						FWUtility.AddChildFather(target, donors[Utility.RandomInt(0, cSperm - 1)])
 					EndWhile
 					
 					Controller.changeState(target, 4)
@@ -5527,7 +5544,7 @@ State TextNpcJobToDo
 				if System.Player
 					System.Player.NumChilds = 0
 				endIf
-				StorageUtil.FormListClear(target,"FW.ChildFather")
+				FWUtility.ClearChildFathers(target)
 				StorageUtil.SetIntValue(target,"FW.NumChilds",0)
 				StorageUtil.UnsetIntValue(target,"FW.Abortus")
 				StorageUtil.UnsetFloatValue(target,"FW.UnbornHealth")
