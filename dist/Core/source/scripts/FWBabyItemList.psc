@@ -580,13 +580,10 @@ ActorBase function getBabyActorNew(actor Mother, actor Father, Actor ParentActor
 	return b
 endFunction
 
-
-
 ; Deprecated
 ActorBase function getBabyActor(actor Mother, actor Father, int sex)
 	FW_log.WriteLog("FWBabyItemList - getBabyActor: deprecated call")
 endFunction
-
 
 ; my custom edit for Skyrim SE
 ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor ParentActor, int sex, Race FatherRace = none)
@@ -707,164 +704,11 @@ ActorBase function getPlayerBabyActorNew(actor Mother, actor Father, Actor Paren
 
 	return b
 endFunction
+
 ; Deprecated
 ActorBase function getPlayerBabyActor(actor Mother, actor Father, int sex)
-	race ParentRace
-	Actor ParentActor
-
-	int myProbRandom = Utility.RandomInt(0, 99)
-	race tempFatherRace = none
-	if Father == none
-		tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
-	endIf
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
-	FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
-	
-	if Father == none
-		ParentActor = Mother
-		race storedFatherRace = FWUtility.GetLastChildFatherRace(Mother)
-		string storedFatherRaceStr = ""
-		if storedFatherRace
-			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
-		endif
-		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
-			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
-			ParentRace = storedFatherRace
-		else
-			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-			ParentRace = Mother.GetRace()
-		endIf
-	else
-		If(myProbRandom < myChildRaceDeterminedByFather)
-			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-
-			ParentActor = Father
-		Else
-			FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-
-			ParentActor = Mother
-		EndIF
-		ParentRace = ParentActor.GetRace()
-	endIf
-	LastRace = ParentRace
-	ActorBase b
-	
-	if Father == none
-		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Father cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Father cannot be found...")
-		endIf
-	endIf
-	
-	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Child Parent Race: " + ParentRace)
-	if cfg.ShowDebugMessage
-		Debug.Messagebox("Child Parent Race: " + ParentRace)
-	endIf
-
-	bool bool_MixWithCopyActorBase = false
-	int temp_MixWithCopyActorBase = StorageUtil.GetIntValue(ParentActor, "FW.AddOn.MixWithCopyActorBase", 0)
-	if(temp_MixWithCopyActorBase > 0)
-		bool_MixWithCopyActorBase = true
-	else
-		temp_MixWithCopyActorBase = StorageUtil.GetIntValue(ParentRace, "FW.AddOn.MixWithCopyActorBase", 0)
-		if(temp_MixWithCopyActorBase > 0)
-			bool_MixWithCopyActorBase = true
-		else
-			temp_MixWithCopyActorBase = StorageUtil.GetIntValue(none, "FW.AddOn.Global_MixWithCopyActorBase", 0)
-			if(temp_MixWithCopyActorBase > 0)
-				bool_MixWithCopyActorBase = true
-			endIf
-		endIf
-	endIf
-	
-	if(bool_MixWithCopyActorBase)
-		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - MixWithCopyActorBase is turned on!")
-		int myProbChildActor = Manager.RaceProbChildActorBornNew(ParentActor, ParentRace)
-		
-		int myProbChildActorRandom = Utility.RandomInt(0, 99)
-		if(myProbChildActorRandom < myProbChildActor)
-			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Fall in to the ProbChildActorBorn in the AddOn!")
-
-			if(sex == 0)
-				; Male
-				b = Manager.GetPlayerBabyActorNew(ParentActor, ParentRace, 0)
-			else
-				; Female
-				b = Manager.GetPlayerBabyActorNew(ParentActor, ParentRace, 1)
-			endIf
-
-			if b
-			else
-				if(ParentActor == none)
-					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
-					if cfg.ShowDebugMessage
-						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
-					endIf
-						
-					b = Mother.GetLeveledActorBase()
-				else
-					FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
-					if cfg.ShowDebugMessage
-						Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
-					endIf
-
-					b = ParentActor.GetLeveledActorBase()
-				endIf
-			endif
-		else
-			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - Summoning base NPC of the Parent race due to the AddOn settings...")
-
-			b = ParentActor.GetLeveledActorBase()
-		endIf
-	else
-		if(sex == 0)
-			; Male
-			b = Manager.GetPlayerBabyActorNew(ParentActor, ParentRace, 0)
-		else
-			; Female
-			b = Manager.GetPlayerBabyActorNew(ParentActor, ParentRace, 1)
-		endIf
-
-		if b
-		else
-			if(ParentActor == none)
-				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the mother race...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the mother race...")
-				endIf
-						
-				b = Mother.GetLeveledActorBase()
-			else
-				FW_log.WriteLog("BeeingFemale - FWBabyItemList - getPlayerBabyActor - BabyActor cannot be found and thus summoning base NPC of the parent race...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("BabyActor cannot be found and thus summoning base NPC of the parent race...")
-				endIf
-
-				b = ParentActor.GetLeveledActorBase()
-			endIf
-		endif
-	endIf
-
-	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.ProtectedChildActor", 0) == 1)
-		b.SetProtected()
-	else
-		if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.ProtectedChildActor", 0) == 1)
-			b.SetProtected()
-		else
-			if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_ProtectedChildActor", 0) == 1)
-				b.SetProtected()
-			endIf
-		endIf
-	endIf
-
-	return b
+	FW_log.WriteLog("FWBabyItemList - getPlayerBabyActor - deprecated call")
 endFunction
-
-
-
-
-
-
 
 
 ActorBase function getBabyActorByRace(race RaceID, int sex)

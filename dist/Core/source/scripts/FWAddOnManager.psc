@@ -4030,42 +4030,7 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 endFunction
 ; Deprecated
 ActorBase function GetBabyActor(race ParentRace,int Gender)
-	ActorBase m;=none ;Tkc (Loverslab): optimization
-	string sGender="BabyActor_Male"
-	if Gender==1
-		sGender="BabyActor_Female"
-	endif
-	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
-	if c>0
-		int r=Utility.RandomInt(0,c - 1)
-		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
-		if m;/!=none/;
-			return m
-		else
-			FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-			if cfg.ShowDebugMessage
-				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-			endIf
-		endif
-		while c>0
-			c-=1
-			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
-			if m;/!=none/;
-				return m
-			else
-				FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-				endIf
-			endif
-		endWhile
-	else
-		FW_log.WriteLog("FWAddOnManager - GetBabyActor - Parent race " + ParentRace + " cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
-		endIf
-	endif
-	return none
+	FW_log.WriteLog("FWAddOnManager - GetBabyActor - deprecated call")
 endFunction
 
 
@@ -4168,42 +4133,7 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 endFunction
 ; Deprecated
 ActorBase function GetPlayerBabyActor(race ParentRace,int Gender)
-	ActorBase m;=none ;Tkc (Loverslab): optimization
-	string sGender="BabyActor_MalePlayer"
-	if Gender==1
-		sGender="BabyActor_FemalePlayer"
-	endif
-	int c=StorageUtil.FormListCount(ParentRace, "FW.AddOn."+sGender)
-	if c>0
-		int r=Utility.RandomInt(0,c - 1)
-		m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,r) as ActorBase
-		if m;/!=none/;
-			return m
-		else
-			FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-			if cfg.ShowDebugMessage
-				Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-			endIf
-		endif
-		while c>0
-			c-=1
-			m=StorageUtil.FormListGet(ParentRace, "FW.AddOn."+sGender,c) as ActorBase
-			if m;/!=none/;
-				return m
-			else
-				FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-				if cfg.ShowDebugMessage
-					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-				endIf
-			endif
-		endWhile
-	else
-		FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - Parent race " + ParentRace + " cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Parent race " + ParentRace + " cannot be found...")
-		endIf
-	endif
-	return none
+	FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - deprecated call")
 endFunction
 
 
