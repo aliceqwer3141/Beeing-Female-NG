@@ -4162,17 +4162,11 @@ int Function RaceProbChildActorBornNew(actor ParentActor, race ParentRace)
 		endIf
 	endIf
 endFunction
+
 ; Deprecated
 int Function RaceProbChildActorBorn(race RaceID)
-	int myProbChildActorBorn = StorageUtil.GetIntValue(RaceID, "FW.AddOn.ProbChildActorBorn", -1)
-	
-	if(myProbChildActorBorn > 0)
-		trace("FWAddOnManager - RaceProbChildActorBorn = " + myProbChildActorBorn + " for the race " + RaceID)
-		return myProbChildActorBorn
-	else	; must be positive
-		trace("FWAddOnManager - RaceProbChildActorBorn is not defined for the race " + RaceID)
-		return -1
-	endIf
+	FW_log.WriteLog("FWAddOnManager - RaceProbChildActorBorn - deprecated call")
+	return -1
 endFunction
 
 
