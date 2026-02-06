@@ -22,36 +22,66 @@ race property LastRace auto hidden
 Actor Property PlayerRef Auto
 FWSystemConfig property cfg auto
 
+; Check "Female_Force_This_Baby" setting on specific actor
+bool function myForcedBabySetting(Actor act, Race act_race)
+	if(act)
+		if(StorageUtil.GetIntValue(act, "FW.AddOn.Female_Force_This_Baby", 0) == 0)
+			race abr = act.GetRace()
+			if abr
+				if(StorageUtil.GetIntValue(abr, "FW.AddOn.Female_Force_This_Baby", 0) != 0)
+					return true
+				endIf
+			endIf
+		else
+			return true
+		endIf
+	elseif(act_race)
+		if(StorageUtil.GetIntValue(act_race, "FW.AddOn.Female_Force_This_Baby", 0) != 0)
+			return true
+		endIf
+	endIf
+	return false
+endFunction
+
 ; Resolve parent actor/race for item/armor selection with father-race bias.
 ; Returns [0]=ParentActor, [1]=ParentRace.
 Form[] function ResolveParentActorAndRaceForItemArmor(actor Mother, actor Father, actor ParentActor, race storedFatherRace, string logPrefix)
 	Form[] result = new Form[2] ; 0 = ParentActor, 1 = ParentRace
-	int myProbRandom = Utility.RandomInt(0, 99)
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
-	FW_log.WriteLog(logPrefix + ": ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
-	
-	if Father == none
+
+	if(myForcedBabySetting(Mother, none))
 		ParentActor = Mother
-		string storedFatherRaceStr = ""
-		if storedFatherRace
-			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
-		endif
-		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
-			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
-			result[1] = storedFatherRace
-		else
-			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
-			result[1] = Mother.GetRace()
-		endIf
+		result[1] = Mother.GetRace()
 	else
-		If(myProbRandom < myChildRaceDeterminedByFather)
-			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
-			ParentActor = Father
-		Else
-			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+		int myProbRandom = Utility.RandomInt(0, 99)
+		int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
+		FW_log.WriteLog(logPrefix + ": ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
+		
+		if Father == none
 			ParentActor = Mother
-		EndIF
-		result[1] = ParentActor.GetRace()
+			string storedFatherRaceStr = ""
+			if storedFatherRace
+				storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
+				if(myForcedBabySetting(none, storedFatherRace) || (myProbRandom < myChildRaceDeterminedByFather))
+					FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+					result[1] = storedFatherRace
+				else
+					FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+					result[1] = Mother.GetRace()
+				endIf
+			else
+				FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+				result[1] = Mother.GetRace()
+			endIf
+		else
+			If(myForcedBabySetting(Father, none) || (myProbRandom < myChildRaceDeterminedByFather))
+				FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
+				ParentActor = Father
+			Else
+				FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+				ParentActor = Mother
+			EndIF
+			result[1] = ParentActor.GetRace()
+		endIf
 	endIf
 	result[0] = ParentActor
 	return result
@@ -480,27 +510,6 @@ ActorBase function ResolveChildBase(actor Mother, actor ParentActor, race Parent
 		endIf
 		return ResolveFallbackChildBase(Mother, ParentActor, logPrefix)
 	endIf
-endFunction
-
-; Check "Female_Force_This_Baby" setting on specific actor
-bool function myForcedBabySetting(Actor act, Race act_race)
-	if(act)
-		if(StorageUtil.GetIntValue(act, "FW.AddOn.Female_Force_This_Baby", 0) == 0)
-			race abr = act.GetRace()
-			if abr
-				if(StorageUtil.GetIntValue(abr, "FW.AddOn.Female_Force_This_Baby", 0) != 0)
-					return true
-				endIf
-			endIf
-		else
-			return true
-		endIf
-	elseif(act_race)
-		if(StorageUtil.GetIntValue(act_race, "FW.AddOn.Female_Force_This_Baby", 0) != 0)
-			return true
-		endIf
-	endIf
-	return false
 endFunction
 
 ; Resolve parent actor/race for actor-base selection.
