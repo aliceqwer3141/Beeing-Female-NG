@@ -22,6 +22,99 @@ race property LastRace auto hidden
 Actor Property PlayerRef Auto
 FWSystemConfig property cfg auto
 
+string myParentChildFolderPath = "../BeeingFemale"
+; Check whether the given Father and Mother should have specific child item
+MiscObject[] functions FindSpecificFatherMotherForItem(actor Mother, actor Father, int sex)
+	string[] mySpecificJSONfilesName = JsonUtil.JsonInFolder(myParentChildFolderPath)
+	int numJSONFiles = mySpecificJSONfilesName.length
+	if(numJSONFiles > 0)
+		int i = 0
+		string JSONPath = ""
+
+		Form FatherVal = none
+		Actor FatherValActor = none
+
+		Form MotherVal = none
+		Actor MotherValActor = none
+
+		bool IsJSONvalid = false
+
+		Form[] child_list
+		MiscObject[] child_MO_list
+		
+		while(i < numJSONFiles)
+			JSONPath = myParentChildFolderPath + "/" + mySpecificJSONfilesName[i] + ".json"
+			if(JSONPath)
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - relative JSON path is" + JSONPath)
+				IsJSONvalid = true
+	
+				FatherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_items.parent[0]")
+				if(FatherVal)
+					FatherValActor = FatherVal as Actor
+					if(!FatherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid parent[0] actor (father). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid parent[0] (father). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				MotherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_items.parent[1]")
+				if(MotherVal)
+					MotherValActor = MotherVal as Actor
+					if(!MotherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid parent[1] actor (mother). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid parent[1] (mother). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				if(IsJSONvalid)
+					if((Mother == MotherValActor) && (Father == FatherValActor))
+						if(sex == 0) ; male child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_items.male_child")
+							if(child_list)
+								child_MO_list = child_list as MiscObject[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid male_child (not MiscObject). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid male_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						elseif(sex == 1) ; female child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_items.female_child")							
+							if(child_list)
+								child_MO_list = child_list as MiscObject[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid female_child (not MiscObject). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file does not have valid female_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						endIf
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - " + i + "th JSON file is not valid. Please check the file " + mySpecificJSONfilesName[i])
+				endIf
+			else
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForItem - cannot find " + i + "th JSON file path...")
+				IsJSONvalid = false
+			endIf
+
+			i += 1
+		endWhile
+	else
+		return none
+	endIf
+endFunction
+
 ; Resolve parent actor/race for item/armor selection with father-race bias.
 ; Returns [0]=ParentActor, [1]=ParentRace.
 Form[] function ResolveParentActorAndRaceForItemArmor(actor Mother, actor Father, actor ParentActor, race storedFatherRace, string logPrefix)
@@ -65,7 +158,6 @@ Form[] function getBabyItem(actor Mother, actor Father, int sex, Race FatherRace
 	;race ParentRace = Father.GetRace()
 	;race MotherRace = Mother.GetRace()
 
-
 	race storedFatherRace = none
 	if Father == none
 		if FatherRace
@@ -74,11 +166,49 @@ Form[] function getBabyItem(actor Mother, actor Father, int sex, Race FatherRace
 			storedFatherRace = FWUtility.GetLastChildFatherRace(Mother)
 		endIf
 	endIf
-	Form[] parentContext = ResolveParentActorAndRaceForItemArmor(Mother, Father, none, storedFatherRace, "FWBabyItemList - getBabyItem")
+	Form[] parentContext = ResolveParentActorAndRaceForItem(Mother, Father, none, storedFatherRace, "FWBabyItemList - getBabyItem")
 	Actor ParentActor = parentContext[0] as Actor
 	race ParentRace = parentContext[1] as Race
 	; no shared state; return context to caller
 	
+	; Check father-mother -> child case
+	MiscObject[] child_MO_list = FindSpecificFatherMotherForItem(Mother, Father, sex)
+	if(child_MO_list)
+		if(sex == 0)
+			int mCount = child_MO_list.length
+			; First, check Random child from list
+			MiscObject force_mo_m = child_MO_list[Utility.RandomInt(0, mCount - 1)]
+			if force_mo_m!=none
+				return BuildBabyActorResult(force_mo_m, ParentActor, ParentRace)
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_m = child_MO_list[i]
+				if force_mo_m!=none
+					return BuildBabyActorResult(force_mo_m, ParentActor, ParentRace)
+				endif
+			endwhile			
+		elseif(sex == 1)
+			int fCount = child_MO_list.length
+			; First, check Random child from list
+			MiscObject force_mo_f = child_MO_list[Utility.RandomInt(0, fCount - 1)]
+			if force_mo_f!=none
+				return BuildBabyActorResult(force_mo_f, ParentActor, ParentRace)
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_f = child_MO_list[i]
+				if force_mo_f!=none
+					return BuildBabyActorResult(force_mo_f, ParentActor, ParentRace)
+				endif
+			endwhile
+		endIf
+	endIf
+
 	; Check Forces Babys
 	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.Female_Force_This_Baby") == 1)
 		int mCount=StorageUtil.FormListCount(ParentActor, "FW.AddOn.BabyMesh_Male")
@@ -230,6 +360,98 @@ Form[] function getBabyItem(actor Mother, actor Father, int sex, Race FatherRace
 	endIf
 endFunction
 
+; Check whether the given Father and Mother should have specific child armor
+Armor[] functions FindSpecificFatherMotherForArmor(actor Mother, actor Father, int sex)
+	string[] mySpecificJSONfilesName = JsonUtil.JsonInFolder(myParentChildFolderPath)
+	int numJSONFiles = mySpecificJSONfilesName.length
+	if(numJSONFiles > 0)
+		int i = 0
+		string JSONPath = ""
+
+		Form FatherVal = none
+		Actor FatherValActor = none
+
+		Form MotherVal = none
+		Actor MotherValActor = none
+
+		bool IsJSONvalid = false
+
+		Form[] child_list
+		Armor[] child_MO_list
+		
+		while(i < numJSONFiles)
+			JSONPath = myParentChildFolderPath + "/" + mySpecificJSONfilesName[i] + ".json"
+			if(JSONPath)
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - relative JSON path is" + JSONPath)
+				IsJSONvalid = true
+	
+				FatherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_armors.parent[0]")
+				if(FatherVal)
+					FatherValActor = FatherVal as Actor
+					if(!FatherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid parent[0] actor (father). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid parent[0] (father). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				MotherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_armors.parent[1]")
+				if(MotherVal)
+					MotherValActor = MotherVal as Actor
+					if(!MotherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid parent[1] actor (mother). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid parent[1] (mother). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				if(IsJSONvalid)
+					if((Mother == MotherValActor) && (Father == FatherValActor))
+						if(sex == 0) ; male child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_armors.male_child")
+							if(child_list)
+								child_MO_list = child_list as Armor[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid male_child (not Armor). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid male_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						elseif(sex == 1) ; female child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_armors.female_child")							
+							if(child_list)
+								child_MO_list = child_list as Armor[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid female_child (not Armor). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file does not have valid female_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						endIf
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - " + i + "th JSON file is not valid. Please check the file " + mySpecificJSONfilesName[i])
+				endIf
+			else
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForArmor - cannot find " + i + "th JSON file path...")
+				IsJSONvalid = false
+			endIf
+
+			i += 1
+		endWhile
+	else
+		return none
+	endIf
+endFunction
+
 ; Select baby armor and return [0]=Armor, [1]=ParentActor, [2]=ParentRace.
 Form[] function getBabyArmor(actor Mother, actor Father, int sex, Race FatherRace = none)
 	;race ParentRace = Father.GetRace()
@@ -248,7 +470,45 @@ Form[] function getBabyArmor(actor Mother, actor Father, int sex, Race FatherRac
 	Actor ParentActor = parentContext[0] as Actor
 	race ParentRace = parentContext[1] as Race
 	; no shared state; return context to caller
-	
+
+	; Check father-mother -> child case
+	Armor[] child_MO_list = FindSpecificFatherMotherForArmor(Mother, Father, sex)
+	if(child_MO_list)
+		if(sex == 0)
+			int mCount = child_MO_list.length
+			; First, check Random child from list
+			Armor force_mo_m = child_MO_list[Utility.RandomInt(0, mCount - 1)]
+			if force_mo_m!=none
+				return BuildBabyActorResult(force_mo_m, ParentActor, ParentRace)
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_m = child_MO_list[i]
+				if force_mo_m!=none
+					return BuildBabyActorResult(force_mo_m, ParentActor, ParentRace)
+				endif
+			endwhile
+		elseif(sex == 1)
+			int fCount = child_MO_list.length
+			; First, check Random child from list
+			Armor force_mo_f = child_MO_list[Utility.RandomInt(0, fCount - 1)]
+			if force_mo_f!=none
+				return BuildBabyActorResult(force_mo_f, ParentActor, ParentRace)
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_f = child_MO_list[i]
+				if force_mo_f!=none
+					return BuildBabyActorResult(force_mo_f, ParentActor, ParentRace)
+				endif
+			endwhile
+		endIf
+	endIf
+
 	; Check Forces Babys
 	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.Female_Force_This_Baby") == 1)
 		int mCount=StorageUtil.FormListCount(ParentActor, "FW.AddOn.BabyArmor_Male")
@@ -583,33 +843,171 @@ Form[] function BuildBabyActorResult(Form baseForm, Actor parentActor, Race pare
 	return result
 endFunction
 
-; Select baby actor base and return [0]=ActorBase, [1]=ParentActor, [2]=ParentRace.
-Form[] function getBabyActorNew(actor Mother, actor Father, int sex, Race FatherRace = none)
-	if Mother == PlayerRef || Father == PlayerRef
-		return getPlayerBabyActorNew(Mother, Father, sex, FatherRace)
-	endif
-	
-	race storedFatherRace = none
-	if Father == none && FatherRace
-		storedFatherRace = FatherRace
-	endif
+; Check whether the given Father and Mother should have specific child actor
+ActorBase[] functions FindSpecificFatherMotherForActor(actor Mother, actor Father, int sex)
+	string[] mySpecificJSONfilesName = JsonUtil.JsonInFolder(myParentChildFolderPath)
+	int numJSONFiles = mySpecificJSONfilesName.length
+	if(numJSONFiles > 0)
+		int i = 0
+		string JSONPath = ""
 
-	Form[] parentContext = ResolveParentActorAndRace(Mother, Father, none, storedFatherRace)
-	Actor ParentActor = parentContext[0] as Actor
-	race ParentRace = parentContext[1] as Race
+		Form FatherVal = none
+		Actor FatherValActor = none
+
+		Form MotherVal = none
+		Actor MotherValActor = none
+
+		bool IsJSONvalid = false
+
+		Form[] child_list
+		ActorBase[] child_MO_list
+		
+		while(i < numJSONFiles)
+			JSONPath = myParentChildFolderPath + "/" + mySpecificJSONfilesName[i] + ".json"
+			if(JSONPath)
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - relative JSON path is" + JSONPath)
+				IsJSONvalid = true
 	
-	if Father == none
-		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
-		if cfg.ShowDebugMessage
-			Debug.Messagebox("Father cannot be found...")
+				FatherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_actors.parent[0]")
+				if(FatherVal)
+					FatherValActor = FatherVal as Actor
+					if(!FatherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid parent[0] actor (father). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid parent[0] (father). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				MotherVal = JsonUtil.GetPathFormValue(JSONPath, "baby_actors.parent[1]")
+				if(MotherVal)
+					MotherValActor = MotherVal as Actor
+					if(!MotherValActor)
+						Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid parent[1] actor (mother). Please check the file " + mySpecificJSONfilesName[i])
+						IsJSONvalid = false
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid parent[1] (mother). Please check the file " + mySpecificJSONfilesName[i])
+					IsJSONvalid = false
+				endIf
+
+				if(IsJSONvalid)
+					if((Mother == MotherValActor) && (Father == FatherValActor))
+						if(sex == 0) ; male child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_actors.male_child")
+							if(child_list)
+								child_MO_list = child_list as ActorBase[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid male_child (not ActorBase). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid male_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						elseif(sex == 1) ; female child
+							child_list = JsonUtil.PathFormElements(JSONPath, "baby_actors.female_child")							
+							if(child_list)
+								child_MO_list = child_list as ActorBase[]
+								if(child_MO_list)
+									return child_MO_list
+								else
+									Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid female_child (not ActorBase). Please check the file " + mySpecificJSONfilesName[i])
+								endIf
+							else
+								Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file does not have valid female_child. Please check the file " + mySpecificJSONfilesName[i])
+							endIf
+						endIf
+					endIf
+				else
+					Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - " + i + "th JSON file is not valid. Please check the file " + mySpecificJSONfilesName[i])
+				endIf
+			else
+				Debug.Trace("[BeeingFemale NG] - FindSpecificFatherMotherForActor - cannot find " + i + "th JSON file path...")
+				IsJSONvalid = false
+			endIf
+
+			i += 1
+		endWhile
+	else
+		return none
+	endIf
+endFunction
+
+; Check father-mother -> child case
+ActorBase Function SpecificChildFatherMother(actor Mother, actor Father, int sex, Race FatherRace = none)
+	ActorBase[] child_MO_list = FindSpecificFatherMotherForActor(Mother, Father, sex)
+	if(child_MO_list)
+		if(sex == 0)
+			int mCount = child_MO_list.length
+			; First, check Random child from list
+			ActorBase force_mo_m = child_MO_list[Utility.RandomInt(0, mCount - 1)]
+			if force_mo_m!=none
+				return force_mo_m
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_m = child_MO_list[i]
+				if force_mo_m!=none
+					return force_mo_m
+				endif
+			endwhile
+		elseif(sex == 1)
+			int fCount = child_MO_list.length
+			; First, check Random child from list
+			ActorBase force_mo_f = child_MO_list[Utility.RandomInt(0, fCount - 1)]
+			if force_mo_f!=none
+				return force_mo_f
+			endif
+			; Random Child was none, go through list
+			int i=0
+			while i<mCount
+				i+=1
+				force_mo_f = child_MO_list[i]
+				if force_mo_f!=none
+					return force_mo_f
+				endif
+			endwhile
 		endIf
 	endIf
 	
-	FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
-	if cfg.ShowDebugMessage
-		Debug.Messagebox("Child Parent Race: " + ParentRace)
+	return none
+endFunction
+
+; Select baby actor base and return [0]=ActorBase, [1]=ParentActor, [2]=ParentRace.
+Form[] function getBabyActorNew(actor Mother, actor Father, int sex, Race FatherRace = none)
+	; Check father-mother -> child case
+	ActorBase b = SpecificChildFatherMother(Mother, Father, sex, FatherRace)
+	if(!b)
+		if Mother == PlayerRef || Father == PlayerRef
+			return getPlayerBabyActorNew(Mother, Father, sex, FatherRace)
+		endif
+		
+		race storedFatherRace = none
+		if Father == none && FatherRace
+			storedFatherRace = FatherRace
+		endif
+	
+		Form[] parentContext = ResolveParentActorAndRace(Mother, Father, none, storedFatherRace)
+		Actor ParentActor = parentContext[0] as Actor
+		race ParentRace = parentContext[1] as Race
+		
+		if Father == none
+			FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Father cannot be found...")
+			if cfg.ShowDebugMessage
+				Debug.Messagebox("Father cannot be found...")
+			endIf
+		endIf
+		
+		FW_log.WriteLog("BeeingFemale - FWBabyItemList - getBabyActor - Child Parent Race: " + ParentRace)
+		if cfg.ShowDebugMessage
+			Debug.Messagebox("Child Parent Race: " + ParentRace)
+		endIf
+		b = ResolveChildBase(Mother, ParentActor, ParentRace, sex, false, "BeeingFemale - FWBabyItemList - getBabyActor")
 	endIf
-	ActorBase b = ResolveChildBase(Mother, ParentActor, ParentRace, sex, false, "BeeingFemale - FWBabyItemList - getBabyActor")
 	if(ShouldProtectChildActor(ParentActor, ParentRace))
 		b.SetProtected()
 	endIf
