@@ -1844,22 +1844,25 @@ actor[] function GetRelevantSpermActorsTimed(actor woman,float Time, bool bShowT
 			actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
-			
-			;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-			;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-			;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-			;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
-			
-			if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
-				;FWUtility.ActorArrayAppend(actors, SName)
-				if bFirst;/==true/;
-					actors=new Actor[1]
-					actors[0]=SName
-					bFirst=false
-				else
-					;sslUtility.PushActor(SName,actors)
-					actors=FWUtility.ActorArrayAppend(actors, SName)
+			if SName!=none
+				;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+				;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+				;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+				;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+				
+				if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
+					;FWUtility.ActorArrayAppend(actors, SName)
+					if bFirst;/==true/;
+						actors=new Actor[1]
+						actors[0]=SName
+						bFirst=false
+					else
+						;sslUtility.PushActor(SName,actors)
+						actors=FWUtility.ActorArrayAppend(actors, SName)
+					endif
 				endif
+			else
+				FWUtility.RemoveSpermMirrorAt(woman, c)
 			endif
 		endwhile
 	else
@@ -1870,32 +1873,35 @@ actor[] function GetRelevantSpermActorsTimed(actor woman,float Time, bool bShowT
 			actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
+			if SName!=none
+				;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+				;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+				;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+				;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
 			
-			;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-			;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-			;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-			;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
-		
-			if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
-				float SpermDurationPercent = (Time - STime) / maxSDuration
-				float xScale = 1.0
-				if SpermDurationPercent>0.65
-					xScale-=SpermDurationPercent - 0.65
-				endIf
-				;FWUtility.ActorArrayAppend(actors, SName)
-				;FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
-				if bFirst;/==true/;
-					actors=new Actor[1]
-					actors[0]=SName
-					actorr=new Float[1]
-					actorr[0]=System.GetSpermRelevance(woman, SName) * SAmou * xScale
-					bFirst=false
-				else
-					;sslUtility.PushActor(SName,actors)
-					;sslUtility.PushFloat(System.GetSpermRelevance(woman, SName) * SAmou * xScale,actorr)
-					actors=FWUtility.ActorArrayAppend(actors, SName)
-					actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+				if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
+					float SpermDurationPercent = (Time - STime) / maxSDuration
+					float xScale = 1.0
+					if SpermDurationPercent>0.65
+						xScale-=SpermDurationPercent - 0.65
+					endIf
+					;FWUtility.ActorArrayAppend(actors, SName)
+					;FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+					if bFirst;/==true/;
+						actors=new Actor[1]
+						actors[0]=SName
+						actorr=new Float[1]
+						actorr[0]=System.GetSpermRelevance(woman, SName) * SAmou * xScale
+						bFirst=false
+					else
+						;sslUtility.PushActor(SName,actors)
+						;sslUtility.PushFloat(System.GetSpermRelevance(woman, SName) * SAmou * xScale,actorr)
+						actors=FWUtility.ActorArrayAppend(actors, SName)
+						actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+					endif
 				endif
+			else
+				FWUtility.RemoveSpermMirrorAt(woman, c)
 			endif
 		endwhile
 		
@@ -2025,19 +2031,22 @@ float[] function GetRelevantSpermFloatTimed(actor woman,float Time, bool bShowTr
 		actor SName = (StorageUtil.FormListGet(woman, "FW.SpermName", c) As Actor)
 		float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 		float maxSDuration = System.getMaleSpermDuration(SName)
-		
-		;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
-		;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
-		;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
-		;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
-		
-		if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
-			float SpermDurationPercent = (Time - STime) / maxSDuration
-			float xScale = 1.0
-			if SpermDurationPercent>0.65
-				xScale-=SpermDurationPercent - 0.65
-			endIf
-			actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+		if SName!=none
+			;FW_log.WriteLog("Sperm["+c+"] is from "+SName.GetLeveledActorBase().GetName())
+			;FW_log.WriteLog(STime+" + "+maxSDuration+" > "+Time+" && ("+STime+" + "+System.cfg.WashOutHourDelay+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > "+0.01)
+			;FW_log.WriteLog((STime + maxSDuration)+" > "+Time+" && ("+(STime+System.cfg.WashOutHourDelay)+" < "+Time+" || "+bShowTravelingSperm+") && "+SAmou+" > 0.01")
+			;FW_log.WriteLog((STime + maxSDuration > Time)+" && ("+(STime+System.cfg.WashOutHourDelay < Time)+" || "+bShowTravelingSperm+") && "+(SAmou>0.01))
+			
+			if STime + maxSDuration > Time && (STime+cfg.WashOutHourDelay < Time || bShowTravelingSperm;/==true/;) && SAmou>=Sperm_Min_Amount_For_Impregnation && System.CheckIsLoreFriendlyMetting(woman, SName)
+				float SpermDurationPercent = (Time - STime) / maxSDuration
+				float xScale = 1.0
+				if SpermDurationPercent>0.65
+					xScale-=SpermDurationPercent - 0.65
+				endIf
+				actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+			endif
+		else
+			FWUtility.RemoveSpermMirrorAt(woman, c)
 		endif
 	endwhile
 	if bSort ;Tkc (Loverslab) optimization
@@ -2300,32 +2309,36 @@ actor[] function MyGetRelevantSpermActorsTimedForAnyPeriod(actor woman, float Ti
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
 
-			my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-			if(my_Impreg_Any <= 0)
-				abr = SName.GetRace()
-				if abr
-					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-					if(my_Impreg_Any <= 0)
-						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
-						if(my_Impreg_Any > 0)
-							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+			if SName!=none
+				my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					abr = SName.GetRace()
+					if abr
+						my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any > 0)
+								my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 						endIf
-					else
-						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 					endIf
-				endIf
-			else
-				my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
-			endIf
-
-			if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
-				if bFirst;/==true/;
-					actors = new Actor[1]
-					actors[0] = SName
-					bFirst=false
 				else
-					actors = FWUtility.ActorArrayAppend(actors, SName)
+					my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+
+				if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
+					if bFirst;/==true/;
+						actors = new Actor[1]
+						actors[0] = SName
+						bFirst=false
+					else
+						actors = FWUtility.ActorArrayAppend(actors, SName)
+					endif
 				endif
+			else
+				FWUtility.RemoveSpermMirrorAt(woman, c)
 			endif
 		endwhile
 	else
@@ -2337,41 +2350,45 @@ actor[] function MyGetRelevantSpermActorsTimedForAnyPeriod(actor woman, float Ti
 			float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 			float maxSDuration = System.getMaleSpermDuration(SName)
 					
-			my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-			if(my_Impreg_Any <= 0)
-				abr = SName.GetRace()
-				if abr
-					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-					if(my_Impreg_Any <= 0)
-						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
-						if(my_Impreg_Any > 0)
-							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+			if SName!=none
+				my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+				if(my_Impreg_Any <= 0)
+					abr = SName.GetRace()
+					if abr
+						my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any <= 0)
+							my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+							if(my_Impreg_Any > 0)
+								my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+							endIf
+						else
+							my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 						endIf
-					else
-						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 					endIf
-				endIf
-			else
-				my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
-			endIf
-
-			if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
-				float SpermDurationPercent = (Time - STime) / maxSDuration
-				float xScale = 1.0
-				if(SpermDurationPercent > 0.65)
-					xScale -= SpermDurationPercent - 0.65
-				endIf
-
-				if bFirst;/==true/;
-					actors = new Actor[1]
-					actors[0] = SName
-					actorr = new Float[1]
-					actorr[0] = System.GetSpermRelevance(woman, SName) * SAmou * xScale
-					bFirst = false
 				else
-					actors = FWUtility.ActorArrayAppend(actors, SName)
-					actorr = FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+					my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
+				endIf
+
+				if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation))
+					float SpermDurationPercent = (Time - STime) / maxSDuration
+					float xScale = 1.0
+					if(SpermDurationPercent > 0.65)
+						xScale -= SpermDurationPercent - 0.65
+					endIf
+
+					if bFirst;/==true/;
+						actors = new Actor[1]
+						actors[0] = SName
+						actorr = new Float[1]
+						actorr[0] = System.GetSpermRelevance(woman, SName) * SAmou * xScale
+						bFirst = false
+					else
+						actors = FWUtility.ActorArrayAppend(actors, SName)
+						actorr = FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+					endif
 				endif
+			else
+				FWUtility.RemoveSpermMirrorAt(woman, c)
 			endif
 		endwhile
 		
@@ -2427,31 +2444,35 @@ float[] function MyGetRelevantSpermFloatTimedForAnyPeriod(actor woman, float Tim
 		float SAmou = StorageUtil.FloatListGet(woman, "FW.SpermAmount", c)
 		float maxSDuration = System.getMaleSpermDuration(SName)
 		
-		my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-		if(my_Impreg_Any <= 0)
-			abr = SName.GetRace()
-			if abr
-				my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
-				if(my_Impreg_Any <= 0)
-					my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
-					if(my_Impreg_Any > 0)
-						my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+		if SName!=none
+			my_Impreg_Any = StorageUtil.GetIntValue(SName, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+			if(my_Impreg_Any <= 0)
+				abr = SName.GetRace()
+				if abr
+					my_Impreg_Any = StorageUtil.GetIntValue(abr, "FW.AddOn.Allow_Impregnation_For_Any_Period", -1)
+					if(my_Impreg_Any <= 0)
+						my_Impreg_Any = StorageUtil.GetIntValue(none, "FW.AddOn.Global_Allow_Impregnation_For_Any_Period", -1)
+						if(my_Impreg_Any > 0)
+							my_Impreg_Chance = StorageUtil.GetFloatValue(none, "FW.AddOn.Global_Sperm_Impregnation_Prob_For_Any_Period", 0)
+						endIf
+					else
+						my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 					endIf
-				else
-					my_Impreg_Chance = StorageUtil.GetFloatValue(abr, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 				endIf
+			else
+				my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
 			endIf
-		else
-			my_Impreg_Chance = StorageUtil.GetFloatValue(SName, "FW.AddOn.Sperm_Impregnation_Prob_For_Any_Period", 0)
-		endIf
 
-		if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation) && System.CheckIsLoreFriendlyMetting(woman, SName))
-			float SpermDurationPercent = (Time - STime) / maxSDuration
-			float xScale = 1.0
-			if SpermDurationPercent>0.65
-				xScale-=SpermDurationPercent - 0.65
-			endIf
-			actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+			if((my_Impreg_Chance > 0) && ((STime + maxSDuration) > Time) && (((STime + cfg.WashOutHourDelay) < Time) || bShowTravelingSperm;/==true/;) && (SAmou >= Sperm_Min_Amount_For_Impregnation) && System.CheckIsLoreFriendlyMetting(woman, SName))
+				float SpermDurationPercent = (Time - STime) / maxSDuration
+				float xScale = 1.0
+				if SpermDurationPercent>0.65
+					xScale-=SpermDurationPercent - 0.65
+				endIf
+				actorr=FWUtility.FloatArrayAppend(actorr, System.GetSpermRelevance(woman, SName) * SAmou * xScale)
+			endif
+		else
+			FWUtility.RemoveSpermMirrorAt(woman, c)
 		endif
 	endwhile
 	if bSort ;Tkc (Loverslab) optimization

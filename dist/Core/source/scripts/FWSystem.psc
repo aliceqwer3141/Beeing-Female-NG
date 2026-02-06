@@ -1111,6 +1111,9 @@ event OnUpdateGameTime()
 endEvent
 
 bool function CheckIsLoreFriendlyMetting(actor w, actor m)
+	if w==none || m==none
+		return false
+	endif
 	if cfg.ImpregnateLoreFriendly;/==true/; ;Tkc (Loverslab): optimization
 		if w.GetRace()==m.GetRace() ;Tkc (Loverslab): optimization
 		else;if w.GetRace()!=m.GetRace()

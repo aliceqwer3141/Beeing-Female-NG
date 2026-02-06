@@ -182,16 +182,11 @@ race function GetLastChildFatherRace(actor Mother) global
 endFunction
 
 function AddSpermMirror(actor Woman, actor Father) global
-	if !Woman
+	if !Woman || !Father
 		return
 	endif
 	StorageUtil.FormListAdd(Woman, "FW.SpermName", Father)
-	StorageUtil.StringListAdd(Woman, "FW.SpermNameStr", GetStringFromForm(Father))
-	if Father
-		StorageUtil.FormListAdd(Woman, "FW.SpermRace", Father.GetRace())
-	else
-		StorageUtil.FormListAdd(Woman, "FW.SpermRace", none)
-	endif
+	; removed FW.SpermNameStr and FW.SpermRace mirrors (unused)
 endFunction
 
 function RemoveSpermMirrorAt(actor Woman, int Index) global
@@ -207,12 +202,7 @@ function RemoveSpermMirrorAt(actor Woman, int Index) global
 	if StorageUtil.FloatListCount(Woman, "FW.SpermAmount") > Index
 		StorageUtil.FloatListRemoveAt(Woman, "FW.SpermAmount", Index)
 	endif
-	if StorageUtil.StringListCount(Woman, "FW.SpermNameStr") > Index
-		StorageUtil.StringListRemoveAt(Woman, "FW.SpermNameStr", Index)
-	endif
-	if StorageUtil.FormListCount(Woman, "FW.SpermRace") > Index
-		StorageUtil.FormListRemoveAt(Woman, "FW.SpermRace", Index)
-	endif
+	; removed FW.SpermNameStr and FW.SpermRace mirrors (unused)
 endFunction
 
 function ClearSpermMirror(actor Woman) global
@@ -222,8 +212,7 @@ function ClearSpermMirror(actor Woman) global
 	StorageUtil.FloatListClear(Woman, "FW.SpermTime")
 	StorageUtil.FormListClear(Woman, "FW.SpermName")
 	StorageUtil.FloatListClear(Woman, "FW.SpermAmount")
-	StorageUtil.StringListClear(Woman, "FW.SpermNameStr")
-	StorageUtil.FormListClear(Woman, "FW.SpermRace")
+	; removed FW.SpermNameStr and FW.SpermRace mirrors (unused)
 endFunction
 string function GetStringFromRaces(Race[] frms) global
 	int i=0

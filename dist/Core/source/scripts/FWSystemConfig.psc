@@ -3442,15 +3442,10 @@ Event OnPageReset(string page)
 					cFW=StorageUtil.FloatListCount(p,"FW.SpermTime")
 					PageResetJobID=39
 					while iFW<cFW
-						string sStr = StorageUtil.StringListGet(p,"FW.SpermNameStr",iFW)
-						if sStr != ""
-							actor sAct = FWUtility.GetFormFromStringSE(sStr) as actor
-							if sAct
-								AddTextOption("FW.SpermName["+iFW+"]", sAct.GetLeveledActorBase().GetName())
-							else
-								AddTextOption("FW.SpermName["+iFW+"]", sStr)
-							endif
-							race sRace = StorageUtil.FormListGet(p,"FW.SpermRace",iFW) as race
+						actor sAct = StorageUtil.FormListGet(p,"FW.SpermName",iFW) as actor
+						if sAct
+							AddTextOption("FW.SpermName["+iFW+"]", sAct.GetLeveledActorBase().GetName())
+							race sRace = sAct.GetRace()
 							if sRace
 								AddTextOption("FW.SpermRace["+iFW+"]", sRace.GetName())
 							endif
