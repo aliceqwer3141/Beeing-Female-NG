@@ -166,7 +166,7 @@ Form[] function getBabyItem(actor Mother, actor Father, int sex, Race FatherRace
 			storedFatherRace = FWUtility.GetLastChildFatherRace(Mother)
 		endIf
 	endIf
-	Form[] parentContext = ResolveParentActorAndRaceForItem(Mother, Father, none, storedFatherRace, "FWBabyItemList - getBabyItem")
+	Form[] parentContext = ResolveParentActorAndRaceForItemArmor(Mother, Father, none, storedFatherRace, "FWBabyItemList - getBabyItem")
 	Actor ParentActor = parentContext[0] as Actor
 	race ParentRace = parentContext[1] as Race
 	; no shared state; return context to caller
