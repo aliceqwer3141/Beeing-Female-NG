@@ -3905,14 +3905,68 @@ ActorBase function validateBabyCustomRace(ActorBase b)
 	if childRace
 		string childRaceName = FWUtility.toLower(childRace.GetName() + MiscUtil.GetRaceEditorID(childRace))
 		if StringUtil.Find(childRaceName, "child") == -1 && childRace.HasKeywordString("ActorTypeNPC")
-			trace("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; falling back to default")
+			FW_log.WriteLog("BeeingFemale - AddonManager - getBabyActor - Child race " + childRace + " is not labeled as child; skipping addon")
 			if cfg.ShowDebugMessage
-				Debug.Messagebox("Child race is not labeled as child; falling back to default.")
+				Debug.Messagebox("Child race is not labeled as child; skipping addon")
 			endIf
 			return none
 		else
 			return b
 		endIf
+	endIf
+	return none
+endFunction
+
+ActorBase function TryGetBabyActorFromOwner(Form owner, string ownerLabel, string sGender, actor ParentActor, race ParentRace)
+	if !owner
+		return none
+	endif
+	int c = StorageUtil.FormListCount(owner, "FW.AddOn." + sGender)
+	if(c > 0)
+		int r = Utility.RandomInt(0, c - 1)
+		ActorBase m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, r) as ActorBase
+		if m;/!=none/;
+			ActorBase valid = validateBabyCustomRace(m)
+			if valid
+				return valid
+			endif
+		else
+			if ownerLabel == "race"
+				FW_log.WriteLog("FWAddOnManager - TryGetBabyActorFromOwner - baby of the parent race " + ParentRace + " cannot be found...")
+			else
+				FW_log.WriteLog("FWAddOnManager - TryGetBabyActorFromOwner - baby of the parent actor " + ParentActor + " cannot be found...")
+			endIf
+			if(cfg.ShowDebugMessage)
+				if ownerLabel == "race"
+					Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+				else
+					Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+				endIf
+			endIf
+		endif
+		while(c > 0)
+			c -= 1
+			m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, c) as ActorBase
+			if m;/!=none/;
+				ActorBase valid2 = validateBabyCustomRace(m)
+				if valid2
+					return valid2
+				endif
+			else
+				if ownerLabel == "race"
+					FW_log.WriteLog("FWAddOnManager - TryGetBabyActorFromOwner - baby of the parent race " + ParentRace + " cannot be found...")
+				else
+					FW_log.WriteLog("FWAddOnManager - TryGetBabyActorFromOwner - baby of the parent actor " + ParentActor + " cannot be found...")
+				endIf
+				if(cfg.ShowDebugMessage)
+					if ownerLabel == "race"
+						Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
+					else
+						Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
+					endIf
+				endIf
+			endif
+		endWhile
 	endIf
 	return none
 endFunction
@@ -3931,69 +3985,25 @@ ActorBase function GetBabyActorNew(actor ParentActor, race ParentRace, int Gende
 			bPreferRace = true
 		endif
 	endif
-
-	Form[] owners = new Form[2]
-	String[] ownerLabels = new String[2]
 	if bPreferRace
-		owners[0] = ParentRace
-		ownerLabels[0] = "race"
-		owners[1] = ParentActor
-		ownerLabels[1] = "actor"
+		m = TryGetBabyActorFromOwner(ParentRace, "race", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+		m = TryGetBabyActorFromOwner(ParentActor, "actor", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
 	else
-		owners[0] = ParentActor
-		ownerLabels[0] = "actor"
-		owners[1] = ParentRace
-		ownerLabels[1] = "race"
-	endif
-
-	int i = 0
-	while i < 2
-		Form owner = owners[i]
-		if owner
-			int c = StorageUtil.FormListCount(owner, "FW.AddOn." + sGender)
-			if(c > 0)
-				int r = Utility.RandomInt(0, c - 1)
-				m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, r) as ActorBase
-				if m;/!=none/;
-					return validateBabyCustomRace(m)
-				else
-					if ownerLabels[i] == "race"
-						FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-					else
-						FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
-					endIf
-					if(cfg.ShowDebugMessage)
-						if ownerLabels[i] == "race"
-							Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-						else
-							Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
-						endIf
-					endIf
-				endif
-				while(c > 0)
-					c -= 1
-					m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, c) as ActorBase
-					if m;/!=none/;
-						return validateBabyCustomRace(m)
-					else
-						if ownerLabels[i] == "race"
-							FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-						else
-							FW_log.WriteLog("FWAddOnManager - GetBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
-						endIf
-						if(cfg.ShowDebugMessage)
-							if ownerLabels[i] == "race"
-								Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-							else
-								Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
-							endIf
-						endIf
-					endif
-				endWhile
-			endIf
-		endif
-		i += 1
-	endWhile
+		m = TryGetBabyActorFromOwner(ParentActor, "actor", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+		m = TryGetBabyActorFromOwner(ParentRace, "race", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+	endIf
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Global_" + sGender)
 	if(c > 0)
@@ -4042,61 +4052,32 @@ ActorBase function GetPlayerBabyActorNew(actor ParentActor, race ParentRace, int
 		sGender = "BabyActor_FemalePlayer"
 	endif
 
-	Form[] owners = new Form[2]
-	String[] ownerLabels = new String[2]
-	owners[0] = ParentActor
-	ownerLabels[0] = "actor"
-	owners[1] = ParentRace
-	ownerLabels[1] = "race"
-
-	int i = 0
-	while i < 2
-		Form owner = owners[i]
-		if owner
-			int c = StorageUtil.FormListCount(owner, "FW.AddOn." + sGender)
-			if(c > 0)
-				int r = Utility.RandomInt(0, c - 1)
-				m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, r) as ActorBase
-				if m;/!=none/;
-					return validateBabyCustomRace(m)
-				else
-					if ownerLabels[i] == "race"
-						FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-					else
-						FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
-					endIf
-					if(cfg.ShowDebugMessage)
-						if ownerLabels[i] == "race"
-							Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-						else
-							Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
-						endIf
-					endIf
-				endif
-				while(c > 0)
-					c -= 1
-					m = StorageUtil.FormListGet(owner, "FW.AddOn." + sGender, c) as ActorBase
-					if m;/!=none/;
-						return validateBabyCustomRace(m)
-					else
-						if ownerLabels[i] == "race"
-							FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent race " + ParentRace + " cannot be found...")
-						else
-							FW_log.WriteLog("FWAddOnManager - GetPlayerBabyActor - baby of the parent actor " + ParentActor + " cannot be found...")
-						endIf
-						if(cfg.ShowDebugMessage)
-							if ownerLabels[i] == "race"
-								Debug.Messagebox("Baby of the parent race " + ParentRace + " cannot be found...")
-							else
-								Debug.Messagebox("Baby of the parent actor " + ParentActor + " cannot be found...")
-							endIf
-						endIf
-					endif
-				endWhile
-			endIf
+	bool bPreferRace = false
+	if ParentActor && ParentRace
+		if ParentActor.GetRace() != ParentRace
+			bPreferRace = true
 		endif
-		i += 1
-	endWhile
+	endif
+
+	if bPreferRace
+		m = TryGetBabyActorFromOwner(ParentRace, "race", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+		m = TryGetBabyActorFromOwner(ParentActor, "actor", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+	else
+		m = TryGetBabyActorFromOwner(ParentActor, "actor", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+		m = TryGetBabyActorFromOwner(ParentRace, "race", sGender, ParentActor, ParentRace)
+		if m
+			return m
+		endIf
+	endIf
 
 	int c = StorageUtil.FormListCount(none, "FW.AddOn.Global_" + sGender)
 	if(c > 0)

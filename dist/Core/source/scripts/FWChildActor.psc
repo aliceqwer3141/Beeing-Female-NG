@@ -123,6 +123,17 @@ Faction property Faction_MaySleep auto
 spell property LevelUpFX auto
 FWSystem property System auto
 
+string function GetActorBaseNameOrNone(actor a)
+	if a == none
+		return "none"
+	endIf
+	ActorBase ab = a.GetLeveledActorBase()
+	if ab && ab.GetName() != ""
+		return ab.GetName()
+	endIf
+	return "none"
+endFunction
+
 actor _Mother
 actor property Mother hidden
 	actor function get()
@@ -732,7 +743,7 @@ function InitChild()
 		ParentActor = _Mother
 	endIf
 
-	FW_log.WriteLog("FWChildActor - InitChild: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
+	FW_log.WriteLog("FWChildActor - InitChild: The child " + self + " is determined by " + ParentActor + " (" + GetActorBaseNameOrNone(ParentActor) + "), whose race is " + ChildRace)
 	
 	bool bool_AllowPCDialogue = false
 	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
@@ -816,7 +827,7 @@ function UpdateSize()
 				ParentActor = _Mother
 			endIf
 
-			FW_log.WriteLog("FWChildActor - UpdateSize: The child " + self + " is determined by " + ParentActor + ", whose race is " + ChildRace)
+			FW_log.WriteLog("FWChildActor - UpdateSize: The child " + self + " is determined by " + ParentActor + " (" + GetActorBaseNameOrNone(ParentActor) + "), whose race is " + ChildRace)
 	
 			float modifiedSizeDuration = _SizeDuration * Manager.ActorMatureTimeScale(ParentActor)
 			float modifiedFinalScale = Manager.ActorFinalScale(ParentActor)

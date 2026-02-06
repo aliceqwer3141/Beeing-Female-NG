@@ -2282,6 +2282,14 @@ endFunction
 
 bool function canBecomePregnant(actor woman)
 	if(woman)
+		if IsCleanupDummyActor(woman)
+			FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " is cleanup dummy; skipping")
+			return false
+		endif
+		if woman.GetActorBase() == none
+			FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " has no actor base; skipping")
+			return false
+		endif
 		if woman.IsDead()
 			FW_log.WriteLog("FWSystem - canBecomePregnant: the actor " + woman + " is dead")
 			return false
@@ -2633,13 +2641,14 @@ Armor function SpawnChildItem(Actor Mother, Actor Father, Race FatherRace = none
 	else
 		gender=1
 	endif
-	Armor mo = BabyItemList.getBabyArmor(Mother, Father, gender, FatherRace)
+	Form[] armorResult = BabyItemList.getBabyArmor(Mother, Father, gender, FatherRace)
+	Armor mo = armorResult[0] as Armor
+	race itemParentRace = armorResult[2] as Race
 	if mo ;Tkc (Loverslab): optimization
 	else;if mo == none
 		Message(Content.NoChildItem, MSG_DEBUG)
 		return none
 	endif
-	race itemParentRace = BabyItemList.LastRace
 	if itemParentRace == none
 		itemParentRace = FatherRace
 	endif
@@ -2740,89 +2749,62 @@ ObjectReference function ChildItemSetup(Form frm, int gender=-1, Actor Mother=no
 endFunction
 
 ; my custom edit for Skyrim SE
-actor function SpawnChildActor(Actor Mother, Actor Father, Race FatherRace = none)
-	bool bIsPlayerChild = false
-	if Mother==PlayerRef || Father==PlayerRef
-		bIsPlayerChild = true
-	endif
+bool function IsPlayerChild(Actor Mother, Actor Father)
+	return (Mother == PlayerRef || Father == PlayerRef)
+endFunction
 
+bool function IsCleanupDummyActor(Actor a)
+	if a == none
+		return false
+	endIf
+	string name = a.GetName()
+	if name && StringUtil.Find(name, "WIDeadBodyCleanupScript") != -1
+		return true
+	endIf
+	return false
+endFunction
 
-	; Decide who will determine the baby actor model
-	race ParentRace
-	Actor ParentActor
+Actor function SanitizeMotherActor(Actor a)
+	if a == none
+		return none
+	endIf
+	if IsCleanupDummyActor(a)
+		return none
+	endIf
+	if a.IsDead()
+		return none
+	endIf
+	return a
+endFunction
+
+Actor function SanitizeFatherActor(Actor a)
+	if a == none
+		return none
+	endIf
+	return a
+endFunction
+
+; Decide child sex using the configured male probability for the father.
+int function ResolveChildGender(Actor Father)
 	int myProbRandom = Utility.RandomInt(0, 99)
-	race tempFatherRace = none
-	if Father == none
-		if FatherRace
-			tempFatherRace = FatherRace
-		else
-			tempFatherRace = FWUtility.GetLastChildFatherRace(Mother)
-		endIf
-	endIf
-	int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, tempFatherRace)
-	FW_log.WriteLog("FWSystem - SpawnChildActor: ChildRaceDeterminedByFather = " + myChildRaceDeterminedByFather)
-	race selectedFatherRace = none
-	if Father == none
-		race storedFatherRace = tempFatherRace
-		string storedFatherRaceStr = ""
-		if storedFatherRace
-			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
-		endif
-		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
-			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
-			selectedFatherRace = storedFatherRace
-		else
-			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
-		endIf
-		ParentActor = Mother
-	else
-		If(myProbRandom < myChildRaceDeterminedByFather)
-			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child model will be determined by father.")
-
-			ParentActor = Father
-		Else
-			FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child model will be determined by mother.")
-
-			ParentActor = Mother
-		EndIF
-	endIf
-	if selectedFatherRace
-		ParentRace = selectedFatherRace
-	else
-		ParentRace = ParentActor.GetRace()
-	endIf
-
-
-;	Int gender = Utility.RandomInt(0, 99)
-;	if gender < 53
-	int gender = 0
-	
-	myProbRandom = Utility.RandomInt(0, 99)
 	int myChildSexDetermMale = Manager.ActorChildSexDetermMale(Father)
 	FW_log.WriteLog("FWSystem - SpawnChildActor: ChildSexDetermMale = " + myChildSexDetermMale)
-
 	if(myProbRandom < myChildSexDetermMale)
 		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is less than the ChildSexDetermMale. Child will be a boy.")
-		gender=0
+		return 0
 	else
 		FW_log.WriteLog("FWSystem - SpawnChildActor: myProbRandom = " + myProbRandom + ", which is not less than the ChildSexDetermMale. Child will be a girl.")
-		gender=1
+		return 1
 	endif
-	actorbase newChildBase = BabyItemList.getBabyActorNew(Mother, Father, ParentActor, gender, selectedFatherRace)
-	if newChildBase ;Tkc (Loverslab): optimization
-	else;if newChildBase==none
-		return none
-	endif
-	gender = newChildBase.GetSex()
-	
-	Actor newChild
+endFunction
 
+; Apply hair color and face morphs from a random parent.
+function ApplyParentAppearanceToChildBase(ActorBase newChildBase, Actor Mother, Actor Father)
 	if(Utility.RandomInt(1, 2) == 1 || !Mother) && Father;/!=none/; ;Tkc (Loverslab): optimization
 		newChildBase.SetHairColor(Father.GetLeveledActorBase().GetHairColor()) ; Fathers hair - color
 	elseif Mother;/!=none/; ;Tkc (Loverslab): optimization
 		newChildBase.SetHairColor(Mother.GetLeveledActorBase().GetHairColor()) ; Mothers hair - color
 	endIf
-	; Face Morphs
 	int i = 0
 	while i < 20
 		if(Utility.RandomInt(1, 2) == 1 || !Mother) && Father;/!=none/; ;Tkc (Loverslab): optimization
@@ -2832,6 +2814,49 @@ actor function SpawnChildActor(Actor Mother, Actor Father, Race FatherRace = non
 		endIf
 		i += 1
 	endWhile
+endFunction
+
+; Decide if child should be allowed to talk to the player.
+bool function ShouldAllowPCDialogue(Actor ParentActor, Race ParentRace)
+	if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
+		return true
+	endif
+	if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
+		return true
+	endif
+	if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
+		return true
+	endif
+	return false
+endFunction
+
+actor function SpawnChildActor(Actor Mother, Actor Father, Race FatherRace = none)
+	Mother = SanitizeMotherActor(Mother)
+	Father = SanitizeFatherActor(Father)
+	if Mother == none
+		FW_log.WriteLog("FWSystem - SpawnChildActor: Mother is invalid; aborting spawn")
+		return none
+	endIf
+	bool bIsPlayerChild = IsPlayerChild(Mother, Father)
+
+
+	; Decide who will determine the baby actor model
+;	Int gender = Utility.RandomInt(0, 99)
+;	if gender < 53
+	int gender = ResolveChildGender(Father)
+	Form[] babyResult = BabyItemList.getBabyActorNew(Mother, Father, gender, FatherRace)
+	ActorBase newChildBase = babyResult[0] as ActorBase
+	Actor ParentActor = babyResult[1] as Actor
+	race ParentRace = babyResult[2] as Race
+	if newChildBase ;Tkc (Loverslab): optimization
+	else;if newChildBase==none
+		return none
+	endif
+	gender = newChildBase.GetSex()
+	
+	Actor newChild
+
+	ApplyParentAppearanceToChildBase(newChildBase, Mother, Father)
 	
 	; Create new Child
 	newChild = Mother.PlaceActorAtMe(newChildBase)
@@ -2899,20 +2924,7 @@ actor function SpawnChildActor(Actor Mother, Actor Father, Race FatherRace = non
 		StorageUtil.SetFormValue(newChild, "FW.Child.ParentActor", ParentActor)
 		Manager.RaceExcludeFromSLandBF(newChild, ParentActor)
 		
-		bool bool_AllowPCDialogue = false
-		if(StorageUtil.GetIntValue(ParentActor, "FW.AddOn.AllowPCDialogue", 0) == 1)
-			bool_AllowPCDialogue = true
-		else
-			if(StorageUtil.GetIntValue(ParentRace, "FW.AddOn.AllowPCDialogue", 0) == 1)
-				bool_AllowPCDialogue = true
-			else
-				if(StorageUtil.GetIntValue(none, "FW.AddOn.Global_AllowPCDialogue", 0) == 1)
-					bool_AllowPCDialogue = true
-				endIf
-			endIf
-		endIf
-		
-		if(bool_AllowPCDialogue)
+		if(ShouldAllowPCDialogue(ParentActor, ParentRace))
 			newChild.AllowPCDialogue(true)
 			FW_log.WriteLog("FWSystem - SpawnChildActor: Child " + newChild + " can talk to player")
 		endIf
