@@ -636,7 +636,7 @@ namespace FWUtility {
 			str = str.substr(0, lastindex);
 		}
 
-		str.append("_");
+		str.append(":");
 		str.append(Hex_str(frm->formID & 0xFFFFFF, 0));
 
 		return BSFixedString(str.c_str());

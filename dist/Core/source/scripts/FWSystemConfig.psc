@@ -390,15 +390,19 @@ bool function IsChildRaceLabel(race r)
 	return false
 endFunction
 
-string function GetActorBaseNameOrDisplay(actor a)
+string function GetActorDisplayNameOrBase(actor a)
 	if a == none
 		return ""
+	endIf
+	string displayName = a.GetDisplayName()
+	if displayName != ""
+		return displayName
 	endIf
 	ActorBase ab = a.GetLeveledActorBase()
 	if ab && ab.GetName() != ""
 		return ab.GetName()
 	endIf
-	return a.GetDisplayName()
+	return ""
 endFunction
 
 bool function IsRaceListed(race r, race[] listed, int count)
@@ -2531,11 +2535,11 @@ Event OnPageReset(string page)
 				FWChildActor FWChildca = ca as FWChildActor
 				if(FWChildca)
 					If((FWChildca as FWChildActorPlayer);/!=none/; || StorageUtil.GetFormValue(FWChildca, "FW.Child.Mother", none) == player || StorageUtil.GetFormValue(FWChildca, "FW.Child.Father", none) == player)
-						UI_Child[n] = AddTextOption(GetActorBaseNameOrDisplay(FWChildca), "")
+						UI_Child[n] = AddTextOption(GetActorDisplayNameOrBase(FWChildca), "")
 						n+=1
 					endIf
 				elseIf((StorageUtil.GetFormValue(ca, "FW.Child.Mother", none) == player) || (StorageUtil.GetFormValue(ca, "FW.Child.Father", none) == player))
-					UI_Child[n] = AddTextOption(GetActorBaseNameOrDisplay(ca), "")
+					UI_Child[n] = AddTextOption(GetActorDisplayNameOrBase(ca), "")
 					n += 1
 				endif
 			endif
@@ -3321,7 +3325,7 @@ Event OnPageReset(string page)
 		
 			if(targetNpc;/!=none/;)
 				if(targetNpc.HasSpell(BeeingFemaleSpell))
-					AddHeaderOption(GetActorBaseNameOrDisplay(targetNpc))
+					AddHeaderOption(GetActorDisplayNameOrBase(targetNpc))
 					AddTextOptionST("TextResetNPC", "$FW_MENU_CHEAT_ResetNPC", "$FW_MENU_OPTIONS_Reset")
 					AddTextOptionST("TextUpdateNPC", "$FW_MENU_CHEAT_Update", "$FW_MENU_OPTIONS_Refresh")
 				else
@@ -3385,7 +3389,7 @@ Event OnPageReset(string page)
 					; NPCBornChildDef Cheats
 					FWChildActor targetChild = Game.GetCurrentCrosshairRef() as FWChildActor
 					if(targetNpc;/!=none/;)
-						AddHeaderOption(GetActorBaseNameOrDisplay(targetNpc))
+						AddHeaderOption(GetActorDisplayNameOrBase(targetNpc))
 						if(targetChild;/!=none/;)
 							AddTextOptionST("TextChildAddLevel", "$FW_MENU_CHEAT_ChildAddLevel", targetChild.GetLevel(), FWUtility.SwitchInt(targetChild.GetLevel() < FWChildSettings.ChildMaxLevel(), OPTION_FLAG_NONE,OPTION_FLAG_DISABLED))
 						elseif(targetNpc.GetLeveledActorBase().GetSex()==1)
