@@ -505,60 +505,66 @@ endFunction
 
 ; Resolve parent actor/race for actor-base selection.
 ; Returns [0]=ParentActor, [1]=ParentRace, [2]=selectedFatherRace (optional).
+bool function ShouldUseStoredFatherRace(actor Mother, race storedFatherRace)
+	if(myForcedBabySetting(Mother, none))
+		return false
+	elseif(myForcedBabySetting(none, storedFatherRace))
+		return true
+	else
+		int myProbRandom = Utility.RandomInt(0, 99)
+		int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(none, storedFatherRace)
+		if(myProbRandom < myChildRaceDeterminedByFather)
+			return true
+		endif
+	endif
+	return false
+endFunction
+
+bool function ShouldUseFatherActor(actor Mother, actor Father, race storedFatherRace)
+	if(myForcedBabySetting(Mother, none))
+		return false
+	elseif(myForcedBabySetting(Father, none))
+		return true
+	else
+		int myProbRandom = Utility.RandomInt(0, 99)
+		int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
+		if(myProbRandom < myChildRaceDeterminedByFather)
+			return true
+		endif
+	endif
+	return false
+endFunction
+
 Form[] function ResolveParentActorAndRace(actor Mother, actor Father, actor ParentActor, race storedFatherRace)
 	Form[] result = new Form[3] ; 0 = ParentActor, 1 = ParentRace, 2 = selectedFatherRace
 	if ParentActor == none
 		if Father == none
 			ParentActor = Mother
 			if storedFatherRace
-				if(myForcedBabySetting(Mother, none))
-					result[1] = Mother.GetRace()
-				elseif(myForcedBabySetting(none, storedFatherRace))
+				if(ShouldUseStoredFatherRace(Mother, storedFatherRace))
 					result[1] = storedFatherRace
 					result[2] = storedFatherRace
-				else					
-					int myProbRandom = Utility.RandomInt(0, 99)
-					int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
-					if(myProbRandom < myChildRaceDeterminedByFather)
-						result[1] = storedFatherRace
-						result[2] = storedFatherRace
-					else
-						result[1] = Mother.GetRace()
-					endIf
-				endIf
+				else
+					result[1] = Mother.GetRace()
+				endif
 			else
 				result[1] = Mother.GetRace()
 			endIf
 		else
-			if(myForcedBabySetting(Mother, none))
-				ParentActor = Mother
-			elseif(myForcedBabySetting(Father, none))
+			if(ShouldUseFatherActor(Mother, Father, storedFatherRace))
 				ParentActor = Father
 			else
-				int myProbRandom = Utility.RandomInt(0, 99)
-				int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
-				if(myProbRandom < myChildRaceDeterminedByFather)
-					ParentActor = Father
-				else
-					ParentActor = Mother
-				endIf
+				ParentActor = Mother
 			endIf
 			result[1] = ParentActor.GetRace()
 		endIf
 	else
 		result[1] = ParentActor.GetRace()
 		if Father == none && storedFatherRace
-			if(myForcedBabySetting(none, storedFatherRace))
+			if(ShouldUseStoredFatherRace(Mother, storedFatherRace))
 				result[1] = storedFatherRace
 				result[2] = storedFatherRace
-			else
-				int myProbRandom = Utility.RandomInt(0, 99)
-				int myChildRaceDeterminedByFather = Manager.ActorChildRaceDeterminedByFather(Father, storedFatherRace)
-				if(myProbRandom < myChildRaceDeterminedByFather)
-					result[1] = storedFatherRace
-					result[2] = storedFatherRace
-				endif
-			endIf
+			endif
 		endIf
 	endIf
 	result[0] = ParentActor
