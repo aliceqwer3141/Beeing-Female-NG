@@ -35,16 +35,19 @@ Form[] function ResolveParentActorAndRaceForItemArmor(actor Mother, actor Father
 		string storedFatherRaceStr = ""
 		if storedFatherRace
 			storedFatherRaceStr = FWUtility.GetStringFromForm(storedFatherRace)
-		endif
-		if(myProbRandom < myChildRaceDeterminedByFather && storedFatherRace)
-			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
-			result[1] = storedFatherRace
+			if(ShouldUseStoredFatherRace(Mother, storedFatherRace))
+				FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Using stored father race ["+storedFatherRaceStr+"].")
+				result[1] = storedFatherRace
+			else
+				FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
+				result[1] = Mother.GetRace()
+			endIf
 		else
 			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is not less than the ChildRaceDeterminedByFather. Child will follow mother's race.")
 			result[1] = Mother.GetRace()
-		endIf
+		endif
 	else
-		If(myProbRandom < myChildRaceDeterminedByFather)
+		If(ShouldUseFatherActor(Mother, Father, storedFatherRace))
 			FW_log.WriteLog(logPrefix + ": myProbRandom = " + myProbRandom + ", which is less than the ChildRaceDeterminedByFather. Child will follow father's race.")
 			ParentActor = Father
 		Else
