@@ -946,6 +946,7 @@ endFunction
 ; How to use
 ; FemaleActor.SendModEvent("BeeingFemale", "AddContraception", 100) ; This adds contraception to the woman
 ; FemaleActor.SendModEvent("BeeingFemale", "AddSperm", MaleActor.GetFormID()) ; This will add sperm to the woman
+; FemaleActor.SendModEvent("BeeingFemale", "AddSpermImpregnate", MaleActor.GetFormID()) ; This will add sperm and try to impregnate immediately
 ; FemaleActor.SendModEvent("BeeingFemale", "WashOutSperm", 100) ; This will wash out 100% sperm
 ; FemaleActor.SendModEvent("BeeingFemale", "ChangeState", 3) ; This will change the state to 'Menstruation'
 ; FemaleActor.SendModEvent("BeeingFemale", "InfoBox", 100) ; This will open the info window with all informations
@@ -985,6 +986,41 @@ Event onBeeingFemaleCommand(string hookName, string argString, float argNum, for
 						amount = Manager.getSpermAmount(a,a2,amount)
 						Controller.AddSperm(a, a2, amount)
 					endif
+				endif
+			endif
+		elseif argString=="AddSpermImpregnate" && argNum>0.0
+			form f1 = Game.GetForm(argNum as int)
+			if f1
+				actor a2 = f1 as Actor
+				int validateF2 = IsValidateFemaleActor(a2)
+				int validateM2 = IsValidateMaleActor(a2)
+				actor targetWoman
+				if a2
+					if validateF>0 && validateF2>0 ; F/F2 Cum
+						Controller.AddSperm(a, a2, 1.0)
+						targetWoman = a
+					elseif validateM>0 && validateF2>0 ; M/F2 Cum
+						float virility = Controller.GetVirility(a)
+						float amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
+						if amount>1.0
+							amount=1.0
+						endif
+						amount = Manager.getSpermAmount(a2,a,amount)
+						Controller.AddSperm(a2, a, amount)
+						targetWoman = a2
+					elseif validateF>0 && validateM2 ; F/M2 Cum
+						float virility = Controller.GetVirility(a2)
+						float amount = Utility.RandomFloat(virility * 0.75, virility*1.1)
+						if amount>1.0
+							amount=1.0
+						endif
+						amount = Manager.getSpermAmount(a,a2,amount)
+						Controller.AddSperm(a, a2, amount)
+						targetWoman = a
+					endif
+				endif
+				if targetWoman
+					Controller.Impregnate(targetWoman, a2, 1)
 				endif
 			endif
 		elseif argString=="WashOutSperm" && argNum>0 && validateF>0

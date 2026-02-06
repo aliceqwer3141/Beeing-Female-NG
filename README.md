@@ -184,6 +184,7 @@ Examples:
 ; BeeingFemale command event (SendModEvent is a Form method)
 FemaleActor.SendModEvent("BeeingFemale", "AddContraception", 100)
 FemaleActor.SendModEvent("BeeingFemale", "AddSperm", MaleActor.GetFormID())
+FemaleActor.SendModEvent("BeeingFemale", "AddSpermImpregnate", MaleActor.GetFormID())
 FemaleActor.SendModEvent("BeeingFemale", "WashOutSperm", 100)
 FemaleActor.SendModEvent("BeeingFemale", "ChangeState", 3)
 FemaleActor.SendModEvent("BeeingFemale", "InfoBox", 100)
