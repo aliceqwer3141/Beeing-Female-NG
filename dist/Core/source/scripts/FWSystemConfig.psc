@@ -684,6 +684,7 @@ bool function IsProfile(string File)
 		bool tmpMaleGhostCanImpregnate = JsonUtil.GetIntValue(s, "GENERAL_MaleGhostCanImpregnate", FWUtility.SwitchInt(MaleGhostCanImpregnate, 1, 0)) == 1
 		bool tmpElderFemaleCanBecomePregnant = JsonUtil.GetIntValue(s, "GENERAL_ElderFemaleCanBecomePregnant", FWUtility.SwitchInt(ElderFemaleCanBecomePregnant, 1, 0)) == 1
 		bool tmpShowDebugMessage = JsonUtil.GetIntValue(s, "GENERAL_ShowDebugMessage", FWUtility.SwitchInt(ShowDebugMessage, 1, 0)) == 1
+		bool tmpAllowNTRBaby = JsonUtil.GetIntValue(s, "GENERAL_AllowNTRBaby", FWUtility.SwitchInt(AllowNTRbaby, 1, 0)) == 1
 
 		bContinue=false
 		if 	tmpPlayerTimer==PlayerTimer && \
@@ -703,7 +704,8 @@ bool function IsProfile(string File)
 			(tmpFemaleGhostCanBecomePregnant == FemaleGhostCanBecomePregnant) && \
 			(tmpMaleGhostCanImpregnate == MaleGhostCanImpregnate) && \
 			(tmpElderFemaleCanBecomePregnant == ElderFemaleCanBecomePregnant) && \
-			(tmpShowDebugMessage == ShowDebugMessage)
+			(tmpShowDebugMessage == ShowDebugMessage) && \
+			(tmpAllowNTRBaby == AllowNTRbaby)
 				bContinue=true
 		endif
 	endif
@@ -787,6 +789,7 @@ function LoadProfile(string File)
 	MaleGhostCanImpregnate = JsonUtil.GetIntValue(s, "GENERAL_MaleGhostCanImpregnate", FWUtility.SwitchInt(MaleGhostCanImpregnate, 1, 0)) == 1
 	ElderFemaleCanBecomePregnant = JsonUtil.GetIntValue(s, "GENERAL_ElderFemaleCanBecomePregnant", FWUtility.SwitchInt(ElderFemaleCanBecomePregnant, 1, 0)) == 1
 	ShowDebugMessage = JsonUtil.GetIntValue(s, "GENERAL_ShowDebugMessage", FWUtility.SwitchInt(ShowDebugMessage, 1, 0)) == 1
+	AllowNTRbaby = JsonUtil.GetIntValue(s, "GENERAL_AllowNTRBaby", FWUtility.SwitchInt(AllowNTRbaby, 1, 0)) == 1
 
 	; Menstrual cycle
 	FollicularDuration = JsonUtil.GetIntValue(s, "CYCLE_FollicularDuration", FollicularDuration)
@@ -920,6 +923,7 @@ string function SaveProfile(string FileName="")
 	JsonUtil.SetIntValue(s, "GENERAL_MaleGhostCanImpregnate", FWUtility.SwitchInt(MaleGhostCanImpregnate, 1, 0))
 	JsonUtil.SetIntValue(s, "GENERAL_ElderFemaleCanBecomePregnant", FWUtility.SwitchInt(ElderFemaleCanBecomePregnant, 1, 0))
 	JsonUtil.SetIntValue(s, "GENERAL_ShowDebugMessage", FWUtility.SwitchInt(ShowDebugMessage, 1, 0))
+	JsonUtil.SetIntValue(s, "GENERAL_AllowNTRBaby", FWUtility.SwitchInt(AllowNTRbaby, 1, 0))
 	
 	; Menstrual cycle
 	JsonUtil.SetIntValue(s, "CYCLE_FollicularDuration", FollicularDuration)
