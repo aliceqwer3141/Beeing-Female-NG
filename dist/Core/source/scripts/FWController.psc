@@ -1172,25 +1172,36 @@ function GiveBirth(actor Mother)
 			System.DoDamage(Mother,18 * DamageScale,9)
 		endIf
 		
-		float HealthRnd = Utility.RandomFloat(0.0,35.0)
-		if UnbornHealth > HealthRnd || cfg.abortus==false
-			;System.raiseModEvent("FWSpawnChild",self)
-			if(my_BirthPain)
-				System.ActorAddSpellOpt(Mother,Effect_VaginalBloodBig,false,true)
+		; Claim this child before delivering it. FW.NumChilds is the count still to be
+		; born, and it is shared with System.InstantBornChilds and with a second GiveBirth
+		; let in by a stale guard: whoever lowers it past this index delivers the child,
+		; anyone else skips it. It used to be lowered only after the spawn, so when game
+		; time was skipped during the scene (wait, sleep, fast travel) the cycle tick
+		; delivered the same baby again and one pregnancy produced two children.
+		if StorageUtil.GetIntValue(Mother,"FW.NumChilds",0) > NumChilds
+			StorageUtil.SetIntValue(Mother,"FW.NumChilds",NumChilds)
+			float HealthRnd = Utility.RandomFloat(0.0,35.0)
+			if UnbornHealth > HealthRnd || cfg.abortus==false
+				;System.raiseModEvent("FWSpawnChild",self)
+				if(my_BirthPain)
+					System.ActorAddSpellOpt(Mother,Effect_VaginalBloodBig,false,true)
+				endIf
+				race childFatherRace = none
+				if StorageUtil.FormListCount(Mother, "FW.ChildFatherRace") > NumChilds
+					childFatherRace = StorageUtil.FormListGet(Mother, "FW.ChildFatherRace", NumChilds) as race
+				endif
+				FW_log.WriteLog("FWController.GiveBirth: spawning child index " + NumChilds + ", father = " + ChildFather[NumChilds] + ", childFatherRace = " + childFatherRace + ", childFatherRaceCount = " + StorageUtil.FormListCount(Mother, "FW.ChildFatherRace"))
+				System.SpawnChild(Mother,ChildFather[NumChilds],childFatherRace)
+				StorageUtil.SetIntValue(Mother,"FW.NumBabys", StorageUtil.GetIntValue(Mother,"FW.NumBabys",0) + 1)
+			else
+				System.Message("You've born a dead child...", System.MSG_ALWAYS)
+				; Child is death >.< - no SpawnChild, so no BeeingFemaleBirth for this one
+				FWUtility.SendStillbirthEvent(Mother, ChildFather[NumChilds])
 			endIf
-			race childFatherRace = none
-			if StorageUtil.FormListCount(Mother, "FW.ChildFatherRace") > NumChilds
-				childFatherRace = StorageUtil.FormListGet(Mother, "FW.ChildFatherRace", NumChilds) as race
-			endif
-			FW_log.WriteLog("FWController.GiveBirth: spawning child index " + NumChilds + ", father = " + ChildFather[NumChilds] + ", childFatherRace = " + childFatherRace + ", childFatherRaceCount = " + StorageUtil.FormListCount(Mother, "FW.ChildFatherRace"))
-			System.SpawnChild(Mother,ChildFather[NumChilds],childFatherRace)
-			StorageUtil.SetIntValue(Mother,"FW.NumBabys", StorageUtil.GetIntValue(Mother,"FW.NumBabys",0) + 1)
 		else
-			System.Message("You've born a dead child...", System.MSG_ALWAYS)
-			; Child is death >.< - no SpawnChild, so no BeeingFemaleBirth for this one
-			FWUtility.SendStillbirthEvent(Mother, ChildFather[NumChilds])
-		endIf
-		
+			FW_log.WriteLog("FWController.GiveBirth: child index " + NumChilds + " of " + Mother + " was already delivered elsewhere - skipping")
+		endif
+
 		if(playAnim)
 			Utility.Wait(1)
 			Debug.SendAnimationEvent(Mother, "Birth_S1")
@@ -1199,7 +1210,6 @@ function GiveBirth(actor Mother)
 
 		System.Mimik(Mother, "Pained", 100)
 
-		StorageUtil.SetIntValue(Mother,"FW.NumChilds",NumChilds)
 		if NumChilds ;Tkc (Loverslab): optimization
 			SetBelly(Mother,false)
 		else;if NumChilds==0

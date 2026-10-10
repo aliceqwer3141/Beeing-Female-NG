@@ -59,6 +59,9 @@ Pre-release checklist. Each scenario should be verified in-game or by code inspe
 | 4.5 | P1 | GiveBirth after crash/reload | Stale `FW.GivingBirth` clears after 0.25-day window, birth proceeds normally | FWController |
 | 4.6 | P1 | State 8 faction sync after birth | `FW.CurrentState = 8` written directly — verify `UpdateParentFaction` also fires | FWController |
 | 4.7 | P1 | Combat damage to unborn | `DamageBaby` reduces `UnbornHealth`; at zero, miscarriage triggers | FWController |
+| 4.8 | P0 | Time skip during a birth scene | Force a birth on a 3D-loaded NPC (MCM cheat or `bf:forcebirth`), then wait or sleep past the labor phase before the scene has ended: exactly `FW.NumChilds` children are born, not twice that. The log shows `InstantBornChilds: birth scene in progress ... leaving the children to it` or `GiveBirth: child index N ... already delivered elsewhere - skipping`, never two `spawning child index N` lines for one index | FWController, FWSystem |
+| 4.9 | P1 | Child listed once | Activate (talk to) a newborn the moment it appears: the MCM Children page shows one row for it. A save that already holds a doubled row loses the extra one on the next load (log: `dropping duplicate FW.Babys entry`) | FWSystem, FWChildActor |
+| 4.10 | P1 | Baby item hatches once | Item/Actor spawn mode with a hatch due, then skip time: one child per baby item. Twins sharing an armor base still hatch as two children | FWAbilityBeeingFemale |
 
 ## 5. Miscarriage (Abortus)
 

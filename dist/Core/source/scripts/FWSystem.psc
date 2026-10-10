@@ -742,7 +742,13 @@ function OnGameLoad(bool bIsModReset = false) ;***Edit by Bane
 		childCount-=1
 		Form frm = StorageUtil.FormListGet(none, "FW.Babys", childCount)
 		;if(frm as FWChildActor == none && frm as FWChildItem == none)
-		if frm as FWChildActor ;Tkc (Loverslab): optimization
+		if (frm as Actor) && StorageUtil.FormListFind(none, "FW.Babys", frm) < childCount
+			; The same child actor listed again (saves from before the list refused
+			; duplicate actors) - keep its first entry. Armor bases are left alone,
+			; twins repeat them on purpose.
+			FW_log.WriteLog("FWSystem: dropping duplicate FW.Babys entry for " + frm)
+			StorageUtil.FormListRemoveAt(none, "FW.Babys", childCount)
+		elseif frm as FWChildActor ;Tkc (Loverslab): optimization
 		else;if frm as FWChildActor == none
 			if frm as FWChildItem ;Tkc (Loverslab): optimization
 			else;if frm as FWChildItem == none
@@ -2353,25 +2359,50 @@ function InstantBornChilds(actor a)
 	if numChilds==0
 		return
 	endif
+	; A birth scene in progress (FWController.GiveBirth) owns this pregnancy and delivers
+	; each child itself. The cycle tick calls in here as soon as the woman's state passes
+	; labor, which it does mid-scene when game time is skipped (wait, sleep, fast travel:
+	; the scene's real-time waits stand still while the labor phase runs out). Without
+	; this the babies were born twice. Same staleness rule as GiveBirth's own guard, so a
+	; scene that died still gets its children delivered here.
+	if StorageUtil.FormListFind(none,"FW.GivingBirth", a) >= 0
+		float birthStart = StorageUtil.GetFloatValue(a, "FW.GivingBirthTime", 0.0)
+		if birthStart > 0.0 && (GameDaysPassed.GetValue() - birthStart) < 0.25
+			FW_log.WriteLog("FWSystem.InstantBornChilds: birth scene in progress for " + a + " - leaving the children to it")
+			return
+		endif
+	endif
 	float BabyHealth = StorageUtil.GetFloatValue(a,"FW.UnbornHealth",100.0)
 	int spawnedCount = 0
+	int claimedCount = 0
 	while numChilds>0
 		numChilds-=1
-		; Same stillbirth roll and abortus gate as the on-screen GiveBirth path
-		float rndHealth=Utility.RandomFloat(0.0,35.0)
-		if BabyHealth>rndHealth || cfg.abortus==false
-			spawnedCount += 1
-			race tempFatherRace = none
-			if StorageUtil.FormListCount(a, "FW.ChildFatherRace") > numChilds
-				tempFatherRace = StorageUtil.FormListGet(a, "FW.ChildFatherRace", numChilds) as race
-			endif
-			FW_log.WriteLog("FWSystem.InstantBornChilds: spawning child index " + numChilds + ", father = " + (StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor) + ", tempFatherRace = " + tempFatherRace + ", childFatherRaceCount = " + StorageUtil.FormListCount(a, "FW.ChildFatherRace"))
-			SpawnChild(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor, tempFatherRace)
-		else
-			; Totgeburt - no SpawnChild, so no BeeingFemaleBirth for this one
-			FWUtility.SendStillbirthEvent(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor)
-		endIf
+		; Claim the child before the slow spawn: FW.NumChilds is the count still to be
+		; born, and whoever lowers it past an index delivers that child (see GiveBirth).
+		if StorageUtil.GetIntValue(a,"FW.NumChilds",0) > numChilds
+			StorageUtil.SetIntValue(a,"FW.NumChilds",numChilds)
+			claimedCount += 1
+			; Same stillbirth roll and abortus gate as the on-screen GiveBirth path
+			float rndHealth=Utility.RandomFloat(0.0,35.0)
+			if BabyHealth>rndHealth || cfg.abortus==false
+				spawnedCount += 1
+				race tempFatherRace = none
+				if StorageUtil.FormListCount(a, "FW.ChildFatherRace") > numChilds
+					tempFatherRace = StorageUtil.FormListGet(a, "FW.ChildFatherRace", numChilds) as race
+				endif
+				FW_log.WriteLog("FWSystem.InstantBornChilds: spawning child index " + numChilds + ", father = " + (StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor) + ", tempFatherRace = " + tempFatherRace + ", childFatherRaceCount = " + StorageUtil.FormListCount(a, "FW.ChildFatherRace"))
+				SpawnChild(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor, tempFatherRace)
+			else
+				; Totgeburt - no SpawnChild, so no BeeingFemaleBirth for this one
+				FWUtility.SendStillbirthEvent(a, StorageUtil.FormListGet(a,"FW.ChildFather",numChilds) As Actor)
+			endIf
+		endif
 	endWhile
+	if claimedCount == 0
+		; Someone else delivered every child while we were getting here; the birth
+		; bookkeeping below is theirs.
+		return
+	endif
 	StorageUtil.SetIntValue(a, "FW.NumBirth", StorageUtil.GetIntValue(a,"FW.NumBirth",0) + 1)
 	StorageUtil.SetIntValue(a, "FW.NumBabys", StorageUtil.GetIntValue(a,"FW.NumBabys",0) + spawnedCount)
 	FWUtility.ClearChildFathers(a)
@@ -2974,7 +3005,12 @@ function SpawnChild(Actor Mother, Actor Father, race FatherRace = none)
 	
 	if Baby;/!=none/; ;Tkc (Loverslab): optimization
 		; Here, all babys are stored
-		StorageUtil.FormListAdd(none,"FW.Babys", Baby)
+		; A child ACTOR is listed once: FormListAdd allows duplicates by default, and
+		; FWChildActor.OnActivate registers a child it does not find here, so a newborn
+		; activated before this line ran ended up listed twice (two MCM rows, one child).
+		; Baby-item armor BASE forms still repeat on purpose - twins share a base and
+		; need an entry each.
+		StorageUtil.FormListAdd(none,"FW.Babys", Baby, (Baby as Actor) == none)
 	endif
 	StorageUtil.SetFloatValue(Mother,"FW.LastBornChildTime", GameDaysPassed.GetValue())
 	if Father
@@ -3430,7 +3466,7 @@ actor function GrowChildToAdult(Actor child)
 		endif
 	endif
 
-	StorageUtil.FormListAdd(none, "FW.Babys", adult)
+	StorageUtil.FormListAdd(none, "FW.Babys", adult, false)
 
 	; Hide the replaced child immediately. The FWChildActor cleanup path defers the
 	; actual Delete by ~3s (MarkForDelete), and a persistent reference (e.g. a

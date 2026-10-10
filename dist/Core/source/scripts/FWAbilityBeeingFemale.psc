@@ -512,6 +512,19 @@ Function ProcessBabyItemTransitionToChild(Actor mother,Actor father, float sizeD
 	Float age = GameDaysPassed.GetValue() - dob
 	FW_log.WriteLog("FWChildArmor: Update tick (Age=" + age + ", SizeDuration=" + sizeDuration + ")")
 	if age >= sizeDuration
+		; One hatch at a time per mother. The identity entry is only consumed after the
+		; spawn below, which takes seconds and releases this script, so a second tick
+		; arriving meanwhile would read the same entry and hatch the same baby again:
+		; two children with one name. The claim is a real-time stamp so it cannot stick:
+		; it expires after 10 minutes and reads as stale after a restart, when real
+		; time starts over.
+		float nowReal = Utility.GetCurrentRealTime()
+		float hatchClaim = StorageUtil.GetFloatValue(mother, "FW.BabyItemHatching", 0.0)
+		if hatchClaim > 0.0 && nowReal >= hatchClaim && (nowReal - hatchClaim) < 600.0
+			FW_log.WriteLog("FWChildArmor: another hatch is in progress for " + mother + " - retrying next tick")
+			return
+		endif
+		StorageUtil.SetFloatValue(mother, "FW.BabyItemHatching", nowReal)
 		FW_log.WriteLog("FWChildArmor: Baby transitioned to child")
 		; Use the identity recorded at birth so the child that hatches is the
 		; same baby that was announced: name, sex and race context carry over.
@@ -529,7 +542,8 @@ Function ProcessBabyItemTransitionToChild(Actor mother,Actor father, float sizeD
 				FWUtility.RemoveBabyItemIdentityAt(mother, identityIdx)
 			endif
 			; Register like SpawnChild does, so the MCM Children tab lists the child
-			StorageUtil.FormListAdd(none, "FW.Babys", newChild)
+			; (once - see SpawnChild on why duplicates are refused for actors)
+			StorageUtil.FormListAdd(none, "FW.Babys", newChild, false)
 			; Only the player path iterates FW.Babys, so only it consumes the base entry here.
 			; FW.Babys holds shared armor BASE forms; removing on the NPC path could delete another
 			; mother's (or the player's) entry for the same base. The NPC mother's leftover base entry
@@ -545,6 +559,7 @@ Function ProcessBabyItemTransitionToChild(Actor mother,Actor father, float sizeD
 			; its FW.Babys entry and its identity entry so the next tick can retry
 			FW_log.WriteLog("FWChildArmor: SpawnChildActor returned none, keeping baby item", 1)
 		endif
+		StorageUtil.UnsetFloatValue(mother, "FW.BabyItemHatching")
 		return
 	endif
 
