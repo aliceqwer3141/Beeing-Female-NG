@@ -5044,6 +5044,14 @@ bool function HasSLIF()
 	return Game.IsPluginInstalled("SexLab Inflation Framework.esp")
 endFunction
 
+; SLIF NG (the SKSE rewrite) rather than the original SLIF. Both ship the same
+; plugin name, so HasSLIF() is true for either; the SKSE plugin is what tells
+; them apart. Decides how the "SLIF" scaling type talks to it (see
+; FWAbilityBeeingFemale.UpdateSLIFType).
+bool function HasSLIFNG()
+	return SKSE.GetPluginVersion("SLIFNG") != -1
+endFunction
+
 ; Effective scaling backend for slider defaults/ranges. VisualScaling 4 means SLIF, but
 ; with no SLIF installed it runs as BodyMorph (5) - mirror TestScale's promotion so the
 ; slider default value and range match the backend that will actually be used.

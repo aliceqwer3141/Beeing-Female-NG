@@ -18,7 +18,7 @@ How the growth is *displayed* is picked on the **Pregnancy page → Visual scali
 |------|--------------|-------|
 | Node scaling (two variants) | Scales the `NPC Belly` / breast skeleton bones | XPMSSE skeleton |
 | Weight gain | Raises the actor's weight slider | -- |
-| SLIF | Hands scaling to SexLab Inflation Framework | SLIF |
+| SLIF | Hands scaling to SexLab Inflation Framework. With **SLIF NG**, BF asks for "belly" and "breasts" and SLIF NG picks the sliders for each actor's own body, so CBBE 3BA, BHUNP and UBE characters can share one game. With the original SLIF, BF sends the `PregnancyBelly` and `Breasts` sliders by name | SLIF or SLIF NG |
 | BodyMorph | Applies BodySlide morphs via RaceMenu/NiOverride | RaceMenu, body meshes built with **Build Morphs** checked |
 
 **BodyMorph profiles.** The BodyMorph type reads its slider set from an INI profile chosen right below the scaling type (**"Body morph profile"**). Profiles live in `Data/BeeingFemale/BodyMorph/`:

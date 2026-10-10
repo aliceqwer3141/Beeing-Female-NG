@@ -37,6 +37,7 @@ Float AddedBellySize = 0.0
 Float AddedBreastSize = 0.0
 Float AddedWeight = 0.0
 int lastTypeOfScaling = -1
+bool slifNamedMorphsCleared = false
 
 int property abortus = 0 auto hidden
 float property AbortusTime = 0.0 auto hidden
@@ -1493,6 +1494,33 @@ Function UpdateNodesSLIF(Float afAddedBellySize, Float afAddedBreastSize)
 	EndIf
 EndFunction
 
+; The "SLIF" scaling type.
+;
+; With SLIF NG, ask for the body part (slif_belly / slif_breast) and let it pick
+; the sliders: it resolves a body profile per ACTOR, so CBBE 3BA, BHUNP and UBE
+; characters in one game each get their own sliders and magnitudes. The named
+; sliders this type used to send (PregnancyBelly, Breasts) are CBBE names that
+; SLIF NG applies exactly as given, on any body: a UBE belly came out a quarter
+; flatter than a 3BA one and UBE breasts did not grow at all.
+; The original SLIF keeps the named sliders - there the keys mean bone scaling.
+Function UpdateSLIFType(Float afAddedBellySize, Float afAddedBreastSize)
+	if cfg.HasSLIFNG()
+		if slifNamedMorphsCleared
+		else
+			; Sliders the old path registered (a save from before this change) would
+			; add to the key's share, so zero them once per effect instance.
+			SLIF_Morph.morph(ActorRef, "Beeing Female", cfg.InflateMorph, 0.0, "BeeingFemale")
+			SLIF_Morph.morph(ActorRef, "Beeing Female", cfg.BreastInflateMorph, 0.0, "BeeingFemale")
+			slifNamedMorphsCleared = true
+		endif
+		UpdateNodesSLIF(afAddedBellySize, afAddedBreastSize)
+		SendNormalMapUpdate()
+	else
+		slifNamedMorphsCleared = false
+		FillHerUpUpdateNotes(afAddedBellySize, afAddedBreastSize)
+	endif
+EndFunction
+
 ; How far the two halves of a slider profile can safely be walked together.
 ;
 ; Both halves are `auto hidden` properties with no initializer, so on a save
@@ -1710,7 +1738,7 @@ Function ResetBelly()
 		ClearBodyMorphs()
 	elseif hasSLIF
 		if visualScaling == 4 ; SLIF
-			FillHerUpUpdateNotes(0, 0)
+			UpdateSLIFType(0, 0)
 		else
 			UpdateNodesSLIF(0, 0)
 		endIf
@@ -1740,7 +1768,7 @@ function TestScale(float Scale=1.0)
 		UpdateBodyMorphs(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 	elseif hasSLIF
 		if visualScaling == 4 ; SLIF
-			FillHerUpUpdateNotes(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
+			UpdateSLIFType(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		else
 			UpdateNodesSLIF(Scale * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), Scale * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 		endIf
@@ -1971,7 +1999,7 @@ Function SetBelly(bool bForce=false)
 			if visualScaling == 4 ; SLIF
 				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current belly scale is " + ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
 				FW_log.WriteLog("FWAbilityBeeingFemale - SetBelly - Current breast scale is " + ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef) + " for actor " +  ActorRef.GetDisplayName() + " in phase " + stateID + " at " + CurrentStatePercent + " percent.")
-				FillHerUpUpdateNotes(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
+				UpdateSLIFType(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			else
 				UpdateNodesSLIF(ScaleBelly * cfg.BellyMaxScale * Manager.ActorSizeScaler(0, ActorRef), ScaleBreast * cfg.BreastsMaxScale * Manager.ActorSizeScaler(1, ActorRef))
 			endIf
