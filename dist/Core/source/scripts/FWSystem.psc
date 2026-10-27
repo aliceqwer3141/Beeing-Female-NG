@@ -452,6 +452,33 @@ function CheckOtherMods()
 		endif
 	endif
 
+	; Patch for Estrus Unified 1.1 ( https://www.loverslab.com/files/file/52434-estrus-unified/ )
+	if FWUtility.ModFile("EstrusUnified.esp")
+		ChaurusBreeder = Game.GetFormFromFile(0x000820, "EstrusUnified.esp") as spell
+		zzEstrusChaurusBreederFaction = Game.GetFormFromFile(0x00081A, "EstrusUnified.esp") as Faction
+		EstrusActive = true
+		if bEstrusWasActive
+		else
+			Message(Content.EstrusCharusFound,MSG_Debug)
+		endif
+
+		EstrusSpiderBreeder = Game.GetFormFromFile(0x000ACA, "EstrusUnified.esp") as spell
+		zzEstrusSpiderBreederFaction = Game.GetFormFromFile(0x000ACC, "EstrusUnified.esp") as Faction
+		EstrusSpiderActive = true
+		if bEstrusSpiderWasActive
+		else
+			Message(Content.EstrusSpiderFound,MSG_Debug)
+		endif
+
+		EstrusDwemerBreeder = Game.GetFormFromFile(0x000AF0, "EstrusUnified.esp") as spell
+		zzEstrusDwemerBreederFaction = Game.GetFormFromFile(0x000AF2, "EstrusUnified.esp") as Faction
+		EstrusDwemerActive = true
+		if bEstrusDwemerWasActive
+		else
+			Message(Content.EstrusDwemerFound,MSG_Debug)
+		endif
+	endif
+
 	; Futa detection handles: SOS's schlongified faction, and TNG's
 	; TNG_Gentified FormList (TNG setups run without Schlongs of Skyrim.esp -
 	; TNG's own FAQ says to remove it from the load order)
