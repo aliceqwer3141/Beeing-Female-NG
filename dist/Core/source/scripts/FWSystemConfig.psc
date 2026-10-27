@@ -569,6 +569,13 @@ function CheckForSexMods()
 		if FWUtility.ModFile("EstrusDwemer")
 			bEstrusDwemer=true
 		endIf
+
+		; Patch for Estrus Unified 1.1 ( https://www.loverslab.com/files/file/52434-estrus-unified/ )
+		if FWUtility.ModFile("EstrusUnified")
+			bEstrusChaurus=true
+			bEstrusSpider=true
+			bEstrusDwemer=true
+		endIf
 endFunction
 
 event OnUpdate()
